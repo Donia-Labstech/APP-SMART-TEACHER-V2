@@ -100,6 +100,22 @@ body{margin:0;background:#122016;background-image:radial-gradient(circle at 20% 
   #printReport{display:block!important;}
 }
 #printReport{display:none;}
+
+/* exp5 digestion */
+.svt-body-stage{flex:1 1 260px;background:#0f2417;border-radius:14px;border:2px solid var(--svt-leaf-dark);padding:10px;min-height:320px;display:flex;align-items:center;justify-content:center;}
+/* exp6 food chain */
+.svt-chain-row{display:flex;align-items:center;gap:6px;flex-wrap:wrap;margin:14px 0;}
+.svt-chain-item{background:#fff;border:2px solid var(--svt-leaf-dark);border-radius:10px;padding:10px 14px;font-weight:700;font-size:.85rem;text-align:center;min-width:90px;}
+.svt-chain-arrow{font-size:1.3rem;color:var(--svt-leaf-dark);}
+.svt-select-row select.svt-chain-select{min-width:150px;}
+/* exp7 heart/breathing */
+.svt-vitals-row{display:flex;gap:16px;flex-wrap:wrap;margin-top:14px;}
+.svt-vital-card{flex:1;min-width:130px;background:#fff;border:2px solid var(--svt-leaf-dark);border-radius:10px;padding:14px;text-align:center;}
+.svt-vital-num{font-size:1.6rem;font-weight:900;color:var(--svt-red);}
+.svt-vital-label{font-size:.75rem;color:#5a5238;margin-top:4px;}
+/* exp8 mitosis */
+.svt-mitosis-stage{flex:1 1 300px;background:#0f2417;border-radius:14px;border:2px solid var(--svt-leaf-dark);padding:10px;min-height:240px;display:flex;align-items:center;justify-content:center;}
+.svt-lvl-hs{background:var(--svt-red)!important;}
 </style>
 </head>
 <body>
@@ -203,7 +219,7 @@ body{margin:0;background:#122016;background-image:radial-gradient(circle at 20% 
   <!-- ===================== EXPERIMENT 3: PHOTOSYNTHESIS ===================== -->
   <div class="svt-panel" id="panel-photo">
     <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
-    <span class="svt-exp-tag">الثانوي</span>
+    <span class="svt-exp-tag svt-lvl-hs">الثانوي</span>
     <h2 class="svt-exp-title">التركيب الضوئي في الورقة النباتية</h2>
     <p class="svt-exp-sub">فعّل الضوء أو أطفئه، وراقب تبادل الغازات عند سطح الورقة.</p>
 
@@ -241,7 +257,7 @@ body{margin:0;background:#122016;background-image:radial-gradient(circle at 20% 
   <!-- ===================== EXPERIMENT 4: GENETICS ===================== -->
   <div class="svt-panel" id="panel-genetics">
     <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
-    <span class="svt-exp-tag">الثانوي</span>
+    <span class="svt-exp-tag svt-lvl-hs">الثانوي</span>
     <h2 class="svt-exp-title">الوراثة: مربع بونيت التفاعلي</h2>
     <p class="svt-exp-sub">اختر الطراز الوراثي لكل والد (A = أرجواني سائد، a = أبيض متنحي) وشاهد نتائج التزاوج.</p>
 
@@ -274,6 +290,118 @@ body{margin:0;background:#122016;background-image:radial-gradient(circle at 20% 
     </div>
   </div>
 
+
+  <!-- ===================== EXPERIMENT 5: DIGESTION (MIDDLE SCHOOL) ===================== -->
+  <div class="svt-panel" id="panel-digestion">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag">المتوسط</span>
+    <h2 class="svt-exp-title">الجهاز الهضمي: رحلة الغذاء</h2>
+    <p class="svt-exp-sub">انقر على كل عضو بالترتيب لتكتشف دوره في هضم الغذاء.</p>
+    <div class="svt-layout">
+      <div class="svt-body-stage"><svg viewBox="0 0 200 260" id="digestSvg" width="180" height="240"></svg></div>
+      <div style="flex:1 1 260px;">
+        <div class="svt-info-card" id="digestInfo">👆 انقر على أي عضو من الجهاز الهضمي لمعرفة دوره.</div>
+      </div>
+    </div>
+    <div class="svt-quiz">
+      <p>أين تبدأ عملية الهضم الميكانيكي للغذاء؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'digestion')">الفم (بواسطة المضغ)</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'digestion')">المعدة</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'digestion')">الأمعاء الغليظة</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 6: FOOD CHAIN (MIDDLE SCHOOL) ===================== -->
+  <div class="svt-panel" id="panel-foodchain">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag">المتوسط</span>
+    <h2 class="svt-exp-title">السلسلة الغذائية</h2>
+    <p class="svt-exp-sub">اختر كائنًا لكل مستوى، وشاهد اتجاه تدفق الطاقة في السلسلة الغذائية.</p>
+    <div class="svt-select-row">
+      <select id="chainProducer" class="svt-chain-select" onchange="renderChain()">
+        <option value="🌾 نبات">🌾 نبات (منتج)</option>
+        <option value="🌿 عشب">🌿 عشب (منتج)</option>
+      </select>
+      <select id="chainPrimary" class="svt-chain-select" onchange="renderChain()">
+        <option value="🐇 أرنب">🐇 أرنب (مستهلك أول)</option>
+        <option value="🦗 جرادة">🦗 جرادة (مستهلك أول)</option>
+      </select>
+      <select id="chainSecondary" class="svt-chain-select" onchange="renderChain()">
+        <option value="🦊 ثعلب">🦊 ثعلب (مستهلك ثانٍ)</option>
+        <option value="🐍 أفعى">🐍 أفعى (مستهلك ثانٍ)</option>
+      </select>
+    </div>
+    <div class="svt-chain-row" id="chainRow"></div>
+    <div class="svt-info-card" id="chainInfo">الطاقة تنتقل من المنتِج إلى المستهلكات على التوالي، وتقل كميتها في كل مستوى.</div>
+    <div class="svt-quiz">
+      <p>ما هو المصدر الأساسي للطاقة في كل سلسلة غذائية؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'foodchain')">المستهلكات الثانوية</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'foodchain')">النباتات (المنتجات) بفضل الشمس</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'foodchain')">المحللات</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 7: BREATHING & HEART RATE (SECONDARY) ===================== -->
+  <div class="svt-panel" id="panel-vitals">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag svt-lvl-hs">الثانوي</span>
+    <h2 class="svt-exp-title">التنفس ومعدل ضربات القلب أثناء الجهد</h2>
+    <p class="svt-exp-sub">غيّر شدة الجهد البدني وراقب تأثيره على معدل التنفس ونبضات القلب.</p>
+    <div class="svt-slider-row" style="display:flex;align-items:center;gap:10px;margin-bottom:10px;">
+      <label style="min-width:110px;font-weight:700;font-size:.85rem;">شدة الجهد</label>
+      <input type="range" min="0" max="100" value="0" id="effortRange" oninput="updateVitals()" style="flex:1;">
+      <span class="svt-val" id="effortVal" style="font-weight:700;min-width:50px;text-align:center;">راحة</span>
+    </div>
+    <div class="svt-vitals-row">
+      <div class="svt-vital-card"><div class="svt-vital-num" id="heartRateNum">72</div><div class="svt-vital-label">نبضة/دقيقة (القلب)</div></div>
+      <div class="svt-vital-card"><div class="svt-vital-num" id="breathRateNum">16</div><div class="svt-vital-label">نفس/دقيقة (التنفس)</div></div>
+      <div class="svt-vital-card"><div class="svt-vital-num" id="o2NeedNum">100%</div><div class="svt-vital-label">استهلاك الأكسجين النسبي</div></div>
+    </div>
+    <div class="svt-info-card" id="vitalsInfo" style="margin-top:14px;">أثناء الراحة، يعمل القلب والرئتان بمعدل طبيعي ثابت.</div>
+    <div class="svt-quiz">
+      <p>لماذا يزداد معدل التنفس وضربات القلب أثناء الجهد البدني؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'vitals')">لتزويد العضلات بأكسجين أكثر وطرد ثاني أكسيد الكربون الزائد</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'vitals')">لتبريد الجسم فقط</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'vitals')">لا علاقة للجهد بذلك</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 8: MITOSIS (SECONDARY) ===================== -->
+  <div class="svt-panel" id="panel-mitosis">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag svt-lvl-hs">الثانوي</span>
+    <h2 class="svt-exp-title">الانقسام الخلوي (الميتوز)</h2>
+    <p class="svt-exp-sub">تنقّل بين مراحل الانقسام الخلوي وشاهد ما يحدث للمادة الوراثية في كل مرحلة.</p>
+    <div class="svt-layout">
+      <div class="svt-mitosis-stage"><svg viewBox="0 0 200 160" id="mitosisSvg" width="220" height="180"></svg></div>
+      <div style="flex:1 1 240px;">
+        <div class="svt-toggle-row">
+          <button class="svt-mode-btn" onclick="prevMitosisPhase()">◀ السابقة</button>
+          <button class="svt-mode-btn active" onclick="nextMitosisPhase()">التالية ▶</button>
+        </div>
+        <div class="svt-info-card" id="mitosisInfo"></div>
+      </div>
+    </div>
+    <div class="svt-quiz">
+      <p>ما نتيجة الانقسام الخلوي (الميتوز) من حيث عدد الخلايا والمادة الوراثية؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'mitosis')">خليتان بنتان متطابقتان وراثيًا مع الخلية الأم</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'mitosis')">أربع خلايا مختلفة وراثيًا</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'mitosis')">خلية واحدة بحجم أكبر</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
   <div id="printReport"></div>
   <div class="svt-footer">DONIA LABS TECH — وحدة المختبر الافتراضي | علوم الطبيعة والحياة</div>
 </div>
@@ -282,8 +410,12 @@ body{margin:0;background:#122016;background-image:radial-gradient(circle at 20% 
 const EXPERIMENTS = [
   {id:'cell', title:'المجهر الافتراضي: مقارنة الخلايا', level:'المتوسط', icon:'🔬'},
   {id:'reagents', title:'الكشف عن الأغذية بالكواشف', level:'المتوسط', icon:'🧪'},
+  {id:'digestion', title:'الجهاز الهضمي: رحلة الغذاء', level:'المتوسط', icon:'🍎'},
+  {id:'foodchain', title:'السلسلة الغذائية', level:'المتوسط', icon:'🦊'},
   {id:'photo', title:'التركيب الضوئي', level:'الثانوي', icon:'🌿'},
-  {id:'genetics', title:'الوراثة: مربع بونيت', level:'الثانوي', icon:'🧬'}
+  {id:'genetics', title:'الوراثة: مربع بونيت', level:'الثانوي', icon:'🧬'},
+  {id:'vitals', title:'التنفس ومعدل ضربات القلب', level:'الثانوي', icon:'❤️'},
+  {id:'mitosis', title:'الانقسام الخلوي (الميتوز)', level:'الثانوي', icon:'🧫'}
 ];
 const STORE_KEY = 'donia_svt_progress_v1';
 const NAME_KEY = 'donia_svt_student_name';
@@ -321,6 +453,10 @@ function openExperiment(id){
   document.getElementById('dashboardView').style.display = 'none';
   document.getElementById('panel-'+id).classList.add('active');
   if(id==='cell') initCell();
+  if(id==='digestion') initDigestion();
+  if(id==='foodchain') renderChain();
+  if(id==='vitals') updateVitals();
+  if(id==='mitosis') initMitosis();
 }
 function backToDash(){
   document.querySelectorAll('.svt-panel').forEach(p=>p.classList.remove('active'));
@@ -488,6 +624,83 @@ function runPunnett(){
   document.getElementById('geneticsInfo').innerHTML =
     `<b>النتيجة:</b> ${dominant} من أصل ${total} أفراد يحملون الصفة السائدة (أرجواني)، و${recessive} يحملون الصفة المتنحية (أبيض).`;
 }
+
+
+/* ---------- Experiment 5: digestion ---------- */
+const DIGEST_ORGANS = {
+  mouth:{name:'الفم',desc:'يبدأ الهضم الميكانيكي بالمضغ، ويُفرَز اللعاب الذي يبدأ هضم النشويات.'},
+  stomach:{name:'المعدة',desc:'تُفرز عصارة معدية حمضية تهضم البروتينات وتُحوّل الطعام إلى عجينة سائلة (كيموس).'},
+  small:{name:'الأمعاء الدقيقة',desc:'يتم فيها معظم الهضم الكيميائي وامتصاص المغذيات إلى الدم.'},
+  large:{name:'الأمعاء الغليظة',desc:'تمتص الماء المتبقي وتُشكّل الفضلات الصلبة قبل طرحها.'}
+};
+function initDigestion(){
+  document.getElementById('digestSvg').innerHTML = `
+    <ellipse class="svt-part" data-organ="mouth" cx="60" cy="20" rx="26" ry="14" fill="#c9a876"/>
+    <path class="svt-part" data-organ="stomach" d="M75 40 C120 45,130 90,95 110 C70 125,55 100,60 75 C63 55,68 45,75 40 Z" fill="#e08a8a"/>
+    <path class="svt-part" data-organ="small" d="M60 110 C40 130,90 140,70 160 C50 180,110 190,90 210 C75 225,120 230,100 245" fill="none" stroke="#e0b84a" stroke-width="10" stroke-linecap="round"/>
+    <path class="svt-part" data-organ="large" d="M100 245 C140 245,150 200,150 150 C150 100,140 60,110 45" fill="none" stroke="#8B3A3A" stroke-width="12" stroke-linecap="round"/>
+  `;
+  document.querySelectorAll('#digestSvg .svt-part').forEach(el=>{
+    el.style.cursor='pointer';
+    el.addEventListener('click', ()=>{
+      const info = DIGEST_ORGANS[el.dataset.organ];
+      document.getElementById('digestInfo').innerHTML = `<b>${info.name}</b><br>${info.desc}`;
+    });
+  });
+}
+
+/* ---------- Experiment 6: food chain ---------- */
+function renderChain(){
+  const p = document.getElementById('chainProducer').value;
+  const c1 = document.getElementById('chainPrimary').value;
+  const c2 = document.getElementById('chainSecondary').value;
+  document.getElementById('chainRow').innerHTML = `
+    <div class="svt-chain-item">${p}<br><small>منتِج</small></div>
+    <span class="svt-chain-arrow">→</span>
+    <div class="svt-chain-item">${c1}<br><small>مستهلك أول</small></div>
+    <span class="svt-chain-arrow">→</span>
+    <div class="svt-chain-item">${c2}<br><small>مستهلك ثانٍ</small></div>
+  `;
+}
+
+/* ---------- Experiment 7: breathing & heart rate ---------- */
+function updateVitals(){
+  const effort = +document.getElementById('effortRange').value;
+  const heart = Math.round(72 + effort*0.9);
+  const breath = Math.round(16 + effort*0.3);
+  const o2 = Math.round(100 + effort*2.2);
+  document.getElementById('heartRateNum').textContent = heart;
+  document.getElementById('breathRateNum').textContent = breath;
+  document.getElementById('o2NeedNum').textContent = o2+'%';
+  document.getElementById('effortVal').textContent = effort===0 ? 'راحة' : (effort<50 ? 'جهد خفيف' : (effort<85?'جهد متوسط':'جهد شديد'));
+  document.getElementById('vitalsInfo').innerHTML = effort===0
+    ? 'في حالة الراحة، يعمل القلب والرئتان بمعدل ثابت يكفي لتلبية حاجة الجسم من الأكسجين.'
+    : `<b>مع زيادة الجهد:</b> تحتاج العضلات إلى أكسجين أكثر بـ${o2-100}%، فيسرّع القلب والتنفس لتلبية هذا الطلب وطرد ثاني أكسيد الكربون الزائد.`;
+}
+
+/* ---------- Experiment 8: mitosis ---------- */
+const MITOSIS_PHASES = [
+  {name:'الطور البيني (قبل الانقسام)', desc:'تتضاعف المادة الوراثية (DNA) استعدادًا للانقسام، والخلية في نشاط طبيعي.',
+   svg:`<circle cx="100" cy="80" r="55" fill="#d9ecc9" stroke="#4C7A3D" stroke-width="3"/><circle cx="100" cy="80" r="22" fill="#8B3A3A" opacity=".8"/>`},
+  {name:'الطور التمهيدي (Prophase)', desc:'تتكاثف الكروموسومات وتصبح مرئية، ويبدأ الغشاء النووي بالتلاشي.',
+   svg:`<circle cx="100" cy="80" r="55" fill="#d9ecc9" stroke="#4C7A3D" stroke-width="3"/><line x1="90" y1="65" x2="110" y2="95" stroke="#8B3A3A" stroke-width="5" stroke-linecap="round"/><line x1="110" y1="65" x2="90" y2="95" stroke="#8B3A3A" stroke-width="5" stroke-linecap="round"/>`},
+  {name:'الطور الاستوائي (Metaphase)', desc:'تصطف الكروموسومات في منتصف الخلية على خط الاستواء.',
+   svg:`<circle cx="100" cy="80" r="55" fill="#d9ecc9" stroke="#4C7A3D" stroke-width="3"/><line x1="100" y1="55" x2="100" y2="105" stroke="#5c6c8f" stroke-width="1" stroke-dasharray="3,3"/><rect x="94" y="60" width="12" height="14" fill="#8B3A3A"/><rect x="94" y="86" width="12" height="14" fill="#8B3A3A"/>`},
+  {name:'الطور الانفصالي (Anaphase)', desc:'تنفصل الكروماتيدات الشقيقة وتنتقل نحو قطبي الخلية المتقابلين.',
+   svg:`<ellipse cx="100" cy="80" rx="60" ry="52" fill="#d9ecc9" stroke="#4C7A3D" stroke-width="3"/><rect x="70" y="50" width="10" height="12" fill="#8B3A3A"/><rect x="70" y="98" width="10" height="12" fill="#8B3A3A"/><rect x="120" y="50" width="10" height="12" fill="#8B3A3A"/><rect x="120" y="98" width="10" height="12" fill="#8B3A3A"/>`},
+  {name:'الطور النهائي والانقسام السيتوبلازمي', desc:'يتشكّل غشاءان نوويان جديدان، وتنقسم الخلية إلى خليتين بنتين متطابقتين وراثيًا.',
+   svg:`<circle cx="65" cy="80" r="38" fill="#d9ecc9" stroke="#4C7A3D" stroke-width="3"/><circle cx="65" cy="80" r="14" fill="#8B3A3A"/><circle cx="135" cy="80" r="38" fill="#d9ecc9" stroke="#4C7A3D" stroke-width="3"/><circle cx="135" cy="80" r="14" fill="#8B3A3A"/>`}
+];
+let mitosisIdx = 0;
+function initMitosis(){ mitosisIdx = 0; renderMitosis(); }
+function renderMitosis(){
+  const ph = MITOSIS_PHASES[mitosisIdx];
+  document.getElementById('mitosisSvg').innerHTML = ph.svg;
+  document.getElementById('mitosisInfo').innerHTML = `<b>${mitosisIdx+1}. ${ph.name}</b><br>${ph.desc}`;
+  if(mitosisIdx === MITOSIS_PHASES.length-1) completeExperiment('mitosis');
+}
+function nextMitosisPhase(){ mitosisIdx = Math.min(mitosisIdx+1, MITOSIS_PHASES.length-1); renderMitosis(); }
+function prevMitosisPhase(){ mitosisIdx = Math.max(mitosisIdx-1, 0); renderMitosis(); }
 
 loadName();
 renderDashboard();

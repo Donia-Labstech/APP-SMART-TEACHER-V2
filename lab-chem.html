@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مختبر ديونيا الافتراضي | الكيمياء</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --chem-bg:#160F24; --chem-panel:#1E1533; --chem-line:#332750;
+  --chem-ink:#EFE9FB; --chem-purple:#A855F7; --chem-teal:#22D3B8;
+  --chem-amber:#F4B740; --chem-red:#E05A5A; --chem-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--chem-bg);background-image:radial-gradient(circle at 20% 10%,rgba(168,85,247,.10),transparent 45%),radial-gradient(circle at 85% 90%,rgba(34,211,184,.08),transparent 45%);font-family:'Tajawal',sans-serif;color:var(--chem-ink);min-height:100vh;padding:24px 14px 60px;}
+.chem-wrap{max-width:980px;margin:0 auto;}
+.chem-header{text-align:center;margin-bottom:20px;}
+.chem-header h1{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:2.3rem;margin:0 0 4px;letter-spacing:1px;color:#fff;}
+.chem-header p{margin:0;color:#b3a6cf;font-size:.92rem;}
+.chem-namebar{display:flex;justify-content:center;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+.chem-namebar input{padding:8px 14px;border-radius:8px;border:1px solid var(--chem-line);background:#241a3d;color:var(--chem-ink);font-family:'Tajawal';font-size:.9rem;min-width:220px;text-align:center;}
+.chem-namebar button{padding:8px 18px;border-radius:8px;border:none;background:var(--chem-purple);color:#fff;font-weight:700;cursor:pointer;}
+
+.chem-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:10px;}
+.chem-card{background:var(--chem-panel);border:1px solid var(--chem-line);border-radius:14px;padding:18px;box-shadow:var(--chem-shadow);cursor:pointer;position:relative;transition:transform .15s,border-color .15s;}
+.chem-card:hover{transform:translateY(-3px);border-color:var(--chem-purple);}
+.chem-card .lvl{display:inline-block;background:var(--chem-purple);color:#fff;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+.chem-card .lvl.hs{background:var(--chem-red);}
+.chem-card h3{font-family:'Rajdhani',sans-serif;margin:0 0 6px;color:#fff;font-size:1.2rem;font-weight:700;}
+.chem-card .icon{font-size:1.8rem;}
+.chem-card .badge{position:absolute;top:12px;left:12px;font-size:1.2rem;}
+.chem-progress-wrap{background:#160F24;border:1px solid var(--chem-line);border-radius:20px;height:8px;overflow:hidden;margin-top:10px;}
+.chem-progress-bar{background:var(--chem-purple);height:100%;width:0%;transition:width .4s;}
+
+.chem-dashboard-summary{background:var(--chem-panel);border:1px solid var(--chem-line);border-radius:14px;padding:16px 20px;margin-bottom:22px;box-shadow:var(--chem-shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.chem-print-btn{background:var(--chem-purple);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Tajawal';}
+
+.chem-panel{background:var(--chem-panel);border:1px solid var(--chem-line);border-radius:14px;box-shadow:var(--chem-shadow);padding:26px;display:none;}
+.chem-panel.active{display:block;}
+.chem-back{background:none;border:none;color:var(--chem-purple);font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:10px;font-size:.9rem;}
+.chem-exp-tag{display:inline-block;background:var(--chem-teal);color:#08101f;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;margin-bottom:8px;}
+.chem-exp-tag.hs{background:var(--chem-red);color:#fff;}
+.chem-exp-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.6rem;margin:0 0 4px;color:#fff;}
+.chem-exp-sub{margin:0 0 18px;color:#b3a6cf;font-size:.88rem;}
+
+.chem-layout{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;}
+.chem-info-card{background:#241a3d;border-right:5px solid var(--chem-purple);border-radius:8px;padding:14px 16px;min-height:100px;font-size:.9rem;line-height:1.7;}
+.chem-info-card b{color:var(--chem-teal);}
+.chem-slider-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.chem-slider-row label{min-width:140px;font-size:.85rem;font-weight:700;}
+.chem-slider-row input[type=range]{flex:1;accent-color:var(--chem-purple);}
+.chem-val{min-width:70px;text-align:center;font-weight:700;color:var(--chem-teal);}
+.chem-select-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.chem-select-row select{padding:8px 10px;border-radius:8px;border:2px solid var(--chem-line);background:#241a3d;color:var(--chem-ink);font-family:'Tajawal';flex:1;min-width:160px;}
+.chem-go-btn{background:var(--chem-teal);color:#08101f;border:none;padding:9px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:14px;}
+.chem-btn-row{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;}
+.chem-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--chem-line);background:#241a3d;color:var(--chem-ink);font-family:'Tajawal';font-weight:700;cursor:pointer;font-size:.85rem;min-width:110px;}
+.chem-btn.active{background:var(--chem-purple);color:#fff;}
+
+/* exp1 pH indicator */
+.chem-ph-scale{position:relative;height:34px;border-radius:8px;background:linear-gradient(90deg,#E05A5A 0%,#F4B740 22%,#F4E23C 40%,#4FD07A 50%,#3E8DFF 65%,#A855F7 85%,#7A2AC7 100%);margin:16px 0 6px;}
+.chem-ph-marker{position:absolute;top:-10px;width:4px;height:54px;background:#fff;border-radius:2px;box-shadow:0 0 8px rgba(255,255,255,.7);transition:left .4s ease;}
+.chem-ph-labels{display:flex;justify-content:space-between;font-size:.7rem;color:#b3a6cf;}
+
+/* exp2 solubility */
+.chem-beaker{width:110px;height:140px;border:3px solid #b3a6cf;border-top:none;border-radius:0 0 14px 14px;margin:0 auto;position:relative;overflow:hidden;background:rgba(62,141,255,.08);}
+.chem-beaker-liquid{position:absolute;bottom:0;left:0;right:0;height:70%;background:rgba(62,141,255,.35);}
+.chem-crystal{position:absolute;width:6px;height:6px;background:#fff;border-radius:1px;}
+
+/* exp3 gas test */
+.chem-tube-stage{display:flex;gap:20px;justify-content:center;flex-wrap:wrap;}
+.chem-gas-tube{width:60px;height:130px;border:3px solid #555;border-bottom-left-radius:26px;border-bottom-right-radius:26px;position:relative;background:#241a3d;overflow:hidden;}
+.chem-gas-fill{position:absolute;bottom:0;left:0;right:0;height:0%;transition:all .6s;}
+
+/* exp4 titration */
+.chem-burette{width:16px;height:160px;background:linear-gradient(#241a3d,#241a3d);border:2px solid #b3a6cf;border-radius:6px;margin:0 auto 10px;position:relative;overflow:hidden;}
+.chem-burette-fill{position:absolute;top:0;left:0;right:0;background:var(--chem-teal);transition:height .3s;}
+.chem-titr-flask{width:90px;height:80px;border:3px solid #b3a6cf;border-top:none;border-radius:0 0 45px 45px;margin:10px auto 0;position:relative;overflow:hidden;background:rgba(255,255,255,.03);}
+.chem-titr-liquid{position:absolute;bottom:0;left:0;right:0;height:60%;transition:background .4s;}
+
+/* exp5 mass conservation */
+.chem-scale{display:flex;align-items:flex-end;justify-content:center;gap:30px;margin:16px 0;}
+.chem-scale-pan{width:100px;text-align:center;}
+.chem-scale-box{height:60px;border:2px solid var(--chem-teal);border-radius:8px;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;background:#241a3d;}
+
+/* exp6 periodic table */
+.chem-ptable{display:grid;grid-template-columns:repeat(10,1fr);gap:4px;margin:10px 0;}
+.chem-elem{background:#241a3d;border:1px solid var(--chem-line);border-radius:6px;padding:6px 2px;text-align:center;cursor:pointer;transition:all .15s;font-size:.7rem;}
+.chem-elem:hover,.chem-elem.selected{border-color:var(--chem-purple);background:rgba(168,85,247,.2);transform:translateY(-2px);}
+.chem-elem .sym{font-weight:900;font-size:.95rem;}
+.chem-elem .num{font-size:.6rem;color:#b3a6cf;}
+
+.chem-quiz{margin-top:20px;border-top:1px dashed var(--chem-line);padding-top:14px;}
+.chem-quiz p{font-weight:700;margin:0 0 10px;}
+.chem-quiz .opts{display:flex;flex-direction:column;gap:8px;}
+.chem-opt-btn{text-align:right;padding:9px 14px;border-radius:8px;border:1px solid var(--chem-line);background:#241a3d;color:var(--chem-ink);cursor:pointer;font-family:'Tajawal';}
+.chem-opt-btn.correct{background:rgba(79,208,122,.15);border-color:#4FD07A;}
+.chem-opt-btn.wrong{background:rgba(224,90,90,.15);border-color:var(--chem-red);}
+.chem-complete-msg{display:none;margin-top:10px;font-weight:700;color:#4FD07A;}
+
+.chem-footer{text-align:center;color:#6c5f8f;font-size:.75rem;margin-top:24px;}
+
+@media print{
+  body{background:#fff;color:#000;padding:0;}
+  .chem-namebar,.chem-print-btn,.chem-back,.no-print{display:none!important;}
+  .chem-panel{display:none!important;}
+  #printReportC{display:block!important;color:#000;}
+}
+#printReportC{display:none;}
+</style>
+</head>
+<body>
+<div class="chem-wrap">
+
+  <header class="chem-header">
+    <h1>مختبر ديونيا الافتراضي</h1>
+    <p>الكيمياء — تجارب تفاعلية حسب المستوى الدراسي</p>
+  </header>
+
+  <div class="chem-namebar no-print">
+    <input type="text" id="studentNameC" placeholder="اسم التلميذ (اختياري)">
+    <button onclick="saveNameC()">حفظ الاسم</button>
+  </div>
+
+  <div id="dashboardViewC">
+    <div class="chem-dashboard-summary no-print">
+      <div><b id="summaryTextC">لم تُنجز أي تجربة بعد</b></div>
+      <button class="chem-print-btn" onclick="printReportC()">🖨️ طباعة التقرير</button>
+    </div>
+    <div class="chem-grid" id="chemGrid"></div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 1: pH INDICATOR (MIDDLE SCHOOL) ===================== -->
+  <div class="chem-panel" id="panel-phtest">
+    <button class="chem-back" onclick="backToDashC()">→ العودة إلى لوحة التجارب</button>
+    <span class="chem-exp-tag">المتوسط</span>
+    <h2 class="chem-exp-title">الكشف عن الحموضة والقاعدية</h2>
+    <p class="chem-exp-sub">اختر مادة من الحياة اليومية وشاهد موقعها على سلّم الأس الهيدروجيني pH.</p>
+    <div class="chem-select-row">
+      <select id="phSubstance" onchange="updatePhTest()">
+        <option value="lemon">عصير الليمون</option>
+        <option value="vinegar">الخل</option>
+        <option value="water">ماء الصنبور</option>
+        <option value="soap">الصابون</option>
+        <option value="bleach">ماء جافيل (المُبيّض)</option>
+        <option value="milk">الحليب</option>
+      </select>
+    </div>
+    <div class="chem-ph-scale"><div class="chem-ph-marker" id="phMarker" style="left:0%;"></div></div>
+    <div class="chem-ph-labels"><span>0 (حمضي جدًا)</span><span>7 (متعادل)</span><span>14 (قاعدي جدًا)</span></div>
+    <div class="chem-info-card" id="phInfo" style="margin-top:14px;">اختر مادة لعرض قيمة الأس الهيدروجيني الخاصة بها.</div>
+    <div class="chem-quiz">
+      <p>ما قيمة الأس الهيدروجيني (pH) للمادة المتعادلة تمامًا مثل الماء النقي؟</p>
+      <div class="opts">
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'phtest')">0</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,true,'phtest')">7</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'phtest')">14</button>
+      </div>
+      <div class="chem-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 2: SOLUBILITY (MIDDLE SCHOOL) ===================== -->
+  <div class="chem-panel" id="panel-solubility">
+    <button class="chem-back" onclick="backToDashC()">→ العودة إلى لوحة التجارب</button>
+    <span class="chem-exp-tag">المتوسط</span>
+    <h2 class="chem-exp-title">الذوبانية والتشبع</h2>
+    <p class="chem-exp-sub">أضيفي الملح تدريجيًا وغيّري درجة حرارة الماء، وراقبي متى يصبح المحلول مشبعًا.</p>
+    <div class="chem-layout">
+      <div style="flex:1 1 160px;">
+        <div class="chem-beaker"><div class="chem-beaker-liquid" id="solubilityLiquid"></div></div>
+      </div>
+      <div style="flex:2 1 260px;">
+        <div class="chem-slider-row"><label>كمية الملح المضافة (غ)</label><input type="range" min="0" max="100" value="0" id="saltRange" oninput="updateSolubility()"><span class="chem-val" id="saltVal">0غ</span></div>
+        <div class="chem-slider-row"><label>درجة الحرارة (°م)</label><input type="range" min="10" max="90" value="25" id="tempRange" oninput="updateSolubility()"><span class="chem-val" id="tempVal">25°م</span></div>
+        <div class="chem-info-card" id="solubilityInfo">أضف الملح تدريجيًا وراقب هل يذوب بالكامل أم يترسّب في القاع.</div>
+      </div>
+    </div>
+    <div class="chem-quiz">
+      <p>ماذا يحدث لقدرة الماء على إذابة الملح عندما ترتفع درجة الحرارة؟</p>
+      <div class="opts">
+        <button class="chem-opt-btn" onclick="answerQuizC(this,true,'solubility')">تزداد عادةً</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'solubility')">تنعدم كليًا</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'solubility')">لا علاقة للحرارة بالذوبانية</button>
+      </div>
+      <div class="chem-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 3: GAS TEST (MIDDLE SCHOOL) ===================== -->
+  <div class="chem-panel" id="panel-gastest">
+    <button class="chem-back" onclick="backToDashC()">→ العودة إلى لوحة التجارب</button>
+    <span class="chem-exp-tag">المتوسط</span>
+    <h2 class="chem-exp-title">الكشف عن الغازات</h2>
+    <p class="chem-exp-sub">اختر الغاز المراد الكشف عنه، ثم اضغط "اختبار" لمشاهدة النتيجة.</p>
+    <div class="chem-btn-row">
+      <button class="chem-btn active" id="gasCO2Btn" onclick="setGasType('co2')">CO₂ (ماء الجير)</button>
+      <button class="chem-btn" id="gasO2Btn" onclick="setGasType('o2')">O₂ (شظية متوهجة)</button>
+    </div>
+    <div class="chem-tube-stage">
+      <div class="chem-gas-tube"><div class="chem-gas-fill" id="gasFill"></div></div>
+    </div>
+    <button class="chem-go-btn" onclick="runGasTest()" style="display:block;margin:14px auto 0;">🧪 اختبار</button>
+    <div class="chem-info-card" id="gasInfo" style="margin-top:14px;">اختر الغاز، ثم اضغط "اختبار" لمشاهدة نتيجة الكشف.</div>
+    <div class="chem-quiz">
+      <p>كيف نكشف عن وجود غاز ثاني أكسيد الكربون (CO₂)؟</p>
+      <div class="opts">
+        <button class="chem-opt-btn" onclick="answerQuizC(this,true,'gastest')">بتعكّر ماء الجير الرائق</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'gastest')">بإشعال شظية خشبية متوهجة</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'gastest')">بتغيير لون الماء إلى الأزرق</button>
+      </div>
+      <div class="chem-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 4: TITRATION (SECONDARY) ===================== -->
+  <div class="chem-panel" id="panel-titration">
+    <button class="chem-back" onclick="backToDashC()">→ العودة إلى لوحة التجارب</button>
+    <span class="chem-exp-tag hs">الثانوي</span>
+    <h2 class="chem-exp-title">معايرة حمض قاعدي</h2>
+    <p class="chem-exp-sub">أضف القاعدة تدريجيًا إلى الحمض، وراقب تغيّر لون الكاشف عند نقطة التكافؤ.</p>
+    <div class="chem-layout">
+      <div style="flex:1 1 160px;text-align:center;">
+        <div class="chem-burette"><div class="chem-burette-fill" id="buretteFill" style="height:0%;"></div></div>
+        <div class="chem-titr-flask"><div class="chem-titr-liquid" id="titrLiquid" style="background:rgba(224,90,90,.25);"></div></div>
+      </div>
+      <div style="flex:2 1 260px;">
+        <div class="chem-slider-row"><label>حجم القاعدة المضافة (مل)</label><input type="range" min="0" max="40" value="0" id="baseRange" oninput="updateTitration()"><span class="chem-val" id="baseVal">0 مل</span></div>
+        <div class="chem-info-card" id="titrInfo">أضف القاعدة تدريجيًا حتى يتغيّر لون الكاشف (فينول فتالين) من عديم اللون إلى الوردي عند نقطة التكافؤ.</div>
+      </div>
+    </div>
+    <div class="chem-quiz">
+      <p>ماذا يدل تغيّر لون الفينول فتالين إلى الوردي أثناء المعايرة؟</p>
+      <div class="opts">
+        <button class="chem-opt-btn" onclick="answerQuizC(this,true,'titration')">الوصول إلى نقطة التكافؤ (تعادل الحمض والقاعدة)</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'titration')">أن المحلول أصبح حمضيًا أكثر</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'titration')">أن التجربة فشلت</button>
+      </div>
+      <div class="chem-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 5: MASS CONSERVATION (SECONDARY) ===================== -->
+  <div class="chem-panel" id="panel-massconserv">
+    <button class="chem-back" onclick="backToDashC()">→ العودة إلى لوحة التجارب</button>
+    <span class="chem-exp-tag hs">الثانوي</span>
+    <h2 class="chem-exp-title">حفظ الكتلة أثناء التفاعل الكيميائي</h2>
+    <p class="chem-exp-sub">غيّر كتلة المتفاعلَين، وتحقّق من أن كتلة النواتج تساوي دائمًا مجموع كتلة المتفاعلات.</p>
+    <div class="chem-slider-row"><label>كتلة المتفاعل A (غ)</label><input type="range" min="1" max="50" value="10" id="massA" oninput="updateMassConserv()"><span class="chem-val" id="massAVal">10غ</span></div>
+    <div class="chem-slider-row"><label>كتلة المتفاعل B (غ)</label><input type="range" min="1" max="50" value="10" id="massB" oninput="updateMassConserv()"><span class="chem-val" id="massBVal">10غ</span></div>
+    <div class="chem-scale">
+      <div class="chem-scale-pan"><div class="chem-scale-box" id="reactMassBox">20 غ</div><div style="font-size:.75rem;margin-top:4px;color:#b3a6cf;">قبل التفاعل (A+B)</div></div>
+      <div style="font-size:1.6rem;align-self:center;">⚖️ =</div>
+      <div class="chem-scale-pan"><div class="chem-scale-box" id="productMassBox">20 غ</div><div style="font-size:.75rem;margin-top:4px;color:#b3a6cf;">بعد التفاعل (النواتج)</div></div>
+    </div>
+    <div class="chem-info-card" id="massConservInfo">مجموع كتلة المتفاعلات = مجموع كتلة النواتج، دائمًا.</div>
+    <div class="chem-quiz">
+      <p>وفقًا لقانون حفظ الكتلة (لافوازييه)، ماذا يحدث لكتلة المادة أثناء أي تفاعل كيميائي؟</p>
+      <div class="opts">
+        <button class="chem-opt-btn" onclick="answerQuizC(this,true,'massconserv')">تبقى ثابتة (لا تُفنى ولا تُستحدث)</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'massconserv')">تزداد دائمًا</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'massconserv')">تنقص دائمًا</button>
+      </div>
+      <div class="chem-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 6: PERIODIC TABLE (SECONDARY) ===================== -->
+  <div class="chem-panel" id="panel-periodic">
+    <button class="chem-back" onclick="backToDashC()">→ العودة إلى لوحة التجارب</button>
+    <span class="chem-exp-tag hs">الثانوي</span>
+    <h2 class="chem-exp-title">الجدول الدوري للعناصر (العناصر الـ 20 الأولى)</h2>
+    <p class="chem-exp-sub">انقر على أي عنصر لعرض معلوماته الأساسية.</p>
+    <div class="chem-ptable" id="ptableGrid"></div>
+    <div class="chem-info-card" id="periodicInfo" style="margin-top:14px;">👆 انقر على أي عنصر لعرض اسمه، رمزه، وعدده الذري.</div>
+    <div class="chem-quiz">
+      <p>ما رمز عنصر الأكسجين في الجدول الدوري؟</p>
+      <div class="opts">
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'periodic')">O2</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,true,'periodic')">O</button>
+        <button class="chem-opt-btn" onclick="answerQuizC(this,false,'periodic')">Ox</button>
+      </div>
+      <div class="chem-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <div id="printReportC"></div>
+  <div class="chem-footer">DONIA LABS TECH — وحدة المختبر الافتراضي | الكيمياء</div>
+</div>
+
+<script>
+const EXPERIMENTS_C = [
+  {id:'phtest', title:'الكشف عن الحموضة والقاعدية', level:'المتوسط', icon:'🧫'},
+  {id:'solubility', title:'الذوبانية والتشبع', level:'المتوسط', icon:'🧂'},
+  {id:'gastest', title:'الكشف عن الغازات', level:'المتوسط', icon:'💨'},
+  {id:'titration', title:'معايرة حمض قاعدي', level:'الثانوي', icon:'⚗️'},
+  {id:'massconserv', title:'حفظ الكتلة في التفاعل الكيميائي', level:'الثانوي', icon:'⚖️'},
+  {id:'periodic', title:'الجدول الدوري للعناصر', level:'الثانوي', icon:'🔬'}
+];
+const STORE_KEY_C = 'donia_chem_progress_v1';
+const NAME_KEY_C = 'donia_chem_student_name';
+
+function getProgressC(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_C)) || {}; }catch(e){ return {}; } }
+function setProgressC(p){ localStorage.setItem(STORE_KEY_C, JSON.stringify(p)); }
+
+function renderDashboardC(){
+  const grid = document.getElementById('chemGrid');
+  const progress = getProgressC();
+  grid.innerHTML = '';
+  let done = 0;
+  EXPERIMENTS_C.forEach(exp=>{
+    const isDone = !!progress[exp.id];
+    if(isDone) done++;
+    const card = document.createElement('div');
+    card.className = 'chem-card';
+    card.onclick = ()=>openExperimentC(exp.id);
+    card.innerHTML = `
+      ${isDone?'<div class="badge">✅</div>':''}
+      <div class="icon">${exp.icon}</div>
+      <div class="lvl ${exp.level==='الثانوي'?'hs':''}">${exp.level}</div>
+      <h3>${exp.title}</h3>
+      <div class="chem-progress-wrap"><div class="chem-progress-bar" style="width:${isDone?100:0}%"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+  document.getElementById('summaryTextC').textContent = `التقدم: ${done} من ${EXPERIMENTS_C.length} تجارب مُنجزة`;
+}
+function openExperimentC(id){
+  document.getElementById('dashboardViewC').style.display='none';
+  document.getElementById('panel-'+id).classList.add('active');
+  if(id==='phtest') updatePhTest();
+  if(id==='solubility') updateSolubility();
+  if(id==='gastest') renderGasTube();
+  if(id==='titration') updateTitration();
+  if(id==='massconserv') updateMassConserv();
+  if(id==='periodic') initPeriodic();
+}
+function backToDashC(){
+  document.querySelectorAll('.chem-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('dashboardViewC').style.display='block';
+  renderDashboardC();
+}
+function completeExperimentC(id){ const p=getProgressC(); p[id]=true; setProgressC(p); }
+function answerQuizC(btn, correct, expId){
+  const opts = btn.parentElement.querySelectorAll('.chem-opt-btn');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  const msg = btn.closest('.chem-quiz').querySelector('.chem-complete-msg');
+  if(correct){ msg.style.display='block'; completeExperimentC(expId); }
+}
+function saveNameC(){ localStorage.setItem(NAME_KEY_C, document.getElementById('studentNameC').value.trim()); }
+function loadNameC(){ const v=localStorage.getItem(NAME_KEY_C); if(v) document.getElementById('studentNameC').value=v; }
+function printReportC(){
+  const progress = getProgressC();
+  const name = localStorage.getItem(NAME_KEY_C) || 'غير محدد';
+  const done = EXPERIMENTS_C.filter(e=>progress[e.id]);
+  document.getElementById('printReportC').innerHTML = `<div style="font-family:'Rajdhani',sans-serif;padding:30px;">
+    <h1 style="text-align:center;">تقرير المختبر الافتراضي</h1>
+    <p style="text-align:center;">الكيمياء — DONIA LABS TECH</p>
+    <hr>
+    <p><b>اسم التلميذ:</b> ${name}</p>
+    <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-DZ')}</p>
+    <p><b>التجارب المُنجزة:</b> ${done.length} من ${EXPERIMENTS_C.length}</p>
+    <ul>${EXPERIMENTS_C.map(e=>`<li>${e.icon} ${e.title} (${e.level}) — ${progress[e.id]?'✅ منجزة':'⏳ غير منجزة'}</li>`).join('')}</ul>
+  </div>`;
+  window.print();
+}
+
+/* ---------- Experiment 1: pH indicator ---------- */
+const PH_DATA = {
+  lemon:{val:2.2, name:'عصير الليمون'},
+  vinegar:{val:2.9, name:'الخل'},
+  water:{val:7.2, name:'ماء الصنبور'},
+  soap:{val:9.5, name:'الصابون'},
+  bleach:{val:12.8, name:'ماء جافيل (المُبيّض)'},
+  milk:{val:6.6, name:'الحليب'}
+};
+function updatePhTest(){
+  const sub = document.getElementById('phSubstance').value;
+  const d = PH_DATA[sub];
+  const pct = (d.val/14)*100;
+  document.getElementById('phMarker').style.left = pct+'%';
+  const nature = d.val<6.5 ? 'حمضية' : (d.val>7.5 ? 'قاعدية' : 'متعادلة تقريبًا');
+  document.getElementById('phInfo').innerHTML = `<b>${d.name}: pH ≈ ${d.val}</b><br>هذه المادة ${nature}.`;
+}
+
+/* ---------- Experiment 2: solubility ---------- */
+function updateSolubility(){
+  const salt = +document.getElementById('saltRange').value;
+  const temp = +document.getElementById('tempRange').value;
+  document.getElementById('saltVal').textContent = salt+'غ';
+  document.getElementById('tempVal').textContent = temp+'°م';
+  const maxSoluble = 30 + (temp-10)*0.6; // solubility increases with temperature
+  const liquid = document.getElementById('solubilityLiquid');
+  document.querySelectorAll('.chem-crystal').forEach(c=>c.remove());
+  if(salt <= maxSoluble){
+    liquid.style.background = 'rgba(62,141,255,.35)';
+    document.getElementById('solubilityInfo').innerHTML = `<b>${salt}غ ذابت بالكامل.</b><br>عند ${temp}°م، يمكن للماء إذابة ما يصل إلى ${maxSoluble.toFixed(0)}غ تقريبًا.`;
+  } else {
+    liquid.style.background = 'rgba(180,200,230,.55)';
+    const excess = Math.min(salt-maxSoluble, 20);
+    for(let i=0;i<excess;i++){
+      const c = document.createElement('div');
+      c.className='chem-crystal';
+      c.style.left = (10+Math.random()*90)+'%';
+      c.style.bottom = (2+Math.random()*10)+'px';
+      document.getElementById('solubilityLiquid').appendChild(c);
+    }
+    document.getElementById('solubilityInfo').innerHTML = `<b>وصل المحلول إلى التشبّع!</b><br>عند ${temp}°م، لا يذوب أكثر من ${maxSoluble.toFixed(0)}غ تقريبًا، والباقي يترسّب في القاع.`;
+  }
+}
+
+/* ---------- Experiment 3: gas test ---------- */
+let gasType = 'co2';
+function setGasType(t){
+  gasType = t;
+  document.getElementById('gasCO2Btn').classList.toggle('active', t==='co2');
+  document.getElementById('gasO2Btn').classList.toggle('active', t==='o2');
+  renderGasTube();
+}
+function renderGasTube(){
+  const fill = document.getElementById('gasFill');
+  fill.style.height='40%';
+  fill.style.background = gasType==='co2' ? 'rgba(255,255,255,.5)' : 'rgba(62,141,255,.3)';
+  document.getElementById('gasInfo').innerHTML = gasType==='co2'
+    ? 'الاختبار المختار: تمرير الغاز عبر ماء الجير الرائق.'
+    : 'الاختبار المختار: تقريب شظية خشبية متوهجة من فوهة الأنبوب.';
+}
+function runGasTest(){
+  const fill = document.getElementById('gasFill');
+  if(gasType==='co2'){
+    fill.style.background = '#cfd8dc';
+    fill.style.height = '70%';
+    document.getElementById('gasInfo').innerHTML = '<b>تعكّر ماء الجير الرائق!</b><br>هذا يؤكد وجود غاز ثاني أكسيد الكربون CO₂.';
+  } else {
+    fill.style.background = '#F4B740';
+    fill.style.height = '90%';
+    document.getElementById('gasInfo').innerHTML = '<b>اشتعلت الشظية المتوهجة بقوة!</b><br>هذا يؤكد وجود غاز الأكسجين O₂.';
+  }
+}
+
+/* ---------- Experiment 4: titration ---------- */
+function updateTitration(){
+  const v = +document.getElementById('baseRange').value;
+  document.getElementById('baseVal').textContent = v+' مل';
+  document.getElementById('buretteFill').style.height = (v/40*100)+'%';
+  const liquid = document.getElementById('titrLiquid');
+  const flaskFill = Math.min(40+v, 100);
+  liquid.style.height = flaskFill+'%';
+  if(v < 18){
+    liquid.style.background = 'rgba(224,90,90,.25)';
+    document.getElementById('titrInfo').innerHTML = `<b>${v} مل مُضافة.</b><br>المحلول لا يزال حمضيًا — الكاشف عديم اللون تقريبًا.`;
+  } else if(v < 22){
+    liquid.style.background = 'rgba(244,183,64,.5)';
+    document.getElementById('titrInfo').innerHTML = `<b>${v} مل مُضافة — الاقتراب من نقطة التكافؤ!</b><br>اللون بدأ يتغيّر تدريجيًا.`;
+  } else {
+    liquid.style.background = 'rgba(244,120,200,.6)';
+    document.getElementById('titrInfo').innerHTML = `<b>${v} مل مُضافة — تم الوصول إلى نقطة التكافؤ ✅</b><br>تحوّل اللون إلى الوردي يدل على تعادل الحمض والقاعدة تمامًا (عند حوالي 20 مل).`;
+  }
+}
+
+/* ---------- Experiment 5: mass conservation ---------- */
+function updateMassConserv(){
+  const a = +document.getElementById('massA').value;
+  const b = +document.getElementById('massB').value;
+  document.getElementById('massAVal').textContent = a+'غ';
+  document.getElementById('massBVal').textContent = b+'غ';
+  const total = a+b;
+  document.getElementById('reactMassBox').textContent = total+' غ';
+  document.getElementById('productMassBox').textContent = total+' غ';
+  document.getElementById('massConservInfo').innerHTML =
+    `<b>${a}غ + ${b}غ = ${total}غ (قبل التفاعل) = ${total}غ (بعد التفاعل)</b><br>الكتلة محفوظة دائمًا مهما تغيّرت طبيعة المواد الناتجة.`;
+}
+
+/* ---------- Experiment 6: periodic table ---------- */
+const ELEMENTS = [
+  {s:'H',n:1,name:'الهيدروجين',m:'1.008'},{s:'He',n:2,name:'الهيليوم',m:'4.003'},
+  {s:'Li',n:3,name:'الليثيوم',m:'6.94'},{s:'Be',n:4,name:'البيريليوم',m:'9.01'},
+  {s:'B',n:5,name:'البورون',m:'10.81'},{s:'C',n:6,name:'الكربون',m:'12.01'},
+  {s:'N',n:7,name:'النيتروجين',m:'14.01'},{s:'O',n:8,name:'الأكسجين',m:'16.00'},
+  {s:'F',n:9,name:'الفلور',m:'19.00'},{s:'Ne',n:10,name:'النيون',m:'20.18'},
+  {s:'Na',n:11,name:'الصوديوم',m:'22.99'},{s:'Mg',n:12,name:'المغنيزيوم',m:'24.31'},
+  {s:'Al',n:13,name:'الألومنيوم',m:'26.98'},{s:'Si',n:14,name:'السيليكون',m:'28.09'},
+  {s:'P',n:15,name:'الفوسفور',m:'30.97'},{s:'S',n:16,name:'الكبريت',m:'32.07'},
+  {s:'Cl',n:17,name:'الكلور',m:'35.45'},{s:'Ar',n:18,name:'الأرغون',m:'39.95'},
+  {s:'K',n:19,name:'البوتاسيوم',m:'39.10'},{s:'Ca',n:20,name:'الكالسيوم',m:'40.08'}
+];
+function initPeriodic(){
+  const grid = document.getElementById('ptableGrid');
+  grid.innerHTML = '';
+  ELEMENTS.forEach(el=>{
+    const div = document.createElement('div');
+    div.className = 'chem-elem';
+    div.innerHTML = `<div class="num">${el.n}</div><div class="sym">${el.s}</div>`;
+    div.onclick = ()=>{
+      document.querySelectorAll('.chem-elem').forEach(e=>e.classList.remove('selected'));
+      div.classList.add('selected');
+      document.getElementById('periodicInfo').innerHTML =
+        `<b>${el.name} (${el.s})</b><br>العدد الذري: ${el.n} — الكتلة الذرية التقريبية: ${el.m} وحدة كتلة ذرية.`;
+    };
+    grid.appendChild(div);
+  });
+}
+
+loadNameC();
+renderDashboardC();
+</script>
+</body>
+</html>

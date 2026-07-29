@@ -957,19 +957,26 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
             <div class="card-title"><span class="card-title-icon">🔬</span> المخبر الافتراضي</div>
             <div style="font-size:0.85rem;color:var(--text2);">تجارب تفاعلية آمنة لتلاميذكم، بدون أي معدات حقيقية — اختاري المخبر المناسب لمادتكم.</div>
           </div>
-          <div class="grid-2">
+          <div class="grid-3">
             <div class="doc-card" onclick="openLab('svt')" style="cursor:pointer;">
               <div class="doc-icon">🌿</div>
               <div class="doc-info">
                 <div class="doc-name">مخبر علوم الطبيعة والحياة</div>
-                <div class="doc-meta">الخلية، الوراثة، الكشف عن المواد، وأكثر</div>
+                <div class="doc-meta">8 تجارب — متوسط وثانوي: الخلية، الهضم، الوراثة، الميتوز وأكثر</div>
               </div>
             </div>
             <div class="doc-card" onclick="openLab('physics')" style="cursor:pointer;">
               <div class="doc-icon">⚡</div>
               <div class="doc-info">
                 <div class="doc-name">مخبر الفيزياء</div>
-                <div class="doc-meta">السقوط الحر، الدارات الكهربائية، الروافع، البصريات</div>
+                <div class="doc-meta">8 تجارب — متوسط وثانوي: الدارات، الكثافة، السقوط الحر، البندول وأكثر</div>
+              </div>
+            </div>
+            <div class="doc-card" onclick="openLab('chem')" style="cursor:pointer;">
+              <div class="doc-icon">🧪</div>
+              <div class="doc-info">
+                <div class="doc-name">مخبر الكيمياء</div>
+                <div class="doc-meta">6 تجارب — متوسط وثانوي: الحموضة، الذوبانية، المعايرة، الجدول الدوري</div>
               </div>
             </div>
           </div>
@@ -1472,7 +1479,8 @@ function toggleSidebar() {
 
 const LAB_MAP = {
   svt: { src: 'lab-svt.html', title: '🌿 مخبر علوم الطبيعة والحياة' },
-  physics: { src: 'lab-physics.html', title: '⚡ مخبر الفيزياء' }
+  physics: { src: 'lab-physics.html', title: '⚡ مخبر الفيزياء' },
+  chem: { src: 'lab-chem.html', title: '🧪 مخبر الكيمياء' }
 };
 function openLab(which) {
   const lab = LAB_MAP[which];

@@ -86,6 +86,19 @@ body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle a
   #printReportP{display:block!important;color:#000;}
 }
 #printReportP{display:none;}
+
+/* exp6 density */
+.phy-density-stage{flex:1 1 260px;background:#0f1830;border-radius:14px;border:1px solid var(--phy-line);height:220px;position:relative;overflow:hidden;display:flex;align-items:flex-end;justify-content:center;}
+.phy-density-water{position:absolute;bottom:0;left:0;right:0;height:55%;background:rgba(62,141,255,0.25);border-top:2px solid rgba(62,141,255,0.5);}
+.phy-density-obj{width:50px;height:50px;background:var(--phy-amber);border-radius:8px;position:absolute;transition:bottom 0.6s ease;}
+/* exp7 motion */
+.phy-motion-track{position:relative;height:40px;background:#182642;border-radius:20px;margin-bottom:20px;overflow:hidden;}
+.phy-motion-dot{width:20px;height:20px;border-radius:50%;background:var(--phy-blue);position:absolute;top:10px;left:0;}
+/* exp8 pendulum */
+.phy-pendulum-stage{flex:1 1 260px;background:#0f1830;border-radius:14px;border:1px solid var(--phy-line);height:260px;position:relative;overflow:hidden;}
+.phy-energy-bars{display:flex;gap:10px;margin-top:10px;height:80px;align-items:flex-end;}
+.phy-energy-bar{flex:1;border-radius:6px 6px 0 0;transition:height 0.3s;display:flex;align-items:flex-start;justify-content:center;font-size:.7rem;font-weight:700;color:#08101f;padding-top:4px;}
+.phy-lvl-mid{background:var(--phy-green)!important;}
 </style>
 </head>
 <body>
@@ -112,7 +125,7 @@ body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle a
   <!-- ===================== EXPERIMENT 1: OHM'S LAW ===================== -->
   <div class="phy-panel" id="panel-ohm">
     <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
-    <span class="phy-exp-tag">جذع مشترك</span>
+    <span class="phy-exp-tag">الثانوي</span>
     <h2 class="phy-exp-title">قانون أوم: التوتر والمقاومة والتيار</h2>
     <p class="phy-exp-sub">غيّر التوتر والمقاومة وراقب تأثيرهما على شدة التيار وسطوع المصباح.</p>
 
@@ -147,7 +160,7 @@ body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle a
   <!-- ===================== EXPERIMENT 2: FREE FALL ===================== -->
   <div class="phy-panel" id="panel-fall">
     <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
-    <span class="phy-exp-tag">جذع مشترك</span>
+    <span class="phy-exp-tag">الثانوي</span>
     <h2 class="phy-exp-title">السقوط الحر</h2>
     <p class="phy-exp-sub">غيّر ارتفاع السقوط، ثم اضغط "إسقاط" لمشاهدة الحركة وحساب الزمن والسرعة.</p>
 
@@ -181,7 +194,7 @@ body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle a
   <!-- ===================== EXPERIMENT 3: REFLECTION ===================== -->
   <div class="phy-panel" id="panel-optics">
     <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
-    <span class="phy-exp-tag">جذع مشترك</span>
+    <span class="phy-exp-tag">الثانوي</span>
     <h2 class="phy-exp-title">انعكاس الضوء على مرآة مستوية</h2>
     <p class="phy-exp-sub">غيّر زاوية السقوط وراقب زاوية الانعكاس.</p>
 
@@ -211,7 +224,7 @@ body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle a
   <!-- ===================== EXPERIMENT 4: LEVER ===================== -->
   <div class="phy-panel" id="panel-lever">
     <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
-    <span class="phy-exp-tag">جذع مشترك</span>
+    <span class="phy-exp-tag">الثانوي</span>
     <h2 class="phy-exp-title">توازن الرافعة (عزم القوة)</h2>
     <p class="phy-exp-sub">غيّر الكتلة والمسافة على كل جانب، وراقب متى تتزن الرافعة.</p>
 
@@ -237,16 +250,131 @@ body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle a
     </div>
   </div>
 
+
+  <!-- ===================== EXPERIMENT 5: CIRCUIT (MIDDLE SCHOOL) ===================== -->
+  <div class="phy-panel" id="panel-circuit">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag phy-lvl-mid">المتوسط</span>
+    <h2 class="phy-exp-title">الدارة الكهربائية: التسلسل والتوازي</h2>
+    <p class="phy-exp-sub">بدّل نوع التوصيل وافتح/أغلق كل قاطعة، وراقب الفرق بين التسلسل والتوازي.</p>
+    <div class="phy-btn-row">
+      <button class="phy-btn active" id="circSeriesBtn" onclick="setCircuitType('series')">توصيل تسلسلي</button>
+      <button class="phy-btn" id="circParallelBtn" onclick="setCircuitType('parallel')">توصيل توازي</button>
+    </div>
+    <div class="phy-layout">
+      <div class="phy-circuit-stage"><svg viewBox="0 0 300 140" id="circuitSvg" width="100%" height="140"></svg></div>
+      <div style="flex:1 1 240px;">
+        <div class="phy-btn-row">
+          <button class="phy-btn active" id="sw1Btn" onclick="toggleSwitch(1)">قاطعة 1: مغلقة</button>
+          <button class="phy-btn active" id="sw2Btn" onclick="toggleSwitch(2)">قاطعة 2: مغلقة</button>
+        </div>
+        <div class="phy-info-card" id="circuitInfo">في التسلسل: فتح أي قاطعة يطفئ كل المصابيح. في التوازي: كل مصباح مستقل.</div>
+      </div>
+    </div>
+    <div class="phy-quiz">
+      <p>في التوصيل على التوازي، إذا احترق مصباح واحد، ماذا يحدث للمصباح الآخر؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'circuit')">ينطفئ أيضًا</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'circuit')">يبقى مضاءً</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'circuit')">يصبح أقوى</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 6: DENSITY (MIDDLE SCHOOL) ===================== -->
+  <div class="phy-panel" id="panel-density">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag phy-lvl-mid">المتوسط</span>
+    <h2 class="phy-exp-title">الكثافة: العلاقة بين الكتلة والحجم</h2>
+    <p class="phy-exp-sub">غيّر الكتلة والحجم، واكتشف هل الجسم يطفو أم يغرق في الماء.</p>
+    <div class="phy-layout">
+      <div class="phy-density-stage" id="densityStage">
+        <div class="phy-density-water"></div>
+        <div class="phy-density-obj" id="densityObj" style="bottom:2px;"></div>
+      </div>
+      <div style="flex:1 1 260px;">
+        <div class="phy-slider-row"><label>الكتلة m (غ)</label><input type="range" min="10" max="500" value="100" id="densMass" oninput="updateDensity()"><span class="phy-val" id="densMassVal">100غ</span></div>
+        <div class="phy-slider-row"><label>الحجم V (سم³)</label><input type="range" min="10" max="500" value="100" id="densVol" oninput="updateDensity()"><span class="phy-val" id="densVolVal">100سم³</span></div>
+        <div class="phy-info-card" id="densInfo">الكثافة d = m ÷ V</div>
+      </div>
+    </div>
+    <div class="phy-quiz">
+      <p>إذا كانت كثافة جسم أقل من كثافة الماء (1 غ/سم³)، ماذا يحدث له في الماء؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'density')">يطفو</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'density')">يغرق</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'density')">يبقى في المنتصف دائمًا</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 7: UNIFORM MOTION (SECONDARY) ===================== -->
+  <div class="phy-panel" id="panel-motion">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag">الثانوي</span>
+    <h2 class="phy-exp-title">الحركة المستقيمة المنتظمة</h2>
+    <p class="phy-exp-sub">غيّر السرعة والزمن، وشاهد المسافة المقطوعة عمليًا.</p>
+    <div class="phy-motion-track"><div class="phy-motion-dot" id="motionDot"></div></div>
+    <div class="phy-slider-row"><label>السرعة v (م/ث)</label><input type="range" min="1" max="20" value="5" id="motionSpeed" oninput="updateMotionLabel()"><span class="phy-val" id="motionSpeedVal">5 م/ث</span></div>
+    <div class="phy-slider-row"><label>الزمن t (ث)</label><input type="range" min="1" max="10" value="4" id="motionTime" oninput="updateMotionLabel()"><span class="phy-val" id="motionTimeVal">4 ث</span></div>
+    <button class="phy-go-btn" onclick="runMotion()">▶️ ابدأ الحركة</button>
+    <div class="phy-info-card" id="motionInfo">المسافة d = v × t</div>
+    <div class="phy-quiz">
+      <p>في الحركة المستقيمة المنتظمة، ماذا يحدث للسرعة مع مرور الزمن؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'motion')">تبقى ثابتة</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'motion')">تزداد باستمرار</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'motion')">تنقص باستمرار</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 8: PENDULUM (SECONDARY) ===================== -->
+  <div class="phy-panel" id="panel-pendulum">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag">الثانوي</span>
+    <h2 class="phy-exp-title">البندول والطاقة الميكانيكية</h2>
+    <p class="phy-exp-sub">غيّر زاوية الإطلاق وراقب تحوّل الطاقة الكامنة إلى طاقة حركية أثناء التأرجح.</p>
+    <div class="phy-layout">
+      <div class="phy-pendulum-stage"><svg viewBox="0 0 260 240" id="pendulumSvg" width="100%" height="240"></svg></div>
+      <div style="flex:1 1 240px;">
+        <div class="phy-slider-row"><label>زاوية الإطلاق</label><input type="range" min="10" max="70" value="40" id="pendAngle" oninput="setPendulumAngle()"><span class="phy-val" id="pendAngleVal">40°</span></div>
+        <button class="phy-go-btn" onclick="swingPendulum()">🕰️ أطلق البندول</button>
+        <div class="phy-energy-bars">
+          <div class="phy-energy-bar" id="peBar" style="background:var(--phy-amber);height:80%;">PE</div>
+          <div class="phy-energy-bar" id="keBar" style="background:var(--phy-green);height:5%;">KE</div>
+        </div>
+        <div class="phy-info-card" id="pendInfo" style="margin-top:10px;">عند أعلى نقطة: الطاقة كامنة بالكامل. عند أدنى نقطة: الطاقة حركية بالكامل.</div>
+      </div>
+    </div>
+    <div class="phy-quiz">
+      <p>عند أدنى نقطة في تأرجح البندول، أين تكون سرعته أكبر ما يمكن؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'pendulum')">عند أدنى نقطة</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'pendulum')">عند أعلى نقطة</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'pendulum')">السرعة ثابتة دائمًا</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
   <div id="printReportP"></div>
   <div class="phy-footer">DONIA LABS TECH — وحدة المختبر الافتراضي | الفيزياء</div>
 </div>
 
 <script>
 const EXPERIMENTS_P = [
-  {id:'ohm', title:'قانون أوم', level:'جذع مشترك', icon:'⚡'},
-  {id:'fall', title:'السقوط الحر', level:'جذع مشترك', icon:'🪂'},
-  {id:'optics', title:'انعكاس الضوء', level:'جذع مشترك', icon:'🔦'},
-  {id:'lever', title:'توازن الرافعة', level:'جذع مشترك', icon:'⚖️'}
+  {id:'circuit', title:'الدارة الكهربائية: تسلسل وتوازي', level:'المتوسط', icon:'🔌'},
+  {id:'density', title:'الكثافة: الكتلة والحجم', level:'المتوسط', icon:'🧊'},
+  {id:'ohm', title:'قانون أوم', level:'الثانوي', icon:'⚡'},
+  {id:'fall', title:'السقوط الحر', level:'الثانوي', icon:'🪂'},
+  {id:'optics', title:'انعكاس الضوء', level:'الثانوي', icon:'🔦'},
+  {id:'lever', title:'توازن الرافعة', level:'الثانوي', icon:'⚖️'},
+  {id:'motion', title:'الحركة المستقيمة المنتظمة', level:'الثانوي', icon:'🏃'},
+  {id:'pendulum', title:'البندول والطاقة الميكانيكية', level:'الثانوي', icon:'🕰️'}
 ];
 const STORE_KEY_P = 'donia_physics_progress_v1';
 const NAME_KEY_P = 'donia_physics_student_name';
@@ -282,6 +410,10 @@ function openExperimentP(id){
   if(id==='ohm') updateOhm();
   if(id==='optics') updateOptics();
   if(id==='lever') updateLever();
+  if(id==='circuit') renderCircuit();
+  if(id==='density') updateDensity();
+  if(id==='motion') updateMotionLabel();
+  if(id==='pendulum') setPendulumAngle();
 }
 function backToDashP(){
   document.querySelectorAll('.phy-panel').forEach(p=>p.classList.remove('active'));
@@ -394,6 +526,110 @@ function updateLever(){
   let verdict = Math.abs(diff) < 0.5 ? 'متزنة ✅' : (diff>0 ? 'تميل لليمين ↘' : 'تميل لليسار ↙');
   document.getElementById('leverInfo').innerHTML =
     `<b>عزم اليسار = ${mL}×${dL} = ${torqueL} | عزم اليمين = ${mR}×${dR} = ${torqueR}</b><br>حالة الرافعة: ${verdict}`;
+}
+
+
+/* ---------- Experiment 5: circuit (series/parallel) ---------- */
+let circuitType='series', sw1=true, sw2=true;
+function setCircuitType(t){
+  circuitType=t;
+  document.getElementById('circSeriesBtn').classList.toggle('active', t==='series');
+  document.getElementById('circParallelBtn').classList.toggle('active', t==='parallel');
+  renderCircuit();
+}
+function toggleSwitch(n){
+  if(n===1){ sw1=!sw1; document.getElementById('sw1Btn').textContent='قاطعة 1: '+(sw1?'مغلقة':'مفتوحة'); document.getElementById('sw1Btn').classList.toggle('active',sw1); }
+  else { sw2=!sw2; document.getElementById('sw2Btn').textContent='قاطعة 2: '+(sw2?'مغلقة':'مفتوحة'); document.getElementById('sw2Btn').classList.toggle('active',sw2); }
+  renderCircuit();
+}
+function renderCircuit(){
+  let b1, b2;
+  if(circuitType==='series'){ b1 = sw1 && sw2; b2 = sw1 && sw2; }
+  else { b1 = sw1; b2 = sw2; }
+  const c1 = b1 ? '#F4B740' : '#3a3f52';
+  const c2 = b2 ? '#F4B740' : '#3a3f52';
+  document.getElementById('circuitSvg').innerHTML = `
+    <rect x="10" y="60" width="280" height="4" fill="#5c6c8f"/>
+    <circle cx="90" cy="62" r="18" fill="${c1}" stroke="#fff" stroke-width="2"/>
+    <circle cx="210" cy="62" r="18" fill="${c2}" stroke="#fff" stroke-width="2"/>
+    <text x="90" y="102" fill="#93a2c2" font-size="11" text-anchor="middle">مصباح 1</text>
+    <text x="210" y="102" fill="#93a2c2" font-size="11" text-anchor="middle">مصباح 2</text>
+    <text x="150" y="26" fill="#93a2c2" font-size="11" text-anchor="middle">${circuitType==='series'?'توصيل تسلسلي':'توصيل توازي'}</text>
+  `;
+  document.getElementById('circuitInfo').innerHTML = circuitType==='series'
+    ? '<b>توصيل تسلسلي:</b> المصباحان على نفس المسار — فتح أي قاطعة يقطع التيار عن الاثنين معًا.'
+    : '<b>توصيل توازي:</b> كل مصباح له مساره الخاص — يمكن التحكم بكل واحد بشكل مستقل.';
+}
+
+/* ---------- Experiment 6: density ---------- */
+function updateDensity(){
+  const m = +document.getElementById('densMass').value;
+  const v = +document.getElementById('densVol').value;
+  const d = m/v;
+  document.getElementById('densMassVal').textContent = m+'غ';
+  document.getElementById('densVolVal').textContent = v+'سم³';
+  const obj = document.getElementById('densityObj');
+  const floats = d < 1;
+  obj.style.bottom = floats ? '58%' : '2px';
+  document.getElementById('densInfo').innerHTML =
+    `<b>d = m ÷ V = ${m} ÷ ${v} = ${d.toFixed(2)} غ/سم³</b><br>` +
+    (floats ? 'الكثافة أقل من كثافة الماء (1 غ/سم³) → الجسم يطفو 🟡' : 'الكثافة أكبر من أو تساوي كثافة الماء → الجسم يغرق ⬇️');
+}
+
+/* ---------- Experiment 7: uniform motion ---------- */
+function updateMotionLabel(){
+  document.getElementById('motionSpeedVal').textContent = document.getElementById('motionSpeed').value+' م/ث';
+  document.getElementById('motionTimeVal').textContent = document.getElementById('motionTime').value+' ث';
+}
+function runMotion(){
+  const v = +document.getElementById('motionSpeed').value;
+  const t = +document.getElementById('motionTime').value;
+  const d = v*t;
+  const dot = document.getElementById('motionDot');
+  const track = document.querySelector('.phy-motion-track');
+  const trackWidth = track.clientWidth - 20;
+  const maxD = 20*10;
+  const pct = Math.min(d/maxD,1)*trackWidth;
+  dot.style.transition='none'; dot.style.left='0px'; void dot.offsetWidth;
+  dot.style.transition = `left ${t}s linear`;
+  dot.style.left = pct+'px';
+  document.getElementById('motionInfo').innerHTML = `<b>d = v × t = ${v} × ${t} = ${d} م</b><br>السرعة تبقى ثابتة طوال الحركة (خط مستقيم منتظم).`;
+}
+
+/* ---------- Experiment 8: pendulum ---------- */
+let pendAngleVal=40;
+function setPendulumAngle(){
+  pendAngleVal = +document.getElementById('pendAngle').value;
+  document.getElementById('pendAngleVal').textContent = pendAngleVal+'°';
+  drawPendulum(pendAngleVal);
+  document.getElementById('peBar').style.height='80%';
+  document.getElementById('keBar').style.height='5%';
+}
+function drawPendulum(angle){
+  const cx=130, cy=20, len=180;
+  const rad = angle*Math.PI/180;
+  const bx = cx + len*Math.sin(rad);
+  const by = cy + len*Math.cos(rad);
+  document.getElementById('pendulumSvg').innerHTML = `
+    <circle cx="${cx}" cy="${cy}" r="4" fill="#5c6c8f"/>
+    <line x1="${cx}" y1="${cy}" x2="${bx}" y2="${by}" stroke="#93a2c2" stroke-width="2"/>
+    <circle cx="${bx}" cy="${by}" r="16" fill="#E05A5A"/>
+  `;
+}
+function swingPendulum(){
+  const duration=1800;
+  const start=performance.now();
+  function frame(now){
+    const elapsed = now-start;
+    const progress = Math.min(elapsed/duration,1);
+    const currentAngle = pendAngleVal*Math.cos(progress*Math.PI);
+    drawPendulum(currentAngle);
+    const ke = Math.sin(progress*Math.PI);
+    document.getElementById('peBar').style.height = ((1-ke)*80+5)+'%';
+    document.getElementById('keBar').style.height = (ke*80+5)+'%';
+    if(progress<1) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
 }
 
 loadNameP();
