@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مختبر دنيا الافتراضي | الخرائط الذهنية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --mm-bg:#191233; --mm-panel:#221A42; --mm-line:#362A5E;
+  --mm-ink:#EFEBFB; --mm-gold:#F4C542; --mm-indigo:#7C6CF4;
+  --mm-teal:#22D3B8; --mm-red:#E05A5A; --mm-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--mm-bg);background-image:radial-gradient(circle at 20% 10%,rgba(124,108,244,.12),transparent 45%),radial-gradient(circle at 85% 90%,rgba(244,197,66,.08),transparent 45%);font-family:'Tajawal',sans-serif;color:var(--mm-ink);min-height:100vh;padding:24px 14px 60px;}
+.mm-wrap{max-width:1040px;margin:0 auto;}
+.mm-header{text-align:center;margin-bottom:20px;}
+.mm-header h1{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:2.3rem;margin:0 0 4px;letter-spacing:1px;color:#fff;}
+.mm-header p{margin:0;color:#b3a8d9;font-size:.92rem;}
+
+.mm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:10px;}
+.mm-card{background:var(--mm-panel);border:1px solid var(--mm-line);border-radius:14px;padding:18px;box-shadow:var(--mm-shadow);cursor:pointer;position:relative;transition:transform .15s,border-color .15s;}
+.mm-card:hover{transform:translateY(-3px);border-color:var(--mm-indigo);}
+.mm-card .lvl{display:inline-block;background:var(--mm-indigo);color:#fff;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+.mm-card .lvl.hs{background:var(--mm-red);}
+.mm-card .lvl.prim{background:var(--mm-teal);color:#08150e;}
+.mm-card h3{font-family:'Rajdhani',sans-serif;margin:0 0 6px;color:#fff;font-size:1.15rem;font-weight:700;}
+.mm-card .icon{font-size:1.8rem;}
+.mm-card .card-tools{position:absolute;top:10px;left:10px;display:flex;gap:4px;}
+.mm-card .card-tool-btn{width:26px;height:26px;border-radius:6px;border:none;background:#191233;color:var(--mm-ink);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;opacity:.75;}
+.mm-card .card-tool-btn:hover{opacity:1;}
+.mm-card .meta{font-size:.75rem;color:#8f7fc7;margin-top:6px;}
+
+.mm-dashboard-summary{background:var(--mm-panel);border:1px solid var(--mm-line);border-radius:14px;padding:16px 20px;margin-bottom:16px;box-shadow:var(--mm-shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.mm-btn{padding:9px 18px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:'Tajawal';font-size:.85rem;}
+.mm-btn-gold{background:var(--mm-gold);color:#221a00;}
+.mm-btn-ghost{background:#251d47;color:var(--mm-ink);border:1px solid var(--mm-line);}
+.mm-btn-red{background:rgba(224,90,90,.15);color:var(--mm-red);border:1px solid rgba(224,90,90,.3);}
+
+.mm-empty{text-align:center;padding:50px 20px;color:#7466a3;}
+.mm-empty .big{font-size:3rem;margin-bottom:10px;}
+
+.mm-panel{background:var(--mm-panel);border:1px solid var(--mm-line);border-radius:14px;box-shadow:var(--mm-shadow);padding:26px;display:none;}
+.mm-panel.active{display:block;}
+.mm-back{background:none;border:none;color:var(--mm-indigo);font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:10px;font-size:.9rem;}
+.mm-exp-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.5rem;margin:0 0 14px;color:#fff;}
+
+.mm-field-label{display:block;font-size:.82rem;color:#b3a8d9;margin-bottom:6px;font-weight:700;}
+.mm-field-input{width:100%;padding:10px 14px;background:#251d47;border:1px solid var(--mm-line);border-radius:8px;color:var(--mm-ink);font-family:'Tajawal';font-size:.9rem;outline:none;}
+.mm-field-input:focus{border-color:var(--mm-indigo);}
+.mm-field-wrap{margin-bottom:14px;}
+.mm-meta-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.mm-meta-row > div{flex:1;min-width:140px;}
+
+.mm-builder-layout{display:flex;gap:20px;flex-wrap:wrap;align-items:flex-start;}
+.mm-outline-col{flex:1 1 320px;min-width:280px;}
+.mm-preview-col{flex:1 1 420px;min-width:300px;}
+
+.mm-outline{background:#1a1436;border:1px solid var(--mm-line);border-radius:10px;padding:12px;max-height:520px;overflow-y:auto;}
+.mm-node-row{display:flex;align-items:center;gap:6px;padding:5px 0;}
+.mm-node-dot{width:16px;height:16px;border-radius:50%;flex-shrink:0;cursor:pointer;border:2px solid rgba(255,255,255,.4);}
+.mm-node-input{flex:1;background:#251d47;border:1px solid var(--mm-line);border-radius:6px;padding:6px 10px;color:var(--mm-ink);font-family:'Tajawal';font-size:.85rem;outline:none;}
+.mm-node-input:focus{border-color:var(--mm-indigo);}
+.mm-node-btn{width:24px;height:24px;border-radius:5px;border:none;background:#251d47;color:var(--mm-ink);cursor:pointer;font-size:.78rem;flex-shrink:0;}
+.mm-node-btn.del{color:var(--mm-red);}
+.mm-color-row{display:flex;gap:5px;margin:4px 0 8px;padding-right:22px;flex-wrap:wrap;}
+.mm-color-choice{width:20px;height:20px;border-radius:50%;cursor:pointer;border:2px solid transparent;}
+.mm-color-choice.sel{border-color:#fff;}
+
+.mm-svg-stage{background:#0f0a24;border:1px solid var(--mm-line);border-radius:12px;overflow:hidden;}
+.mm-svg-stage svg{width:100%;height:auto;display:block;}
+
+.mm-footer{text-align:center;color:#5c4f8a;font-size:.75rem;margin-top:24px;}
+
+@media print{
+  body{background:#fff;color:#000;padding:0;}
+  .no-print{display:none!important;}
+  .mm-panel{display:none!important;}
+  #printMindmap{display:block!important;}
+}
+#printMindmap{display:none;}
+</style>
+</head>
+<body>
+<div class="mm-wrap">
+
+  <header class="mm-header">
+    <h1>مختبر دنيا الافتراضي</h1>
+    <p>مولّد الخرائط الذهنية — نظّم أفكارك بصريًا</p>
+  </header>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div id="dashboardViewMM">
+    <div class="mm-dashboard-summary no-print">
+      <div><b id="summaryTextMM">لا توجد خرائط ذهنية بعد</b></div>
+      <button class="mm-btn mm-btn-gold" onclick="openMMBuilder()">➕ خريطة ذهنية جديدة</button>
+    </div>
+    <div class="no-print" id="stageBannerMM" style="margin-bottom:14px;font-size:.82rem;color:#b3a8d9;"></div>
+    <div class="mm-grid" id="mmGrid"></div>
+  </div>
+
+  <!-- ===================== BUILDER ===================== -->
+  <div class="mm-panel" id="panel-mm-builder">
+    <button class="mm-back" onclick="cancelMMBuilder()">→ العودة إلى لوحة الخرائط</button>
+    <h2 class="mm-exp-title" id="mmBuilderModeTitle">خريطة ذهنية جديدة</h2>
+    <input type="hidden" id="mmEditId" value="">
+
+    <div class="mm-meta-row">
+      <div class="mm-field-wrap">
+        <label class="mm-field-label">عنوان الخريطة *</label>
+        <input class="mm-field-input" id="mmMapTitle" placeholder="مثال: دورة الماء في الطبيعة">
+      </div>
+      <div class="mm-field-wrap">
+        <label class="mm-field-label">الطور</label>
+        <select class="mm-field-input" id="mmMapStage">
+          <option value="الابتدائي">الابتدائي</option>
+          <option value="المتوسط" selected>المتوسط</option>
+          <option value="الثانوي">الثانوي</option>
+        </select>
+      </div>
+      <div class="mm-field-wrap">
+        <label class="mm-field-label">المادة</label>
+        <input class="mm-field-input" id="mmMapSubject" placeholder="مثال: علوم">
+      </div>
+    </div>
+
+    <div class="mm-builder-layout">
+      <div class="mm-outline-col">
+        <label class="mm-field-label">الفكرة المركزية</label>
+        <input class="mm-field-input" id="mmRootInput" placeholder="اكتب الموضوع الرئيسي هنا" oninput="onRootTitleInput()" style="margin-bottom:12px;font-weight:700;">
+        <label class="mm-field-label">الفروع والأفكار الفرعية</label>
+        <div class="mm-outline" id="mmOutline"></div>
+        <button class="mm-btn mm-btn-ghost" style="margin-top:10px;width:100%;" onclick="addTopLevelBranch()">➕ إضافة فرع رئيسي</button>
+      </div>
+      <div class="mm-preview-col">
+        <label class="mm-field-label">معاينة حية</label>
+        <div class="mm-svg-stage" id="mmSvgStage"></div>
+      </div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="mm-btn mm-btn-gold" style="flex:1;" onclick="saveMindmap()">💾 حفظ الخريطة</button>
+      <button class="mm-btn mm-btn-ghost" onclick="cancelMMBuilder()">إلغاء</button>
+    </div>
+  </div>
+
+  <!-- ===================== VIEWER ===================== -->
+  <div class="mm-panel" id="panel-mm-viewer">
+    <button class="mm-back" onclick="backToMMDash()">→ العودة إلى لوحة الخرائط</button>
+    <h2 class="mm-exp-title" id="mmViewerTitle"></h2>
+    <div class="mm-svg-stage" id="mmViewerStage"></div>
+    <div style="display:flex;gap:10px;margin-top:16px;" class="no-print">
+      <button class="mm-btn mm-btn-ghost" onclick="printMindmapView()">🖨️ طباعة / تصدير PDF</button>
+      <button class="mm-btn mm-btn-ghost" onclick="editMindmap(currentMMViewId)">✏️ تعديل</button>
+      <button class="mm-btn mm-btn-red" onclick="deleteMindmap(currentMMViewId)">🗑️ حذف</button>
+    </div>
+  </div>
+
+  <div id="printMindmap"></div>
+  <div class="mm-footer">DONIA LABS TECH — وحدة المختبر الافتراضي | الخرائط الذهنية</div>
+</div>
+
+<script>
+const STORE_KEY_MM = 'donia_mindmaps_v1';
+const COLORS_MM = ['#7C6CF4','#F4C542','#22D3B8','#E05A5A','#3E8DFF','#FF7700','#4FD07A','#EC4899'];
+
+let showAllStagesMM = false;
+let currentMMViewId = null;
+let mmTree = null; // {id, title, color, children:[]}
+let mmNodeCounter = 0;
+
+function getMindmaps(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_MM)) || []; }catch(e){ return []; } }
+function setMindmaps(list){ localStorage.setItem(STORE_KEY_MM, JSON.stringify(list)); }
+
+function getStageMM(){ return localStorage.getItem('donia_stage_level') || ''; }
+function getVisibleMindmaps(){
+  const stage = getStageMM();
+  const all = getMindmaps();
+  if(!stage || showAllStagesMM) return all;
+  const filtered = all.filter(m=>m.stage===stage);
+  return filtered.length ? filtered : all;
+}
+function toggleShowAllStagesMM(){ showAllStagesMM = !showAllStagesMM; renderDashboardMM(); }
+function lvlClassMM(stage){ return stage==='الثانوي' ? 'hs' : (stage==='الابتدائي' ? 'prim' : ''); }
+
+function countNodesMM(node){
+  if(!node.children || !node.children.length) return 1;
+  return 1 + node.children.reduce((s,c)=>s+countNodesMM(c),0);
+}
+
+function renderDashboardMM(){
+  const grid = document.getElementById('mmGrid');
+  const all = getMindmaps();
+  const stage = getStageMM();
+  const list = getVisibleMindmaps();
+  const banner = document.getElementById('stageBannerMM');
+  if(stage && all.length){
+    banner.innerHTML = showAllStagesMM
+      ? `🎓 عرض كل الأطوار — <a href="#" onclick="toggleShowAllStagesMM();return false;" style="color:var(--mm-indigo);">عرض طور ${stage} فقط</a>`
+      : `🎓 تُعرض خرائط طور <b style="color:var(--mm-indigo);">${stage}</b> فقط — <a href="#" onclick="toggleShowAllStagesMM();return false;" style="color:var(--mm-indigo);">عرض كل الأطوار</a>`;
+  } else { banner.innerHTML = ''; }
+
+  document.getElementById('summaryTextMM').textContent = all.length ? `لديك ${all.length} خريطة ذهنية محفوظة` : 'لا توجد خرائط ذهنية بعد';
+
+  if(!all.length){
+    grid.innerHTML = `<div class="mm-empty" style="grid-column:1/-1;">
+      <div class="big">🧠</div>
+      <div>لم تُنشئي أي خريطة ذهنية بعد. اضغطي "خريطة ذهنية جديدة" للبدء.</div>
+    </div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  list.forEach(m=>{
+    const card = document.createElement('div');
+    card.className = 'mm-card';
+    card.innerHTML = `
+      <div class="card-tools no-print">
+        <button class="card-tool-btn" onclick="event.stopPropagation();editMindmap('${m.id}')" title="تعديل">✏️</button>
+        <button class="card-tool-btn" onclick="event.stopPropagation();deleteMindmap('${m.id}')" title="حذف">🗑️</button>
+      </div>
+      <div class="icon">🧠</div>
+      <div class="lvl ${lvlClassMM(m.stage)}">${m.stage}</div>
+      <h3>${m.title}</h3>
+      <div class="meta">${countNodesMM(m.tree)} عنصر${m.subject?' — '+m.subject:''}</div>
+    `;
+    card.addEventListener('click', ()=>openMMViewer(m.id));
+    grid.appendChild(card);
+  });
+}
+
+/* ---------------- BUILDER ---------------- */
+function freshTree(title){
+  return { id:'n0', title: title||'الفكرة المركزية', color: COLORS_MM[0], children: [] };
+}
+function nextNodeId(){ mmNodeCounter++; return 'n'+Date.now()+'_'+mmNodeCounter; }
+
+function findNode(node, id){
+  if(node.id===id) return node;
+  for(const c of (node.children||[])){
+    const f = findNode(c, id);
+    if(f) return f;
+  }
+  return null;
+}
+function findParent(node, id, parent){
+  if(node.id===id) return parent;
+  for(const c of (node.children||[])){
+    const f = findParent(c, id, node);
+    if(f !== undefined && f !== null) return f;
+  }
+  return null;
+}
+
+function openMMBuilder(){
+  document.getElementById('mmEditId').value = '';
+  document.getElementById('mmBuilderModeTitle').textContent = 'خريطة ذهنية جديدة';
+  document.getElementById('mmMapTitle').value = '';
+  document.getElementById('mmMapStage').value = 'المتوسط';
+  document.getElementById('mmMapSubject').value = '';
+  mmTree = freshTree('الفكرة المركزية');
+  document.getElementById('mmRootInput').value = mmTree.title;
+  renderOutline();
+  renderMMSvg('mmSvgStage', mmTree);
+  document.getElementById('dashboardViewMM').style.display = 'none';
+  document.getElementById('panel-mm-viewer').classList.remove('active');
+  document.getElementById('panel-mm-builder').classList.add('active');
+}
+
+function editMindmap(id){
+  const m = getMindmaps().find(x=>x.id===id);
+  if(!m) return;
+  document.getElementById('mmEditId').value = id;
+  document.getElementById('mmBuilderModeTitle').textContent = 'تعديل الخريطة الذهنية';
+  document.getElementById('mmMapTitle').value = m.title;
+  document.getElementById('mmMapStage').value = m.stage;
+  document.getElementById('mmMapSubject').value = m.subject || '';
+  mmTree = JSON.parse(JSON.stringify(m.tree));
+  document.getElementById('mmRootInput').value = mmTree.title;
+  renderOutline();
+  renderMMSvg('mmSvgStage', mmTree);
+  document.getElementById('dashboardViewMM').style.display = 'none';
+  document.getElementById('panel-mm-viewer').classList.remove('active');
+  document.getElementById('panel-mm-builder').classList.add('active');
+}
+
+function cancelMMBuilder(){
+  document.getElementById('panel-mm-builder').classList.remove('active');
+  document.getElementById('dashboardViewMM').style.display = 'block';
+  renderDashboardMM();
+}
+
+function onRootTitleInput(){
+  mmTree.title = document.getElementById('mmRootInput').value || 'الفكرة المركزية';
+  renderMMSvg('mmSvgStage', mmTree);
+}
+
+function addTopLevelBranch(){
+  mmTree.children = mmTree.children || [];
+  mmTree.children.push({ id: nextNodeId(), title:'فرع جديد', color: COLORS_MM[mmTree.children.length % COLORS_MM.length], children: [] });
+  renderOutline();
+  renderMMSvg('mmSvgStage', mmTree);
+}
+function addChildBranch(parentId){
+  const parent = findNode(mmTree, parentId);
+  if(!parent) return;
+  parent.children = parent.children || [];
+  parent.children.push({ id: nextNodeId(), title:'فكرة فرعية', color: parent.color, children: [] });
+  renderOutline();
+  renderMMSvg('mmSvgStage', mmTree);
+}
+function removeNode(id){
+  if(id === mmTree.id) return; // never delete root
+  const parent = findParent(mmTree, id, null);
+  if(!parent) return;
+  parent.children = parent.children.filter(c=>c.id!==id);
+  renderOutline();
+  renderMMSvg('mmSvgStage', mmTree);
+}
+function renameNode(id, value){
+  const node = findNode(mmTree, id);
+  if(node){ node.title = value; renderMMSvg('mmSvgStage', mmTree); }
+}
+function colorNode(id, color){
+  const node = findNode(mmTree, id);
+  if(node){ node.color = color; renderOutline(); renderMMSvg('mmSvgStage', mmTree); }
+}
+
+function renderOutline(){
+  const box = document.getElementById('mmOutline');
+  box.innerHTML = '';
+  function renderLevel(node, depth, container){
+    (node.children||[]).forEach(child=>{
+      const row = document.createElement('div');
+      row.style.marginRight = (depth*18)+'px';
+      row.innerHTML = `
+        <div class="mm-node-row">
+          <div class="mm-node-dot" style="background:${child.color}" onclick="toggleColorRow('${child.id}')"></div>
+          <input class="mm-node-input" value="${child.title.replace(/"/g,'&quot;')}" oninput="renameNode('${child.id}', this.value)">
+          <button type="button" class="mm-node-btn" onclick="addChildBranch('${child.id}')" title="إضافة فكرة فرعية">➕</button>
+          <button type="button" class="mm-node-btn del" onclick="removeNode('${child.id}')" title="حذف">🗑️</button>
+        </div>
+        <div class="mm-color-row" id="colorRow_${child.id}" style="display:none;"></div>
+      `;
+      container.appendChild(row);
+      const sub = document.createElement('div');
+      row.appendChild(sub);
+      renderLevel(child, depth+1, sub);
+    });
+  }
+  renderLevel(mmTree, 0, box);
+}
+function toggleColorRow(id){
+  const row = document.getElementById('colorRow_'+id);
+  if(!row) return;
+  if(row.style.display === 'none'){
+    row.style.display = 'flex';
+    row.innerHTML = COLORS_MM.map(c=>`<div class="mm-color-choice" style="background:${c};" onclick="colorNode('${id}','${c}')"></div>`).join('');
+  } else {
+    row.style.display = 'none';
+  }
+}
+
+/* ---------------- RADIAL SVG LAYOUT ---------------- */
+function weightMM(node){
+  if(!node.children || !node.children.length) return 1;
+  return node.children.reduce((s,c)=>s+weightMM(c),0);
+}
+function layoutMM(node, angleStart, angleEnd, depth, cx, cy, radiusStep, positions){
+  const r = depth * radiusStep;
+  const angle = (angleStart+angleEnd)/2;
+  const x = depth===0 ? cx : cx + r*Math.cos(angle);
+  const y = depth===0 ? cy : cy + r*Math.sin(angle);
+  positions.push({node, x, y, depth});
+  const children = node.children || [];
+  if(!children.length) return;
+  const totalW = children.reduce((s,c)=>s+weightMM(c),0) || 1;
+  let cursor = angleStart;
+  const span = angleEnd - angleStart;
+  children.forEach(child=>{
+    const w = weightMM(child);
+    const childSpan = span * (w/totalW);
+    layoutMM(child, cursor, cursor+childSpan, depth+1, cx, cy, radiusStep, positions);
+    cursor += childSpan;
+  });
+}
+
+function renderMMSvg(containerId, tree){
+  const container = document.getElementById(containerId);
+  const W = 800, H = 560, cx = W/2, cy = H/2;
+  const positions = [];
+  layoutMM(tree, 0, Math.PI*2, 0, cx, cy, 150, positions);
+
+  let lines = '';
+  let nodesHtml = '';
+  positions.forEach(p=>{
+    if(p.depth>0){
+      const parent = findParent(tree, p.node.id, null) || tree;
+      const pp = positions.find(pos=>pos.node.id===parent.id);
+      if(pp){
+        lines += `<line x1="${pp.x}" y1="${pp.y}" x2="${p.x}" y2="${p.y}" stroke="${p.node.color}" stroke-width="${Math.max(4-p.depth,1.5)}" stroke-linecap="round" opacity="0.75"/>`;
+      }
+    }
+  });
+  positions.forEach(p=>{
+    const isRoot = p.depth===0;
+    const w = Math.min(200, Math.max(70, p.node.title.length*9 + 24));
+    const h = isRoot ? 54 : (p.depth===1 ? 40 : 32);
+    const fontSize = isRoot ? 17 : (p.depth===1 ? 13 : 11.5);
+    const fill = isRoot ? '#F4C542' : p.node.color;
+    const textColor = isRoot ? '#221a00' : '#fff';
+    nodesHtml += `
+      <g>
+        <rect x="${p.x-w/2}" y="${p.y-h/2}" width="${w}" height="${h}" rx="${h/2}" fill="${fill}" stroke="rgba(255,255,255,.25)" stroke-width="1"/>
+        <text x="${p.x}" y="${p.y+fontSize*0.35}" text-anchor="middle" font-size="${fontSize}" font-weight="${isRoot?800:700}" fill="${textColor}" font-family="Tajawal, sans-serif">${escapeXml(p.node.title)}</text>
+      </g>`;
+  });
+  container.innerHTML = `<svg viewBox="0 0 ${W} ${H}" xmlns="http://www.w3.org/2000/svg">${lines}${nodesHtml}</svg>`;
+}
+function escapeXml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+function saveMindmap(){
+  const title = document.getElementById('mmMapTitle').value.trim();
+  if(!title){ alert('يرجى إدخال عنوان للخريطة.'); return; }
+  const stage = document.getElementById('mmMapStage').value;
+  const subject = document.getElementById('mmMapSubject').value.trim();
+  const editId = document.getElementById('mmEditId').value;
+  const list = getMindmaps();
+  const data = { id: editId || ('mm_'+Date.now()), title, stage, subject, tree: mmTree };
+  if(editId){
+    const idx = list.findIndex(m=>m.id===editId);
+    if(idx>-1) list[idx] = data;
+  } else list.push(data);
+  setMindmaps(list);
+  document.getElementById('panel-mm-builder').classList.remove('active');
+  document.getElementById('dashboardViewMM').style.display = 'block';
+  renderDashboardMM();
+}
+
+function deleteMindmap(id){
+  if(!confirm('هل تريدين حذف هذه الخريطة نهائيًا؟')) return;
+  setMindmaps(getMindmaps().filter(m=>m.id!==id));
+  document.getElementById('panel-mm-viewer').classList.remove('active');
+  document.getElementById('dashboardViewMM').style.display = 'block';
+  renderDashboardMM();
+}
+
+/* ---------------- VIEWER ---------------- */
+function openMMViewer(id){
+  const m = getMindmaps().find(x=>x.id===id);
+  if(!m) return;
+  currentMMViewId = id;
+  document.getElementById('mmViewerTitle').textContent = '🧠 ' + m.title;
+  renderMMSvg('mmViewerStage', m.tree);
+  document.getElementById('dashboardViewMM').style.display = 'none';
+  document.getElementById('panel-mm-builder').classList.remove('active');
+  document.getElementById('panel-mm-viewer').classList.add('active');
+}
+function backToMMDash(){
+  document.getElementById('panel-mm-viewer').classList.remove('active');
+  document.getElementById('dashboardViewMM').style.display = 'block';
+  renderDashboardMM();
+}
+function printMindmapView(){
+  const m = getMindmaps().find(x=>x.id===currentMMViewId);
+  if(!m) return;
+  document.getElementById('printMindmap').innerHTML = `<div style="padding:20px;">
+    <h1 style="text-align:center;font-family:'Rajdhani',sans-serif;">${m.title}</h1>
+    <p style="text-align:center;color:#555;">${m.subject||''} ${m.subject?'—':''} ${m.stage} — DONIA LABS TECH</p>
+    <div id="printMindmapSvg"></div>
+  </div>`;
+  renderMMSvg('printMindmapSvg', m.tree);
+  window.print();
+}
+
+renderDashboardMM();
+</script>
+</body>
+</html>

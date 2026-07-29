@@ -986,6 +986,20 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
                 <div class="doc-meta">ابنِ تجربتك التفاعلية بنفسك: صور، نقاط تفاعلية، وسؤال تقييمي</div>
               </div>
             </div>
+            <div class="doc-card" onclick="openLab('mindmap')" style="cursor:pointer;">
+              <div class="doc-icon">🧠</div>
+              <div class="doc-info">
+                <div class="doc-name">مولّد الخرائط الذهنية</div>
+                <div class="doc-meta">نظّم أي درس بصريًا بفروع وألوان تفاعلية، وصدّرها للطباعة</div>
+              </div>
+            </div>
+            <div class="doc-card" onclick="openLab('games')" style="cursor:pointer;">
+              <div class="doc-icon">🎮</div>
+              <div class="doc-info">
+                <div class="doc-name">الألعاب التعليمية</div>
+                <div class="doc-meta">لعبة ذاكرة ومسابقة سريعة — بمحتواكم الخاص، مثالية للابتدائي والمتوسط</div>
+              </div>
+            </div>
           </div>
         </div>
         <div id="labs-viewer" style="display:none;">
@@ -1503,7 +1517,9 @@ const LAB_MAP = {
   svt: { src: 'lab-svt.html', title: '🌿 مخبر علوم الطبيعة والحياة' },
   physics: { src: 'lab-physics.html', title: '⚡ مخبر الفيزياء' },
   chem: { src: 'lab-chem.html', title: '🧪 مخبر الكيمياء' },
-  custom: { src: 'lab-custom.html', title: '🧩 تجاربي الخاصة' }
+  custom: { src: 'lab-custom.html', title: '🧩 تجاربي الخاصة' },
+  mindmap: { src: 'lab-mindmap.html', title: '🧠 مولّد الخرائط الذهنية' },
+  games: { src: 'lab-games.html', title: '🎮 الألعاب التعليمية' }
 };
 function openLab(which) {
   const lab = LAB_MAP[which];

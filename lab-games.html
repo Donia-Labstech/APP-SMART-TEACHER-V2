@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مختبر دنيا الافتراضي | الألعاب التعليمية</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --gm-bg:#2B0F2E; --gm-panel:#3B1740; --gm-line:#57285C;
+  --gm-ink:#FBEFFA; --gm-pink:#F244A0; --gm-yellow:#F4D742;
+  --gm-teal:#22D3B8; --gm-blue:#3E8DFF; --gm-red:#E05A5A; --gm-green:#4FD07A;
+  --gm-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--gm-bg);background-image:radial-gradient(circle at 20% 10%,rgba(242,68,160,.12),transparent 45%),radial-gradient(circle at 85% 90%,rgba(34,211,184,.10),transparent 45%);font-family:'Tajawal',sans-serif;color:var(--gm-ink);min-height:100vh;padding:24px 14px 60px;}
+.gm-wrap{max-width:1000px;margin:0 auto;}
+.gm-header{text-align:center;margin-bottom:20px;}
+.gm-header h1{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:2.3rem;margin:0 0 4px;letter-spacing:1px;color:#fff;}
+.gm-header p{margin:0;color:#d7a8d3;font-size:.92rem;}
+
+.gm-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:10px;}
+.gm-card{background:var(--gm-panel);border:1px solid var(--gm-line);border-radius:14px;padding:18px;box-shadow:var(--gm-shadow);cursor:pointer;position:relative;transition:transform .15s,border-color .15s;}
+.gm-card:hover{transform:translateY(-3px);border-color:var(--gm-pink);}
+.gm-card .lvl{display:inline-block;background:var(--gm-pink);color:#fff;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+.gm-card .lvl.hs{background:var(--gm-red);}
+.gm-card .lvl.prim{background:var(--gm-teal);color:#180a1c;}
+.gm-card .type-badge{position:absolute;top:12px;left:44px;font-size:.68rem;background:#180a1c;padding:2px 8px;border-radius:10px;color:#d7a8d3;}
+.gm-card h3{font-family:'Rajdhani',sans-serif;margin:0 0 6px;color:#fff;font-size:1.15rem;font-weight:700;}
+.gm-card .icon{font-size:1.8rem;}
+.gm-card .card-tools{position:absolute;top:10px;left:10px;display:flex;gap:4px;}
+.gm-card .card-tool-btn{width:26px;height:26px;border-radius:6px;border:none;background:#180a1c;color:var(--gm-ink);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;opacity:.75;}
+.gm-card .card-tool-btn:hover{opacity:1;}
+.gm-card .meta{font-size:.75rem;color:#c99bc5;margin-top:6px;}
+.gm-best{font-size:.72rem;color:var(--gm-yellow);margin-top:4px;font-weight:700;}
+
+.gm-dashboard-summary{background:var(--gm-panel);border:1px solid var(--gm-line);border-radius:14px;padding:16px 20px;margin-bottom:16px;box-shadow:var(--gm-shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.gm-btn{padding:9px 16px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:'Tajawal';font-size:.82rem;}
+.gm-btn-pink{background:var(--gm-pink);color:#fff;}
+.gm-btn-teal{background:var(--gm-teal);color:#180a1c;}
+.gm-btn-ghost{background:#4a2050;color:var(--gm-ink);border:1px solid var(--gm-line);}
+.gm-btn-red{background:rgba(224,90,90,.18);color:var(--gm-red);border:1px solid rgba(224,90,90,.3);}
+
+.gm-empty{text-align:center;padding:50px 20px;color:#a678a3;}
+.gm-empty .big{font-size:3rem;margin-bottom:10px;}
+
+.gm-panel{background:var(--gm-panel);border:1px solid var(--gm-line);border-radius:14px;box-shadow:var(--gm-shadow);padding:26px;display:none;}
+.gm-panel.active{display:block;}
+.gm-back{background:none;border:none;color:var(--gm-pink);font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:10px;font-size:.9rem;}
+.gm-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.5rem;margin:0 0 14px;color:#fff;}
+
+.gm-field-label{display:block;font-size:.82rem;color:#d7a8d3;margin-bottom:6px;font-weight:700;}
+.gm-field-input{width:100%;padding:10px 14px;background:#4a2050;border:1px solid var(--gm-line);border-radius:8px;color:var(--gm-ink);font-family:'Tajawal';font-size:.9rem;outline:none;}
+.gm-field-input:focus{border-color:var(--gm-pink);}
+.gm-field-wrap{margin-bottom:14px;}
+.gm-meta-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:16px;}
+.gm-meta-row > div{flex:1;min-width:140px;}
+
+.gm-pair-row,.gm-q-block{background:#3B1740;border:1px solid var(--gm-line);border-radius:10px;padding:12px;margin-bottom:10px;position:relative;}
+.gm-pair-inputs{display:flex;gap:8px;}
+.gm-remove-btn{position:absolute;top:8px;left:8px;background:none;border:none;color:var(--gm-red);cursor:pointer;font-size:.9rem;}
+.gm-q-opt-row{display:flex;align-items:center;gap:8px;margin-bottom:6px;}
+.gm-q-opt-row input[type=radio]{accent-color:var(--gm-green);width:17px;height:17px;flex-shrink:0;}
+
+/* Memory game board */
+.gm-board{display:grid;gap:10px;margin:16px 0;}
+.gm-tile{aspect-ratio:1/1;background:linear-gradient(135deg,var(--gm-pink),#a8256e);border-radius:10px;display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:.85rem;font-weight:700;text-align:center;padding:6px;color:#fff;user-select:none;transition:transform .2s;box-shadow:0 4px 10px rgba(0,0,0,.3);}
+.gm-tile:hover{transform:scale(1.03);}
+.gm-tile.revealed{background:#fff;color:#2B0F2E;}
+.gm-tile.matched{background:var(--gm-green);color:#0a1f10;cursor:default;opacity:.85;}
+.gm-status-row{display:flex;gap:20px;flex-wrap:wrap;margin-bottom:10px;font-size:.85rem;color:#d7a8d3;}
+.gm-status-row b{color:#fff;}
+
+/* Quiz play */
+.gm-timer-wrap{height:8px;background:#4a2050;border-radius:4px;overflow:hidden;margin-bottom:18px;}
+.gm-timer-fill{height:100%;background:var(--gm-teal);border-radius:4px;}
+.gm-q-text{font-size:1.15rem;font-weight:800;margin-bottom:18px;color:#fff;}
+.gm-q-opt-btn{display:block;width:100%;text-align:right;padding:12px 16px;border-radius:10px;border:1px solid var(--gm-line);background:#4a2050;color:var(--gm-ink);cursor:pointer;font-family:'Tajawal';font-size:.92rem;margin-bottom:10px;}
+.gm-q-opt-btn.correct{background:rgba(79,208,122,.25);border-color:var(--gm-green);}
+.gm-q-opt-btn.wrong{background:rgba(224,90,90,.25);border-color:var(--gm-red);}
+.gm-score-badge{position:absolute;top:26px;left:26px;background:#180a1c;padding:6px 14px;border-radius:20px;font-weight:800;color:var(--gm-yellow);}
+.gm-review-item{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--gm-line);font-size:.85rem;}
+
+.gm-win-screen{text-align:center;padding:30px 10px;}
+.gm-win-screen .big{font-size:3.5rem;margin-bottom:10px;}
+
+.gm-footer{text-align:center;color:#6b3a68;font-size:.75rem;margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="gm-wrap">
+
+  <header class="gm-header">
+    <h1>مختبر دنيا الافتراضي</h1>
+    <p>الألعاب التعليمية — تعلّم يمرح</p>
+  </header>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div id="dashboardViewGM">
+    <div class="gm-dashboard-summary">
+      <div><b id="summaryTextGM">لا توجد ألعاب بعد</b></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="gm-btn gm-btn-teal" onclick="openMemoryBuilder()">🧠 لعبة ذاكرة جديدة</button>
+        <button class="gm-btn gm-btn-pink" onclick="openQuizBuilder()">⏱️ مسابقة سريعة جديدة</button>
+      </div>
+    </div>
+    <div id="stageBannerGM" style="margin-bottom:14px;font-size:.82rem;color:#d7a8d3;"></div>
+    <div class="gm-grid" id="gmGrid"></div>
+  </div>
+
+  <!-- ===================== MEMORY BUILDER ===================== -->
+  <div class="gm-panel" id="panel-memory-builder">
+    <button class="gm-back" onclick="cancelGMBuilder()">→ العودة إلى لوحة الألعاب</button>
+    <h2 class="gm-title" id="memoryBuilderModeTitle">لعبة ذاكرة جديدة</h2>
+    <input type="hidden" id="memEditId" value="">
+    <div class="gm-meta-row">
+      <div class="gm-field-wrap"><label class="gm-field-label">عنوان اللعبة *</label><input class="gm-field-input" id="memTitle" placeholder="مثال: عواصم الدول"></div>
+      <div class="gm-field-wrap"><label class="gm-field-label">الطور</label>
+        <select class="gm-field-input" id="memStage"><option value="الابتدائي">الابتدائي</option><option value="المتوسط" selected>المتوسط</option><option value="الثانوي">الثانوي</option></select>
+      </div>
+      <div class="gm-field-wrap"><label class="gm-field-label">المادة</label><input class="gm-field-input" id="memSubject" placeholder="مثال: جغرافيا"></div>
+    </div>
+    <label class="gm-field-label">أزواج التطابق (كلمة ↔ ما يقابلها) — 4 أزواج على الأقل</label>
+    <div id="memPairsList"></div>
+    <button class="gm-btn gm-btn-ghost" style="width:100%;margin-bottom:16px;" onclick="addMemoryPair()">➕ إضافة زوج</button>
+    <div style="display:flex;gap:10px;">
+      <button class="gm-btn gm-btn-teal" style="flex:1;" onclick="saveMemoryGame()">💾 حفظ اللعبة</button>
+      <button class="gm-btn gm-btn-ghost" onclick="cancelGMBuilder()">إلغاء</button>
+    </div>
+  </div>
+
+  <!-- ===================== QUIZ BUILDER ===================== -->
+  <div class="gm-panel" id="panel-quiz-builder">
+    <button class="gm-back" onclick="cancelGMBuilder()">→ العودة إلى لوحة الألعاب</button>
+    <h2 class="gm-title" id="quizBuilderModeTitle">مسابقة سريعة جديدة</h2>
+    <input type="hidden" id="quizEditId" value="">
+    <div class="gm-meta-row">
+      <div class="gm-field-wrap"><label class="gm-field-label">عنوان المسابقة *</label><input class="gm-field-input" id="quizTitle" placeholder="مثال: مراجعة سريعة في القواعد"></div>
+      <div class="gm-field-wrap"><label class="gm-field-label">الطور</label>
+        <select class="gm-field-input" id="quizStage"><option value="الابتدائي">الابتدائي</option><option value="المتوسط" selected>المتوسط</option><option value="الثانوي">الثانوي</option></select>
+      </div>
+      <div class="gm-field-wrap"><label class="gm-field-label">المادة</label><input class="gm-field-input" id="quizSubject" placeholder="مثال: لغة عربية"></div>
+    </div>
+    <label class="gm-field-label">الأسئلة — 3 أسئلة على الأقل</label>
+    <div id="quizQList"></div>
+    <button class="gm-btn gm-btn-ghost" style="width:100%;margin-bottom:16px;" onclick="addQuizQuestion()">➕ إضافة سؤال</button>
+    <div style="display:flex;gap:10px;">
+      <button class="gm-btn gm-btn-pink" style="flex:1;" onclick="saveQuizGame()">💾 حفظ المسابقة</button>
+      <button class="gm-btn gm-btn-ghost" onclick="cancelGMBuilder()">إلغاء</button>
+    </div>
+  </div>
+
+  <!-- ===================== MEMORY PLAY ===================== -->
+  <div class="gm-panel" id="panel-memory-play" style="position:relative;">
+    <button class="gm-back" onclick="backToGMDash()">→ العودة إلى لوحة الألعاب</button>
+    <h2 class="gm-title" id="memPlayTitle"></h2>
+    <div class="gm-status-row">
+      <div>المحاولات: <b id="memMoves">0</b></div>
+      <div>الأزواج المكتشفة: <b id="memMatched">0</b> / <span id="memTotalPairs">0</span></div>
+    </div>
+    <div class="gm-board" id="memBoard"></div>
+    <div id="memWinArea"></div>
+    <div style="display:flex;gap:10px;margin-top:14px;">
+      <button class="gm-btn gm-btn-ghost" onclick="restartMemoryPlay()">🔄 إعادة اللعب</button>
+      <button class="gm-btn gm-btn-ghost" onclick="editMemoryGame(currentMemPlayId)">✏️ تعديل</button>
+      <button class="gm-btn gm-btn-red" onclick="deleteGame(currentMemPlayId)">🗑️ حذف</button>
+    </div>
+  </div>
+
+  <!-- ===================== QUIZ PLAY ===================== -->
+  <div class="gm-panel" id="panel-quiz-play" style="position:relative;">
+    <button class="gm-back" onclick="backToGMDash()">→ العودة إلى لوحة الألعاب</button>
+    <div class="gm-score-badge" id="quizScoreBadge">النقاط: 0</div>
+    <h2 class="gm-title" id="quizPlayTitle" style="margin-top:36px;"></h2>
+    <div id="quizPlayArea"></div>
+  </div>
+
+  <div class="gm-footer">DONIA LABS TECH — وحدة الألعاب التعليمية</div>
+</div>
+
+<script>
+const STORE_KEY_GM = 'donia_games_v1';
+const PROGRESS_KEY_GM = 'donia_games_progress_v1';
+
+let showAllStagesGM = false;
+let currentMemPlayId = null;
+let currentQuizPlayId = null;
+
+function getGames(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_GM)) || []; }catch(e){ return []; } }
+function setGames(list){ localStorage.setItem(STORE_KEY_GM, JSON.stringify(list)); }
+function getGProgress(){ try{ return JSON.parse(localStorage.getItem(PROGRESS_KEY_GM)) || {}; }catch(e){ return {}; } }
+function setGProgress(p){ localStorage.setItem(PROGRESS_KEY_GM, JSON.stringify(p)); }
+
+function getStageGM(){ return localStorage.getItem('donia_stage_level') || ''; }
+function getVisibleGames(){
+  const stage = getStageGM();
+  const all = getGames();
+  if(!stage || showAllStagesGM) return all;
+  const filtered = all.filter(g=>g.stage===stage);
+  return filtered.length ? filtered : all;
+}
+function toggleShowAllStagesGM(){ showAllStagesGM = !showAllStagesGM; renderDashboardGM(); }
+function lvlClassGM(stage){ return stage==='الثانوي' ? 'hs' : (stage==='الابتدائي' ? 'prim' : ''); }
+
+function renderDashboardGM(){
+  const grid = document.getElementById('gmGrid');
+  const all = getGames();
+  const stage = getStageGM();
+  const list = getVisibleGames();
+  const progress = getGProgress();
+  const banner = document.getElementById('stageBannerGM');
+  if(stage && all.length){
+    banner.innerHTML = showAllStagesGM
+      ? `🎓 عرض كل الأطوار — <a href="#" onclick="toggleShowAllStagesGM();return false;" style="color:var(--gm-pink);">عرض طور ${stage} فقط</a>`
+      : `🎓 تُعرض ألعاب طور <b style="color:var(--gm-pink);">${stage}</b> فقط — <a href="#" onclick="toggleShowAllStagesGM();return false;" style="color:var(--gm-pink);">عرض كل الأطوار</a>`;
+  } else { banner.innerHTML = ''; }
+
+  document.getElementById('summaryTextGM').textContent = all.length ? `لديك ${all.length} لعبة محفوظة` : 'لا توجد ألعاب بعد';
+
+  if(!all.length){
+    grid.innerHTML = `<div class="gm-empty" style="grid-column:1/-1;"><div class="big">🎮</div><div>لم تُنشئي أي لعبة بعد. اختاري "لعبة ذاكرة" أو "مسابقة سريعة" للبدء.</div></div>`;
+    return;
+  }
+  grid.innerHTML = '';
+  list.forEach(g=>{
+    const best = progress[g.id];
+    const card = document.createElement('div');
+    card.className = 'gm-card';
+    const editFn = g.type==='memory' ? `editMemoryGame('${g.id}')` : `editQuizGame('${g.id}')`;
+    card.innerHTML = `
+      <div class="card-tools">
+        <button class="card-tool-btn" onclick="event.stopPropagation();${editFn}" title="تعديل">✏️</button>
+        <button class="card-tool-btn" onclick="event.stopPropagation();deleteGame('${g.id}')" title="حذف">🗑️</button>
+      </div>
+      <div class="type-badge">${g.type==='memory'?'🧠 ذاكرة':'⏱️ مسابقة'}</div>
+      <div class="icon">${g.type==='memory'?'🧠':'⏱️'}</div>
+      <div class="lvl ${lvlClassGM(g.stage)}">${g.stage}</div>
+      <h3>${g.title}</h3>
+      <div class="meta">${g.subject||''}</div>
+      ${best!==undefined ? `<div class="gm-best">${g.type==='memory' ? '🏆 أفضل نتيجة: '+best+' محاولة' : '🏆 أفضل نتيجة: '+best+' نقطة'}</div>` : ''}
+    `;
+    card.addEventListener('click', ()=> g.type==='memory' ? playMemoryGame(g.id) : playQuizGame(g.id));
+    grid.appendChild(card);
+  });
+}
+
+function cancelGMBuilder(){
+  document.querySelectorAll('.gm-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('dashboardViewGM').style.display = 'block';
+  renderDashboardGM();
+}
+function backToGMDash(){ cancelGMBuilder(); }
+function deleteGame(id){
+  if(!confirm('هل تريدين حذف هذه اللعبة نهائيًا؟')) return;
+  setGames(getGames().filter(g=>g.id!==id));
+  const p = getGProgress(); delete p[id]; setGProgress(p);
+  cancelGMBuilder();
+}
+
+/* ================= MEMORY BUILDER ================= */
+function addMemoryPair(a,b){
+  const list = document.getElementById('memPairsList');
+  const row = document.createElement('div');
+  row.className = 'gm-pair-row';
+  row.innerHTML = `
+    <button type="button" class="gm-remove-btn" onclick="this.closest('.gm-pair-row').remove()">🗑️</button>
+    <div class="gm-pair-inputs">
+      <input class="gm-field-input mem-pair-a" placeholder="الطرف الأول (مثال: باريس)" value="${(a||'').replace(/"/g,'&quot;')}">
+      <input class="gm-field-input mem-pair-b" placeholder="الطرف الثاني (مثال: فرنسا)" value="${(b||'').replace(/"/g,'&quot;')}">
+    </div>`;
+  list.appendChild(row);
+}
+function openMemoryBuilder(){
+  document.getElementById('memEditId').value = '';
+  document.getElementById('memoryBuilderModeTitle').textContent = 'لعبة ذاكرة جديدة';
+  document.getElementById('memTitle').value = '';
+  document.getElementById('memStage').value = 'المتوسط';
+  document.getElementById('memSubject').value = '';
+  document.getElementById('memPairsList').innerHTML = '';
+  for(let i=0;i<4;i++) addMemoryPair();
+  showPanel('panel-memory-builder');
+}
+function editMemoryGame(id){
+  const g = getGames().find(x=>x.id===id);
+  if(!g) return;
+  document.getElementById('memEditId').value = id;
+  document.getElementById('memoryBuilderModeTitle').textContent = 'تعديل لعبة الذاكرة';
+  document.getElementById('memTitle').value = g.title;
+  document.getElementById('memStage').value = g.stage;
+  document.getElementById('memSubject').value = g.subject || '';
+  document.getElementById('memPairsList').innerHTML = '';
+  g.pairs.forEach(p=>addMemoryPair(p.a,p.b));
+  showPanel('panel-memory-builder');
+}
+function saveMemoryGame(){
+  const title = document.getElementById('memTitle').value.trim();
+  if(!title){ alert('يرجى إدخال عنوان للعبة.'); return; }
+  const rows = document.querySelectorAll('#memPairsList .gm-pair-row');
+  const pairs = [];
+  rows.forEach(r=>{
+    const a = r.querySelector('.mem-pair-a').value.trim();
+    const b = r.querySelector('.mem-pair-b').value.trim();
+    if(a && b) pairs.push({a,b});
+  });
+  if(pairs.length < 4){ alert('يرجى إدخال 4 أزواج صحيحة على الأقل.'); return; }
+  const stage = document.getElementById('memStage').value;
+  const subject = document.getElementById('memSubject').value.trim();
+  const editId = document.getElementById('memEditId').value;
+  const list = getGames();
+  const data = { id: editId || ('gm_mem_'+Date.now()), type:'memory', title, stage, subject, pairs };
+  if(editId){ const idx=list.findIndex(g=>g.id===editId); if(idx>-1) list[idx]=data; }
+  else list.push(data);
+  setGames(list);
+  cancelGMBuilder();
+}
+
+/* ================= QUIZ BUILDER ================= */
+function addQuizQuestion(q, opts, correctIndex){
+  opts = opts || ['','',''];
+  const list = document.getElementById('quizQList');
+  const block = document.createElement('div');
+  block.className = 'gm-q-block';
+  const ci = correctIndex===undefined ? 0 : correctIndex;
+  const rid = 'qz_'+Math.random().toString(36).slice(2);
+  block.innerHTML = `
+    <button type="button" class="gm-remove-btn" onclick="this.closest('.gm-q-block').remove()">🗑️</button>
+    <input class="gm-field-input qz-question" placeholder="نص السؤال" value="${(q||'').replace(/"/g,'&quot;')}" style="margin-bottom:10px;">
+    <div class="gm-q-opt-row"><input type="radio" name="${rid}" value="0" ${ci===0?'checked':''}><input type="text" class="gm-field-input qz-opt" placeholder="الإجابة الأولى" value="${(opts[0]||'').replace(/"/g,'&quot;')}"></div>
+    <div class="gm-q-opt-row"><input type="radio" name="${rid}" value="1" ${ci===1?'checked':''}><input type="text" class="gm-field-input qz-opt" placeholder="الإجابة الثانية" value="${(opts[1]||'').replace(/"/g,'&quot;')}"></div>
+    <div class="gm-q-opt-row"><input type="radio" name="${rid}" value="2" ${ci===2?'checked':''}><input type="text" class="gm-field-input qz-opt" placeholder="الإجابة الثالثة" value="${(opts[2]||'').replace(/"/g,'&quot;')}"></div>
+  `;
+  list.appendChild(block);
+}
+function openQuizBuilder(){
+  document.getElementById('quizEditId').value = '';
+  document.getElementById('quizBuilderModeTitle').textContent = 'مسابقة سريعة جديدة';
+  document.getElementById('quizTitle').value = '';
+  document.getElementById('quizStage').value = 'المتوسط';
+  document.getElementById('quizSubject').value = '';
+  document.getElementById('quizQList').innerHTML = '';
+  for(let i=0;i<3;i++) addQuizQuestion();
+  showPanel('panel-quiz-builder');
+}
+function editQuizGame(id){
+  const g = getGames().find(x=>x.id===id);
+  if(!g) return;
+  document.getElementById('quizEditId').value = id;
+  document.getElementById('quizBuilderModeTitle').textContent = 'تعديل المسابقة';
+  document.getElementById('quizTitle').value = g.title;
+  document.getElementById('quizStage').value = g.stage;
+  document.getElementById('quizSubject').value = g.subject || '';
+  document.getElementById('quizQList').innerHTML = '';
+  g.questions.forEach(q=>addQuizQuestion(q.q, q.options, q.correctIndex));
+  showPanel('panel-quiz-builder');
+}
+function saveQuizGame(){
+  const title = document.getElementById('quizTitle').value.trim();
+  if(!title){ alert('يرجى إدخال عنوان للمسابقة.'); return; }
+  const blocks = document.querySelectorAll('#quizQList .gm-q-block');
+  const questions = [];
+  blocks.forEach(b=>{
+    const q = b.querySelector('.qz-question').value.trim();
+    const optEls = b.querySelectorAll('.qz-opt');
+    const opts = Array.from(optEls).map(o=>o.value.trim());
+    const checked = b.querySelector('input[type=radio]:checked');
+    const correctIndex = checked ? +checked.value : 0;
+    if(q && opts.every(o=>o)) questions.push({q, options:opts, correctIndex});
+  });
+  if(questions.length < 3){ alert('يرجى إدخال 3 أسئلة صحيحة على الأقل (بكل الإجابات).'); return; }
+  const stage = document.getElementById('quizStage').value;
+  const subject = document.getElementById('quizSubject').value.trim();
+  const editId = document.getElementById('quizEditId').value;
+  const list = getGames();
+  const data = { id: editId || ('gm_quiz_'+Date.now()), type:'quiz', title, stage, subject, questions };
+  if(editId){ const idx=list.findIndex(g=>g.id===editId); if(idx>-1) list[idx]=data; }
+  else list.push(data);
+  setGames(list);
+  cancelGMBuilder();
+}
+
+function showPanel(id){
+  document.querySelectorAll('.gm-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('dashboardViewGM').style.display = 'none';
+  document.getElementById(id).classList.add('active');
+}
+
+/* ================= MEMORY PLAY ================= */
+let memState = null; // {gameId, cards:[{pairKey,text,revealed,matched}], firstIdx, lock, moves, matchedCount}
+function shuffleArr(arr){
+  const a = arr.slice();
+  for(let i=a.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [a[i],a[j]]=[a[j],a[i]]; }
+  return a;
+}
+function playMemoryGame(id){
+  currentMemPlayId = id;
+  const g = getGames().find(x=>x.id===id);
+  if(!g) return;
+  document.getElementById('memPlayTitle').textContent = '🧠 ' + g.title;
+  showPanel('panel-memory-play');
+  startMemoryRound(g);
+}
+function restartMemoryPlay(){
+  const g = getGames().find(x=>x.id===currentMemPlayId);
+  if(g) startMemoryRound(g);
+}
+function startMemoryRound(g){
+  let cards = [];
+  g.pairs.forEach((p,i)=>{
+    cards.push({pairKey:i, text:p.a, revealed:false, matched:false});
+    cards.push({pairKey:i, text:p.b, revealed:false, matched:false});
+  });
+  cards = shuffleArr(cards);
+  memState = { gameId:g.id, cards, firstIdx:null, lock:false, moves:0, matchedCount:0, totalPairs:g.pairs.length };
+  document.getElementById('memWinArea').innerHTML = '';
+  renderMemoryBoard();
+  updateMemoryStatus();
+}
+function renderMemoryBoard(){
+  const board = document.getElementById('memBoard');
+  const n = memState.cards.length;
+  const cols = n<=8 ? 4 : (n<=12 ? 4 : 5);
+  board.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  board.innerHTML = '';
+  memState.cards.forEach((c,i)=>{
+    const tile = document.createElement('div');
+    tile.className = 'gm-tile' + (c.matched?' matched':'') + (c.revealed?' revealed':'');
+    tile.textContent = (c.revealed||c.matched) ? c.text : '❓';
+    tile.onclick = ()=>revealCard(i);
+    board.appendChild(tile);
+  });
+}
+function updateMemoryStatus(){
+  document.getElementById('memMoves').textContent = memState.moves;
+  document.getElementById('memMatched').textContent = memState.matchedCount;
+  document.getElementById('memTotalPairs').textContent = memState.totalPairs;
+}
+function revealCard(i){
+  if(memState.lock) return;
+  const c = memState.cards[i];
+  if(c.revealed || c.matched) return;
+  c.revealed = true;
+  renderMemoryBoard();
+  if(memState.firstIdx === null){
+    memState.firstIdx = i;
+    return;
+  }
+  memState.moves++;
+  const first = memState.cards[memState.firstIdx];
+  if(first.pairKey === c.pairKey && memState.firstIdx !== i){
+    first.matched = true; c.matched = true;
+    memState.matchedCount++;
+    memState.firstIdx = null;
+    renderMemoryBoard();
+    updateMemoryStatus();
+    if(memState.matchedCount === memState.totalPairs) finishMemoryGame();
+    return;
+  }
+  memState.lock = true;
+  updateMemoryStatus();
+  setTimeout(()=>{
+    first.revealed = false;
+    c.revealed = false;
+    memState.firstIdx = null;
+    memState.lock = false;
+    renderMemoryBoard();
+  }, 800);
+}
+function finishMemoryGame(){
+  const progress = getGProgress();
+  const prevBest = progress[memState.gameId];
+  if(prevBest === undefined || memState.moves < prevBest) progress[memState.gameId] = memState.moves;
+  setGProgress(progress);
+  document.getElementById('memWinArea').innerHTML = `
+    <div class="gm-win-screen">
+      <div class="big">🎉</div>
+      <div style="font-size:1.1rem;font-weight:800;">أحسنت! أنجزت اللعبة في ${memState.moves} محاولة</div>
+    </div>`;
+}
+
+/* ================= QUIZ PLAY ================= */
+let quizState = null; // {gameId, questions, idx, score, timerHandle, answers:[]}
+const QUIZ_TIME = 15;
+function playQuizGame(id){
+  currentQuizPlayId = id;
+  const g = getGames().find(x=>x.id===id);
+  if(!g) return;
+  document.getElementById('quizPlayTitle').textContent = '⏱️ ' + g.title;
+  showPanel('panel-quiz-play');
+  quizState = { gameId:id, questions: shuffleArr(g.questions), idx:0, score:0, answers:[] };
+  document.getElementById('quizScoreBadge').textContent = 'النقاط: 0';
+  renderQuizQuestion();
+}
+function renderQuizQuestion(){
+  const area = document.getElementById('quizPlayArea');
+  if(quizState.idx >= quizState.questions.length){ finishQuizGame(); return; }
+  const q = quizState.questions[quizState.idx];
+  area.innerHTML = `
+    <div class="gm-timer-wrap"><div class="gm-timer-fill" id="quizTimerFill" style="width:100%;"></div></div>
+    <div class="gm-q-text">${quizState.idx+1}. ${q.q}</div>
+    <div id="quizOptsArea">${q.options.map((o,i)=>`<button type="button" class="gm-q-opt-btn" onclick="answerQuizQuestion(${i})">${o}</button>`).join('')}</div>
+  `;
+  let timeLeft = QUIZ_TIME;
+  const fill = document.getElementById('quizTimerFill');
+  clearInterval(quizState.timerHandle);
+  quizState.timerHandle = setInterval(()=>{
+    timeLeft -= 0.2;
+    if(fill) fill.style.width = Math.max(0,(timeLeft/QUIZ_TIME)*100)+'%';
+    if(timeLeft <= 0){
+      clearInterval(quizState.timerHandle);
+      answerQuizQuestion(-1); // timeout, no answer selected
+    }
+  }, 200);
+  quizState._timeLeftRef = ()=>timeLeft;
+}
+function answerQuizQuestion(choiceIndex){
+  clearInterval(quizState.timerHandle);
+  const q = quizState.questions[quizState.idx];
+  const buttons = document.querySelectorAll('#quizOptsArea .gm-q-opt-btn');
+  buttons.forEach(b=>b.disabled = true);
+  const correct = choiceIndex === q.correctIndex;
+  if(buttons[q.correctIndex]) buttons[q.correctIndex].classList.add('correct');
+  if(!correct && choiceIndex>=0 && buttons[choiceIndex]) buttons[choiceIndex].classList.add('wrong');
+  let points = 0;
+  if(correct){
+    const timeLeft = quizState._timeLeftRef ? Math.max(0, quizState._timeLeftRef()) : 0;
+    points = 10 + Math.round(timeLeft);
+    quizState.score += points;
+  }
+  quizState.answers.push({ q: q.q, chosen: choiceIndex, correctIndex: q.correctIndex, correct });
+  document.getElementById('quizScoreBadge').textContent = 'النقاط: ' + quizState.score;
+  setTimeout(()=>{
+    quizState.idx++;
+    renderQuizQuestion();
+  }, 1100);
+}
+function finishQuizGame(){
+  const progress = getGProgress();
+  const prevBest = progress[quizState.gameId];
+  if(prevBest === undefined || quizState.score > prevBest) progress[quizState.gameId] = quizState.score;
+  setGProgress(progress);
+  const correctCount = quizState.answers.filter(a=>a.correct).length;
+  document.getElementById('quizPlayArea').innerHTML = `
+    <div class="gm-win-screen">
+      <div class="big">🏁</div>
+      <div style="font-size:1.15rem;font-weight:800;">انتهت المسابقة! النتيجة: ${quizState.score} نقطة</div>
+      <div style="color:#d7a8d3;margin-top:4px;">${correctCount} من ${quizState.answers.length} إجابات صحيحة</div>
+    </div>
+    <div style="margin-top:16px;">
+      ${quizState.answers.map((a,i)=>`
+        <div class="gm-review-item">
+          <span>${i+1}. ${a.q}</span>
+          <span style="color:${a.correct?'var(--gm-green)':'var(--gm-red)'};font-weight:700;">${a.correct?'✅':'❌'}</span>
+        </div>`).join('')}
+    </div>
+    <div style="display:flex;gap:10px;margin-top:18px;">
+      <button class="gm-btn gm-btn-ghost" onclick="playQuizGame('${quizState.gameId}')">🔄 إعادة اللعب</button>
+      <button class="gm-btn gm-btn-ghost" onclick="editQuizGame('${quizState.gameId}')">✏️ تعديل</button>
+      <button class="gm-btn gm-btn-red" onclick="deleteGame('${quizState.gameId}')">🗑️ حذف</button>
+    </div>
+  `;
+}
+
+renderDashboardGM();
+</script>
+</body>
+</html>
