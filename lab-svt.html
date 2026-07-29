@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مختبر ديونيا الافتراضي | علوم الطبيعة والحياة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --svt-paper:#F1ECDD; --svt-line:#d8cfb2; --svt-ink:#1F3D2B;
+  --svt-leaf:#4C7A3D; --svt-leaf-dark:#2E5023; --svt-brass:#A67C3D;
+  --svt-red:#8B3A3A; --svt-shadow:0 8px 24px rgba(31,61,43,0.25);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:#122016;background-image:radial-gradient(circle at 20% 15%,rgba(255,255,255,.04),transparent 45%),radial-gradient(circle at 85% 85%,rgba(255,255,255,.04),transparent 45%);font-family:'Tajawal',sans-serif;color:var(--svt-ink);min-height:100vh;padding:24px 14px 60px;}
+.svt-wrap{max-width:980px;margin:0 auto;}
+.svt-header{text-align:center;color:#EAF0E2;margin-bottom:20px;}
+.svt-header h1{font-family:'Amiri',serif;font-size:2.3rem;margin:0 0 4px;}
+.svt-header p{margin:0;color:#b9c9ae;font-size:.92rem;}
+.svt-namebar{display:flex;justify-content:center;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+.svt-namebar input{padding:8px 14px;border-radius:8px;border:none;font-family:'Tajawal';font-size:.9rem;min-width:220px;text-align:center;}
+.svt-namebar button{padding:8px 18px;border-radius:8px;border:none;background:var(--svt-brass);color:#fff;font-weight:700;cursor:pointer;}
+
+/* dashboard */
+.svt-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:10px;}
+.svt-card{background:var(--svt-paper);border:2px solid var(--svt-leaf-dark);border-radius:14px;padding:18px;box-shadow:var(--svt-shadow);cursor:pointer;position:relative;transition:transform .15s;}
+.svt-card:hover{transform:translateY(-3px);}
+.svt-card .lvl{display:inline-block;background:var(--svt-brass);color:#fff;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+.svt-card h3{font-family:'Amiri',serif;margin:0 0 6px;color:var(--svt-leaf-dark);font-size:1.15rem;}
+.svt-card .icon{font-size:1.8rem;}
+.svt-card .badge{position:absolute;top:12px;left:12px;font-size:1.2rem;}
+.svt-progress-wrap{background:#122016;border:1px solid var(--svt-leaf-dark);border-radius:20px;height:8px;overflow:hidden;margin-top:10px;}
+.svt-progress-bar{background:var(--svt-leaf);height:100%;width:0%;transition:width .4s;}
+
+.svt-dashboard-summary{background:var(--svt-paper);border:2px solid var(--svt-leaf-dark);border-radius:14px;padding:16px 20px;margin-bottom:22px;box-shadow:var(--svt-shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.svt-print-btn{background:var(--svt-leaf-dark);color:#fff;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Tajawal';}
+
+/* experiment panel */
+.svt-panel{background:var(--svt-paper);border:2px solid var(--svt-leaf-dark);border-radius:14px;box-shadow:var(--svt-shadow);padding:26px;display:none;background-image:repeating-linear-gradient(0deg,transparent 0 27px,var(--svt-line) 27px 28px);}
+.svt-panel.active{display:block;}
+.svt-back{background:none;border:none;color:var(--svt-leaf-dark);font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:10px;font-size:.9rem;}
+.svt-exp-tag{display:inline-block;background:var(--svt-brass);color:#fff;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;margin-bottom:8px;}
+.svt-exp-title{font-family:'Amiri',serif;font-size:1.6rem;margin:0 0 4px;color:var(--svt-leaf-dark);}
+.svt-exp-sub{margin:0 0 18px;color:#5a5238;font-size:.88rem;}
+
+.svt-layout{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;}
+.svt-info-card{background:#fff;border-right:5px solid var(--svt-leaf);border-radius:8px;padding:14px 16px;min-height:100px;font-size:.9rem;line-height:1.7;}
+.svt-info-card b{color:var(--svt-leaf-dark);}
+.svt-hint{font-size:.78rem;color:#8a8265;margin-top:8px;}
+
+/* exp1 microscope */
+.svt-scope-stage{flex:1 1 300px;background:#0f2417;border-radius:50%;aspect-ratio:1/1;max-width:320px;margin:0 auto;position:relative;overflow:hidden;border:9px solid #d9d2b8;box-shadow:inset 0 0 40px rgba(0,0,0,.6);}
+.svt-scope-stage svg{width:100%;height:100%;transition:transform .3s;}
+.svt-part{cursor:pointer;transition:filter .15s;}
+.svt-part:hover{filter:brightness(1.3);}
+.svt-toggle-row{display:flex;gap:8px;margin-bottom:14px;}
+.svt-mode-btn{flex:1;padding:8px;border-radius:8px;border:2px solid var(--svt-leaf-dark);background:#e9e2c9;font-family:'Tajawal';font-weight:700;cursor:pointer;font-size:.85rem;}
+.svt-mode-btn.active{background:var(--svt-leaf);color:#fff;}
+.svt-zoom-row{display:flex;align-items:center;gap:8px;margin-bottom:10px;}
+.svt-zoom-row input[type=range]{flex:1;accent-color:var(--svt-leaf);}
+
+/* exp2 reagents */
+.svt-tube{width:70px;height:150px;border:3px solid #555;border-bottom-left-radius:30px;border-bottom-right-radius:30px;margin:0 auto;position:relative;background:#eef;overflow:hidden;}
+.svt-tube-liquid{position:absolute;bottom:0;left:0;right:0;height:60%;background:#cfd8dc;transition:background .6s;}
+.svt-select-row{display:flex;gap:10px;margin-bottom:14px;flex-wrap:wrap;}
+.svt-select-row select{padding:8px 10px;border-radius:8px;border:2px solid var(--svt-leaf-dark);font-family:'Tajawal';flex:1;min-width:140px;}
+.svt-go-btn{background:var(--svt-leaf);color:#fff;border:none;padding:9px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:14px;}
+
+/* exp3 photosynthesis */
+.svt-photo-stage{flex:1 1 300px;background:linear-gradient(#cfe8ff,#eaf6d9);border-radius:14px;border:3px solid var(--svt-leaf-dark);padding:10px;position:relative;overflow:hidden;min-height:300px;}
+.svt-sun{position:absolute;top:10px;left:10px;width:42px;height:42px;border-radius:50%;background:#F4C542;box-shadow:0 0 0 8px rgba(244,197,66,.25);transition:opacity .3s;}
+.svt-sun.off{opacity:.08;box-shadow:none;}
+.svt-gas{position:absolute;font-weight:700;font-size:.8rem;padding:2px 8px;border-radius:12px;transition:opacity 1.4s ease;}
+.svt-gas.co2{background:#6b7d8f;color:#fff;}
+.svt-gas.o2{background:#4C7A3D;color:#fff;}
+
+/* exp4 genetics */
+.svt-punnett{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;max-width:280px;margin:14px auto;text-align:center;font-weight:700;}
+.svt-punnett div{background:#fff;border:1px solid var(--svt-leaf-dark);border-radius:6px;padding:10px 4px;font-size:.95rem;}
+.svt-punnett .head{background:var(--svt-leaf-dark);color:#fff;}
+.svt-ratio-bar{display:flex;height:26px;border-radius:6px;overflow:hidden;margin-top:10px;border:1px solid var(--svt-leaf-dark);}
+.svt-ratio-bar span{display:flex;align-items:center;justify-content:center;font-size:.75rem;color:#fff;font-weight:700;}
+
+/* quiz */
+.svt-quiz{margin-top:20px;border-top:2px dashed #b7ac86;padding-top:14px;}
+.svt-quiz p{font-weight:700;margin:0 0 10px;}
+.svt-quiz .opts{display:flex;flex-direction:column;gap:8px;}
+.svt-opt-btn{text-align:right;padding:9px 14px;border-radius:8px;border:2px solid #c9bf9a;background:#fff;cursor:pointer;font-family:'Tajawal';}
+.svt-opt-btn.correct{background:#d7ecc9;border-color:var(--svt-leaf);}
+.svt-opt-btn.wrong{background:#f3d3d3;border-color:var(--svt-red);}
+.svt-complete-msg{display:none;margin-top:10px;font-weight:700;color:var(--svt-leaf-dark);}
+
+.svt-footer{text-align:center;color:#8fa78a;font-size:.75rem;margin-top:24px;}
+
+@media print{
+  body{background:#fff;padding:0;}
+  .svt-tabs,.svt-namebar,.svt-print-btn,.svt-back,.no-print{display:none!important;}
+  .svt-panel{display:none!important;}
+  #printReport{display:block!important;}
+}
+#printReport{display:none;}
+</style>
+</head>
+<body>
+<div class="svt-wrap">
+
+  <header class="svt-header">
+    <h1>مختبر ديونيا الافتراضي</h1>
+    <p>علوم الطبيعة والحياة — تجارب تفاعلية حسب المستوى الدراسي</p>
+  </header>
+
+  <div class="svt-namebar no-print">
+    <input type="text" id="studentName" placeholder="اسم التلميذ (اختياري)">
+    <button onclick="saveName()">حفظ الاسم</button>
+  </div>
+
+  <div id="dashboardView">
+    <div class="svt-dashboard-summary no-print">
+      <div><b id="summaryText">لم تُنجز أي تجربة بعد</b></div>
+      <button class="svt-print-btn" onclick="printReport()">🖨️ طباعة التقرير</button>
+    </div>
+    <div class="svt-grid" id="svtGrid"></div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 1: MICROSCOPE ===================== -->
+  <div class="svt-panel" id="panel-cell">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag">المتوسط</span>
+    <h2 class="svt-exp-title">المجهر الافتراضي: مقارنة الخلايا</h2>
+    <p class="svt-exp-sub">بدّل بين الخلية النباتية والحيوانية، وانقر على كل جزء لاكتشاف اسمه ووظيفته.</p>
+
+    <div class="svt-toggle-row">
+      <button class="svt-mode-btn active" id="plantBtn" onclick="setCellType('plant')">🌱 خلية نباتية</button>
+      <button class="svt-mode-btn" id="animalBtn" onclick="setCellType('animal')">🐾 خلية حيوانية</button>
+    </div>
+
+    <div class="svt-layout">
+      <div class="svt-scope-stage"><svg viewBox="0 0 200 200" id="cellSvg"></svg></div>
+      <div style="flex:1 1 260px;">
+        <div class="svt-zoom-row">
+          <span style="font-size:.8rem;">40x</span>
+          <input type="range" min="1" max="4" value="1" oninput="updateZoomCell(this.value)">
+          <span style="font-size:.8rem;">400x</span>
+        </div>
+        <div class="svt-info-card" id="cellInfo">👆 انقر على أي جزء من الخلية لمعرفة اسمه ووظيفته.</div>
+        <p class="svt-hint">لاحظ: الخلية الحيوانية لا تملك جدارًا خلويًا ولا بلاستيدات خضراء.</p>
+      </div>
+    </div>
+
+    <div class="svt-quiz">
+      <p>ما الفرق الأساسي الذي يميّز الخلية النباتية عن الحيوانية؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'cell')">حجم النواة</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'cell')">وجود جدار خلوي وبلاستيدات خضراء</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'cell')">وجود غشاء هيولي</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 2: REAGENTS ===================== -->
+  <div class="svt-panel" id="panel-reagents">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag">المتوسط</span>
+    <h2 class="svt-exp-title">الكشف عن الأغذية بالكواشف الكيميائية</h2>
+    <p class="svt-exp-sub">اختر الكاشف والعينة، ثم راقب تغيّر لون المحلول.</p>
+
+    <div class="svt-layout">
+      <div style="flex:1 1 200px;">
+        <div class="svt-tube"><div class="svt-tube-liquid" id="tubeLiquid"></div></div>
+      </div>
+      <div style="flex:2 1 320px;">
+        <div class="svt-select-row">
+          <select id="reagentSelect">
+            <option value="lugol">ماء اليود (لوغول)</option>
+            <option value="fehling">كاشف فيلينغ</option>
+            <option value="sudan">كاشف السودان III</option>
+          </select>
+          <select id="sampleSelect">
+            <option value="bread">خبز (نشويات)</option>
+            <option value="potato">بطاطا (نشويات)</option>
+            <option value="sugar">محلول سكر</option>
+            <option value="oil">زيت (دهون)</option>
+          </select>
+        </div>
+        <button class="svt-go-btn" onclick="runReagentTest()">🧪 أضف الكاشف</button>
+        <div class="svt-info-card" id="reagentInfo">اختر الكاشف والعينة، ثم اضغط "أضف الكاشف".</div>
+      </div>
+    </div>
+
+    <div class="svt-quiz">
+      <p>أي كاشف يُستعمل للكشف عن النشاء؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'reagents')">كاشف فيلينغ</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'reagents')">ماء اليود (لوغول)</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'reagents')">كاشف السودان III</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 3: PHOTOSYNTHESIS ===================== -->
+  <div class="svt-panel" id="panel-photo">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag">الثانوي</span>
+    <h2 class="svt-exp-title">التركيب الضوئي في الورقة النباتية</h2>
+    <p class="svt-exp-sub">فعّل الضوء أو أطفئه، وراقب تبادل الغازات عند سطح الورقة.</p>
+
+    <div class="svt-layout">
+      <div class="svt-photo-stage">
+        <div class="svt-sun" id="sun"></div>
+        <svg viewBox="0 0 260 220" style="position:absolute;bottom:0;right:10px;width:200px;">
+          <path d="M130 210 C60 190,40 120,90 60 C120 20,170 20,190 50 C210 90,180 160,130 210 Z" fill="#3f7d3a" stroke="#2E5023" stroke-width="4"/>
+          <line x1="130" y1="210" x2="140" y2="70" stroke="#2E5023" stroke-width="3"/>
+        </svg>
+        <span class="svt-gas co2" style="top:36px;left:20px;">CO₂</span>
+        <span class="svt-gas o2" id="o2gas" style="top:66px;right:20px;">O₂</span>
+        <span class="svt-gas co2" style="bottom:26px;left:36px;">CO₂</span>
+      </div>
+      <div style="flex:1 1 260px;">
+        <div class="svt-toggle-row">
+          <button class="svt-mode-btn active" id="lightBtn" onclick="setLight(true)">☀️ ضوء</button>
+          <button class="svt-mode-btn" id="darkBtn" onclick="setLight(false)">🌙 ظلام</button>
+        </div>
+        <div class="svt-info-card" id="photoInfo">في الضوء: تمتص الورقة CO₂ وتطلق O₂ ناتج عن التركيب الضوئي، مع استمرار التنفس الخلوي.</div>
+      </div>
+    </div>
+
+    <div class="svt-quiz">
+      <p>ماذا يحدث لإطلاق الأكسجين عند وضع النبتة في الظلام؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'photo')">يزداد بشكل كبير</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'photo')">يتوقف تقريبًا لأن التركيب الضوئي يحتاج الضوء</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'photo')">يبقى دون تغيير</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 4: GENETICS ===================== -->
+  <div class="svt-panel" id="panel-genetics">
+    <button class="svt-back" onclick="backToDash()">→ العودة إلى لوحة التجارب</button>
+    <span class="svt-exp-tag">الثانوي</span>
+    <h2 class="svt-exp-title">الوراثة: مربع بونيت التفاعلي</h2>
+    <p class="svt-exp-sub">اختر الطراز الوراثي لكل والد (A = أرجواني سائد، a = أبيض متنحي) وشاهد نتائج التزاوج.</p>
+
+    <div class="svt-select-row">
+      <select id="parent1">
+        <option value="AA">AA (نقي سائد)</option>
+        <option value="Aa" selected>Aa (متخالف)</option>
+        <option value="aa">aa (نقي متنحٍ)</option>
+      </select>
+      <select id="parent2">
+        <option value="AA">AA (نقي سائد)</option>
+        <option value="Aa" selected>Aa (متخالف)</option>
+        <option value="aa">aa (نقي متنحٍ)</option>
+      </select>
+      <button class="svt-go-btn" onclick="runPunnett()" style="margin:0;">🧬 حساب النتيجة</button>
+    </div>
+
+    <div class="svt-punnett" id="punnettGrid"></div>
+    <div class="svt-ratio-bar" id="ratioBar"></div>
+    <div class="svt-info-card" id="geneticsInfo" style="margin-top:12px;">اضغط "حساب النتيجة" لعرض مربع بونيت ونسب الأنماط الظاهرية.</div>
+
+    <div class="svt-quiz">
+      <p>ماذا نسمّي الطراز الوراثي Aa؟</p>
+      <div class="opts">
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'genetics')">متماثل الجينات (نقي)</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,true,'genetics')">متخالف الجينات (هجين)</button>
+        <button class="svt-opt-btn" onclick="answerQuiz(this,false,'genetics')">متنحٍ نقي</button>
+      </div>
+      <div class="svt-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <div id="printReport"></div>
+  <div class="svt-footer">DONIA LABS TECH — وحدة المختبر الافتراضي | علوم الطبيعة والحياة</div>
+</div>
+
+<script>
+const EXPERIMENTS = [
+  {id:'cell', title:'المجهر الافتراضي: مقارنة الخلايا', level:'المتوسط', icon:'🔬'},
+  {id:'reagents', title:'الكشف عن الأغذية بالكواشف', level:'المتوسط', icon:'🧪'},
+  {id:'photo', title:'التركيب الضوئي', level:'الثانوي', icon:'🌿'},
+  {id:'genetics', title:'الوراثة: مربع بونيت', level:'الثانوي', icon:'🧬'}
+];
+const STORE_KEY = 'donia_svt_progress_v1';
+const NAME_KEY = 'donia_svt_student_name';
+
+function getProgress(){
+  try{ return JSON.parse(localStorage.getItem(STORE_KEY)) || {}; }catch(e){ return {}; }
+}
+function setProgress(p){ localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
+
+function renderDashboard(){
+  const grid = document.getElementById('svtGrid');
+  const progress = getProgress();
+  grid.innerHTML = '';
+  let done = 0;
+  EXPERIMENTS.forEach(exp=>{
+    const isDone = !!progress[exp.id];
+    if(isDone) done++;
+    const card = document.createElement('div');
+    card.className = 'svt-card';
+    card.onclick = ()=>openExperiment(exp.id);
+    card.innerHTML = `
+      ${isDone ? '<div class="badge">✅</div>' : ''}
+      <div class="icon">${exp.icon}</div>
+      <div class="lvl">${exp.level}</div>
+      <h3>${exp.title}</h3>
+      <div class="svt-progress-wrap"><div class="svt-progress-bar" style="width:${isDone?100:0}%"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+  document.getElementById('summaryText').textContent =
+    `التقدم: ${done} من ${EXPERIMENTS.length} تجارب مُنجزة`;
+}
+
+function openExperiment(id){
+  document.getElementById('dashboardView').style.display = 'none';
+  document.getElementById('panel-'+id).classList.add('active');
+  if(id==='cell') initCell();
+}
+function backToDash(){
+  document.querySelectorAll('.svt-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('dashboardView').style.display = 'block';
+  renderDashboard();
+}
+function completeExperiment(id){
+  const p = getProgress(); p[id] = true; setProgress(p);
+}
+function answerQuiz(btn, correct, expId){
+  const opts = btn.parentElement.querySelectorAll('.svt-opt-btn');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  const msg = btn.closest('.svt-quiz').querySelector('.svt-complete-msg');
+  if(correct){ msg.style.display='block'; completeExperiment(expId); }
+}
+
+function saveName(){
+  const v = document.getElementById('studentName').value.trim();
+  localStorage.setItem(NAME_KEY, v);
+}
+function loadName(){
+  const v = localStorage.getItem(NAME_KEY);
+  if(v) document.getElementById('studentName').value = v;
+}
+
+function printReport(){
+  const progress = getProgress();
+  const name = localStorage.getItem(NAME_KEY) || 'غير محدد';
+  const done = EXPERIMENTS.filter(e=>progress[e.id]);
+  let html = `<div style="font-family:'Amiri',serif;padding:30px;">
+    <h1 style="text-align:center;">تقرير المختبر الافتراضي</h1>
+    <p style="text-align:center;">علوم الطبيعة والحياة — DONIA LABS TECH</p>
+    <hr>
+    <p><b>اسم التلميذ:</b> ${name}</p>
+    <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-DZ')}</p>
+    <p><b>التجارب المُنجزة:</b> ${done.length} من ${EXPERIMENTS.length}</p>
+    <ul>${EXPERIMENTS.map(e=>`<li>${e.icon} ${e.title} (${e.level}) — ${progress[e.id]?'✅ منجزة':'⏳ غير منجزة'}</li>`).join('')}</ul>
+  </div>`;
+  document.getElementById('printReport').innerHTML = html;
+  window.print();
+}
+
+/* ---------- Experiment 1: cell ---------- */
+const cellParts = {
+  plant: {
+    svg: `
+      <rect class="svt-part" data-name="wall" x="15" y="15" width="170" height="170" rx="26" fill="none" stroke="#7a9c5e" stroke-width="8"/>
+      <rect class="svt-part" data-name="membrane" x="22" y="22" width="156" height="156" rx="22" fill="#d9ecc9" stroke="#4C7A3D" stroke-width="3"/>
+      <ellipse class="svt-part" data-name="vacuole" cx="100" cy="115" rx="55" ry="45" fill="#bcd9f2" opacity=".85"/>
+      <circle class="svt-part" data-name="nucleus" cx="65" cy="65" r="26" fill="#8B3A3A" opacity=".9"/>
+      <circle cx="65" cy="65" r="10" fill="#5c1f1f"/>
+      <ellipse class="svt-part" data-name="chloro" cx="135" cy="55" rx="14" ry="9" fill="#2E7D32"/>
+      <ellipse class="svt-part" data-name="chloro" cx="150" cy="90" rx="14" ry="9" fill="#2E7D32"/>
+      <ellipse class="svt-part" data-name="chloro" cx="45" cy="140" rx="14" ry="9" fill="#2E7D32"/>`,
+    info: {
+      wall:{name:'الجدار الخلوي',desc:'طبقة صلبة من السليلوز تحيط بالخلية وتحدد شكلها وتحميها.'},
+      membrane:{name:'الغشاء الهيولي',desc:'ينظم دخول وخروج المواد من وإلى الخلية.'},
+      vacuole:{name:'الفجوة العصارية',desc:'تخزّن الماء والمواد الغذائية.'},
+      nucleus:{name:'النواة',desc:'مركز التحكم، تحتوي على المادة الوراثية.'},
+      chloro:{name:'البلاستيدات الخضراء',desc:'مسؤولة عن التركيب الضوئي بفضل الكلوروفيل.'}
+    }
+  },
+  animal: {
+    svg: `
+      <circle class="svt-part" data-name="membrane2" cx="100" cy="100" r="82" fill="#f5dfe0" stroke="#8B3A3A" stroke-width="3"/>
+      <circle class="svt-part" data-name="nucleus" cx="90" cy="90" r="28" fill="#8B3A3A" opacity=".9"/>
+      <circle cx="90" cy="90" r="11" fill="#5c1f1f"/>
+      <ellipse class="svt-part" data-name="mito" cx="145" cy="70" rx="16" ry="8" fill="#c98a3a"/>
+      <ellipse class="svt-part" data-name="mito" cx="140" cy="130" rx="16" ry="8" fill="#c98a3a"/>
+      <ellipse class="svt-part" data-name="vacuole2" cx="60" cy="140" rx="20" ry="14" fill="#bcd9f2"/>`,
+    info: {
+      membrane2:{name:'الغشاء الهيولي',desc:'هو الغشاء الوحيد المحيط بالخلية الحيوانية (لا يوجد جدار خلوي).'},
+      nucleus:{name:'النواة',desc:'مركز التحكم، تحتوي على المادة الوراثية.'},
+      mito:{name:'الميتوكوندري',desc:'مسؤولة عن إنتاج الطاقة عبر التنفس الخلوي.'},
+      vacuole2:{name:'فجوة صغيرة',desc:'أصغر بكثير من فجوة الخلية النباتية وقد تكون غائبة.'}
+    }
+  }
+};
+let currentCellType = 'plant';
+function initCell(){ renderCell(); }
+function setCellType(type){
+  currentCellType = type;
+  document.getElementById('plantBtn').classList.toggle('active', type==='plant');
+  document.getElementById('animalBtn').classList.toggle('active', type==='animal');
+  renderCell();
+}
+function renderCell(){
+  const data = cellParts[currentCellType];
+  document.getElementById('cellSvg').innerHTML = data.svg;
+  document.getElementById('cellInfo').innerHTML = '👆 انقر على أي جزء من الخلية لمعرفة اسمه ووظيفته.';
+  document.querySelectorAll('#cellSvg .svt-part').forEach(el=>{
+    el.addEventListener('click', ()=>{
+      const info = data.info[el.dataset.name];
+      document.getElementById('cellInfo').innerHTML = `<b>${info.name}</b><br>${info.desc}`;
+    });
+  });
+}
+function updateZoomCell(v){
+  document.getElementById('cellSvg').style.transform = `scale(${1 + (v-1)*0.25})`;
+}
+
+/* ---------- Experiment 2: reagents ---------- */
+const REACTIONS = {
+  lugol:  {starchy:'#2b1f4d'}, // dark blue-violet
+  fehling:{sugary:'#b5411f'}, // brick red
+  sudan:  {fatty:'#c23b5a'}   // pink-red
+};
+const SAMPLE_TYPE = {bread:'starchy', potato:'starchy', sugar:'sugary', oil:'fatty'};
+function runReagentTest(){
+  const reagent = document.getElementById('reagentSelect').value;
+  const sample = document.getElementById('sampleSelect').value;
+  const sType = SAMPLE_TYPE[sample];
+  const tube = document.getElementById('tubeLiquid');
+  const reaction = REACTIONS[reagent][sType];
+  const info = document.getElementById('reagentInfo');
+  if(reaction){
+    tube.style.background = reaction;
+    info.innerHTML = `<b>تفاعل إيجابي!</b><br>ظهور اللون يؤكد وجود ${
+      sType==='starchy'?'النشويات':(sType==='sugary'?'السكريات البسيطة':'الدهون')
+    } في العينة.`;
+  } else {
+    tube.style.background = '#cfd8dc';
+    info.innerHTML = `لا يوجد تفاعل — هذا الكاشف غير مخصص للكشف عن هذا النوع من الغذاء.`;
+  }
+}
+
+/* ---------- Experiment 3: photosynthesis ---------- */
+let isLight = true;
+function setLight(on){
+  isLight = on;
+  document.getElementById('lightBtn').classList.toggle('active', on);
+  document.getElementById('darkBtn').classList.toggle('active', !on);
+  document.getElementById('sun').classList.toggle('off', !on);
+  document.getElementById('o2gas').style.opacity = on ? 1 : 0.15;
+  document.getElementById('photoInfo').innerHTML = on
+    ? 'في الضوء: تمتص الورقة CO₂ وتطلق O₂ ناتج عن التركيب الضوئي، مع استمرار التنفس الخلوي.'
+    : 'في الظلام: يتوقف التركيب الضوئي، فيقتصر التبادل الغازي على التنفس الخلوي فقط.';
+}
+
+/* ---------- Experiment 4: genetics ---------- */
+function runPunnett(){
+  const p1 = document.getElementById('parent1').value.split('');
+  const p2 = document.getElementById('parent2').value.split('');
+  const grid = document.getElementById('punnettGrid');
+  let cells = [
+    `<div class="head"></div>`, `<div class="head">${p2[0]}</div>`, `<div class="head">${p2[1]}</div>`
+  ];
+  let dominant=0, recessive=0;
+  [p1[0], p1[1]].forEach(a1=>{
+    cells.push(`<div class="head">${a1}</div>`);
+    [p2[0], p2[1]].forEach(a2=>{
+      const combo = [a1,a2].sort().join('');
+      cells.push(`<div>${combo}</div>`);
+      if(combo.includes('A')) dominant++; else recessive++;
+    });
+  });
+  grid.innerHTML = cells.join('');
+  const total = dominant+recessive;
+  const domPct = Math.round(dominant/total*100);
+  const recPct = 100-domPct;
+  document.getElementById('ratioBar').innerHTML = `
+    <span style="width:${domPct}%;background:#4C7A3D;">${domPct>10?('سائد '+domPct+'%'):''}</span>
+    <span style="width:${recPct}%;background:#8B3A3A;">${recPct>10?('متنحٍ '+recPct+'%'):''}</span>`;
+  document.getElementById('geneticsInfo').innerHTML =
+    `<b>النتيجة:</b> ${dominant} من أصل ${total} أفراد يحملون الصفة السائدة (أرجواني)، و${recessive} يحملون الصفة المتنحية (أبيض).`;
+}
+
+loadName();
+renderDashboard();
+</script>
+</body>
+</html>

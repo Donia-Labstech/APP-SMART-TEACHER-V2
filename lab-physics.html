@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مختبر ديونيا الافتراضي | الفيزياء</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --phy-bg:#0B1220; --phy-panel:#111A2C; --phy-line:#1e2c46;
+  --phy-ink:#E7EEFB; --phy-blue:#3E8DFF; --phy-amber:#F4B740;
+  --phy-red:#E05A5A; --phy-green:#4FD07A; --phy-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle at 20% 10%,rgba(62,141,255,.08),transparent 45%),radial-gradient(circle at 85% 90%,rgba(244,183,64,.06),transparent 45%);font-family:'Tajawal',sans-serif;color:var(--phy-ink);min-height:100vh;padding:24px 14px 60px;}
+.phy-wrap{max-width:980px;margin:0 auto;}
+.phy-header{text-align:center;margin-bottom:20px;}
+.phy-header h1{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:2.3rem;margin:0 0 4px;letter-spacing:1px;color:#fff;}
+.phy-header p{margin:0;color:#93a2c2;font-size:.92rem;}
+.phy-namebar{display:flex;justify-content:center;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+.phy-namebar input{padding:8px 14px;border-radius:8px;border:1px solid var(--phy-line);background:#0f1830;color:var(--phy-ink);font-family:'Tajawal';font-size:.9rem;min-width:220px;text-align:center;}
+.phy-namebar button{padding:8px 18px;border-radius:8px;border:none;background:var(--phy-blue);color:#fff;font-weight:700;cursor:pointer;}
+
+.phy-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:10px;}
+.phy-card{background:var(--phy-panel);border:1px solid var(--phy-line);border-radius:14px;padding:18px;box-shadow:var(--phy-shadow);cursor:pointer;position:relative;transition:transform .15s,border-color .15s;}
+.phy-card:hover{transform:translateY(-3px);border-color:var(--phy-blue);}
+.phy-card .lvl{display:inline-block;background:var(--phy-blue);color:#08101f;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+.phy-card h3{font-family:'Rajdhani',sans-serif;margin:0 0 6px;color:#fff;font-size:1.2rem;font-weight:700;}
+.phy-card .icon{font-size:1.8rem;}
+.phy-card .badge{position:absolute;top:12px;left:12px;font-size:1.2rem;}
+.phy-progress-wrap{background:#0B1220;border:1px solid var(--phy-line);border-radius:20px;height:8px;overflow:hidden;margin-top:10px;}
+.phy-progress-bar{background:var(--phy-blue);height:100%;width:0%;transition:width .4s;}
+
+.phy-dashboard-summary{background:var(--phy-panel);border:1px solid var(--phy-line);border-radius:14px;padding:16px 20px;margin-bottom:22px;box-shadow:var(--phy-shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.phy-print-btn{background:var(--phy-blue);color:#08101f;border:none;padding:9px 18px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Tajawal';}
+
+.phy-panel{background:var(--phy-panel);border:1px solid var(--phy-line);border-radius:14px;box-shadow:var(--phy-shadow);padding:26px;display:none;}
+.phy-panel.active{display:block;}
+.phy-back{background:none;border:none;color:var(--phy-blue);font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:10px;font-size:.9rem;}
+.phy-exp-tag{display:inline-block;background:var(--phy-amber);color:#08101f;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;margin-bottom:8px;}
+.phy-exp-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.6rem;margin:0 0 4px;color:#fff;}
+.phy-exp-sub{margin:0 0 18px;color:#93a2c2;font-size:.88rem;}
+
+.phy-layout{display:flex;gap:24px;flex-wrap:wrap;align-items:flex-start;}
+.phy-info-card{background:#0f1830;border-right:5px solid var(--phy-blue);border-radius:8px;padding:14px 16px;min-height:100px;font-size:.9rem;line-height:1.7;}
+.phy-info-card b{color:var(--phy-amber);}
+.phy-slider-row{display:flex;align-items:center;gap:10px;margin-bottom:14px;}
+.phy-slider-row label{min-width:130px;font-size:.85rem;font-weight:700;}
+.phy-slider-row input[type=range]{flex:1;accent-color:var(--phy-blue);}
+.phy-val{min-width:60px;text-align:center;font-weight:700;color:var(--phy-amber);}
+
+/* exp1 ohm */
+.phy-circuit-stage{flex:1 1 300px;background:#0f1830;border-radius:14px;border:1px solid var(--phy-line);padding:20px;min-height:220px;display:flex;align-items:center;justify-content:center;}
+.phy-bulb{width:70px;height:70px;border-radius:50%;background:radial-gradient(circle,#fff8dc,#F4B740);transition:box-shadow .3s,opacity .3s;}
+.phy-btn-row{display:flex;gap:8px;margin-bottom:14px;}
+.phy-btn{flex:1;padding:8px;border-radius:8px;border:1px solid var(--phy-line);background:#0f1830;color:var(--phy-ink);font-family:'Tajawal';font-weight:700;cursor:pointer;font-size:.85rem;}
+.phy-btn.active{background:var(--phy-blue);color:#08101f;}
+
+/* exp2 free fall */
+.phy-fall-stage{flex:1 1 200px;background:#0f1830;border-radius:14px;border:1px solid var(--phy-line);height:280px;position:relative;overflow:hidden;}
+.phy-ball{width:26px;height:26px;border-radius:50%;background:var(--phy-red);position:absolute;top:10px;left:calc(50% - 13px);transition:top linear;}
+.phy-ground{position:absolute;bottom:0;left:0;right:0;height:6px;background:var(--phy-line);}
+.phy-go-btn{background:var(--phy-green);color:#08101f;border:none;padding:9px 20px;border-radius:8px;font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:14px;}
+
+/* exp3 reflection */
+.phy-optics-stage{flex:1 1 300px;background:#0f1830;border-radius:14px;border:1px solid var(--phy-line);padding:10px;min-height:260px;}
+
+/* exp4 lever */
+.phy-lever-stage{flex:1 1 320px;background:#0f1830;border-radius:14px;border:1px solid var(--phy-line);padding:10px;min-height:220px;position:relative;overflow:hidden;}
+
+.phy-quiz{margin-top:20px;border-top:1px dashed var(--phy-line);padding-top:14px;}
+.phy-quiz p{font-weight:700;margin:0 0 10px;}
+.phy-quiz .opts{display:flex;flex-direction:column;gap:8px;}
+.phy-opt-btn{text-align:right;padding:9px 14px;border-radius:8px;border:1px solid var(--phy-line);background:#0f1830;color:var(--phy-ink);cursor:pointer;font-family:'Tajawal';}
+.phy-opt-btn.correct{background:rgba(79,208,122,.15);border-color:var(--phy-green);}
+.phy-opt-btn.wrong{background:rgba(224,90,90,.15);border-color:var(--phy-red);}
+.phy-complete-msg{display:none;margin-top:10px;font-weight:700;color:var(--phy-green);}
+
+.phy-footer{text-align:center;color:#5c6c8f;font-size:.75rem;margin-top:24px;}
+
+@media print{
+  body{background:#fff;color:#000;padding:0;}
+  .phy-namebar,.phy-print-btn,.phy-back,.no-print{display:none!important;}
+  .phy-panel{display:none!important;}
+  #printReportP{display:block!important;color:#000;}
+}
+#printReportP{display:none;}
+</style>
+</head>
+<body>
+<div class="phy-wrap">
+
+  <header class="phy-header">
+    <h1>مختبر ديونيا الافتراضي</h1>
+    <p>الفيزياء — تجارب تفاعلية حسب المستوى الدراسي</p>
+  </header>
+
+  <div class="phy-namebar no-print">
+    <input type="text" id="studentNameP" placeholder="اسم التلميذ (اختياري)">
+    <button onclick="saveNameP()">حفظ الاسم</button>
+  </div>
+
+  <div id="dashboardViewP">
+    <div class="phy-dashboard-summary no-print">
+      <div><b id="summaryTextP">لم تُنجز أي تجربة بعد</b></div>
+      <button class="phy-print-btn" onclick="printReportP()">🖨️ طباعة التقرير</button>
+    </div>
+    <div class="phy-grid" id="phyGrid"></div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 1: OHM'S LAW ===================== -->
+  <div class="phy-panel" id="panel-ohm">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag">جذع مشترك</span>
+    <h2 class="phy-exp-title">قانون أوم: التوتر والمقاومة والتيار</h2>
+    <p class="phy-exp-sub">غيّر التوتر والمقاومة وراقب تأثيرهما على شدة التيار وسطوع المصباح.</p>
+
+    <div class="phy-layout">
+      <div class="phy-circuit-stage"><div class="phy-bulb" id="bulb"></div></div>
+      <div style="flex:1 1 260px;">
+        <div class="phy-slider-row">
+          <label>التوتر U (فولط)</label>
+          <input type="range" min="1" max="12" value="6" id="voltRange" oninput="updateOhm()">
+          <span class="phy-val" id="voltVal">6V</span>
+        </div>
+        <div class="phy-slider-row">
+          <label>المقاومة R (أوم)</label>
+          <input type="range" min="1" max="100" value="20" id="resRange" oninput="updateOhm()">
+          <span class="phy-val" id="resVal">20Ω</span>
+        </div>
+        <div class="phy-info-card" id="ohmInfo">شدة التيار I = U ÷ R</div>
+      </div>
+    </div>
+
+    <div class="phy-quiz">
+      <p>إذا تضاعفت المقاومة R مع بقاء التوتر U ثابتًا، ماذا يحدث لشدة التيار I؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'ohm')">تتضاعف</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'ohm')">تنخفض إلى النصف</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'ohm')">تبقى ثابتة</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 2: FREE FALL ===================== -->
+  <div class="phy-panel" id="panel-fall">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag">جذع مشترك</span>
+    <h2 class="phy-exp-title">السقوط الحر</h2>
+    <p class="phy-exp-sub">غيّر ارتفاع السقوط، ثم اضغط "إسقاط" لمشاهدة الحركة وحساب الزمن والسرعة.</p>
+
+    <div class="phy-layout">
+      <div class="phy-fall-stage">
+        <div class="phy-ball" id="fallBall"></div>
+        <div class="phy-ground"></div>
+      </div>
+      <div style="flex:1 1 260px;">
+        <div class="phy-slider-row">
+          <label>الارتفاع h (م)</label>
+          <input type="range" min="1" max="50" value="20" id="heightRange" oninput="updateHeightLabel()">
+          <span class="phy-val" id="heightVal">20m</span>
+        </div>
+        <button class="phy-go-btn" onclick="runFreeFall()">⬇️ إسقاط</button>
+        <div class="phy-info-card" id="fallInfo">الزمن t = √(2h/g) — السرعة النهائية v = g×t (g ≈ 9.8 m/s²)</div>
+      </div>
+    </div>
+
+    <div class="phy-quiz">
+      <p>كلما زاد ارتفاع السقوط، ماذا يحدث لزمن السقوط؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'fall')">يزداد</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'fall')">ينقص</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'fall')">يبقى ثابتًا دائمًا</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 3: REFLECTION ===================== -->
+  <div class="phy-panel" id="panel-optics">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag">جذع مشترك</span>
+    <h2 class="phy-exp-title">انعكاس الضوء على مرآة مستوية</h2>
+    <p class="phy-exp-sub">غيّر زاوية السقوط وراقب زاوية الانعكاس.</p>
+
+    <div class="phy-layout">
+      <div class="phy-optics-stage"><svg viewBox="0 0 300 220" id="opticsSvg" width="100%" height="220"></svg></div>
+      <div style="flex:1 1 220px;">
+        <div class="phy-slider-row">
+          <label>زاوية السقوط</label>
+          <input type="range" min="5" max="80" value="40" id="angleRange" oninput="updateOptics()">
+          <span class="phy-val" id="angleVal">40°</span>
+        </div>
+        <div class="phy-info-card" id="opticsInfo">زاوية الانعكاس = زاوية السقوط دائمًا (قانون الانعكاس).</div>
+      </div>
+    </div>
+
+    <div class="phy-quiz">
+      <p>ما العلاقة بين زاوية السقوط وزاوية الانعكاس عند مرآة مستوية؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'optics')">متساويتان دائمًا</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'optics')">زاوية الانعكاس أكبر دائمًا</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'optics')">لا توجد علاقة بينهما</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <!-- ===================== EXPERIMENT 4: LEVER ===================== -->
+  <div class="phy-panel" id="panel-lever">
+    <button class="phy-back" onclick="backToDashP()">→ العودة إلى لوحة التجارب</button>
+    <span class="phy-exp-tag">جذع مشترك</span>
+    <h2 class="phy-exp-title">توازن الرافعة (عزم القوة)</h2>
+    <p class="phy-exp-sub">غيّر الكتلة والمسافة على كل جانب، وراقب متى تتزن الرافعة.</p>
+
+    <div class="phy-layout">
+      <div class="phy-lever-stage"><svg viewBox="0 0 320 180" id="leverSvg" width="100%" height="180"></svg></div>
+      <div style="flex:1 1 260px;">
+        <div class="phy-slider-row"><label>كتلة اليسار (كغ)</label><input type="range" min="1" max="20" value="10" id="mLeft" oninput="updateLever()"><span class="phy-val" id="mLeftVal">10</span></div>
+        <div class="phy-slider-row"><label>مسافة اليسار (م)</label><input type="range" min="1" max="10" value="5" id="dLeft" oninput="updateLever()"><span class="phy-val" id="dLeftVal">5</span></div>
+        <div class="phy-slider-row"><label>كتلة اليمين (كغ)</label><input type="range" min="1" max="20" value="10" id="mRight" oninput="updateLever()"><span class="phy-val" id="mRightVal">10</span></div>
+        <div class="phy-slider-row"><label>مسافة اليمين (م)</label><input type="range" min="1" max="10" value="5" id="dRight" oninput="updateLever()"><span class="phy-val" id="dRightVal">5</span></div>
+        <div class="phy-info-card" id="leverInfo">العزم = الكتلة × المسافة عن نقطة الارتكاز.</div>
+      </div>
+    </div>
+
+    <div class="phy-quiz">
+      <p>متى تتزن الرافعة؟</p>
+      <div class="opts">
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'lever')">عندما تتساوى الكتلتان فقط</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,true,'lever')">عندما يتساوى العزمان (القوة × الذراع) على الجانبين</button>
+        <button class="phy-opt-btn" onclick="answerQuizP(this,false,'lever')">عندما تتساوى المسافتان فقط</button>
+      </div>
+      <div class="phy-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+    </div>
+  </div>
+
+  <div id="printReportP"></div>
+  <div class="phy-footer">DONIA LABS TECH — وحدة المختبر الافتراضي | الفيزياء</div>
+</div>
+
+<script>
+const EXPERIMENTS_P = [
+  {id:'ohm', title:'قانون أوم', level:'جذع مشترك', icon:'⚡'},
+  {id:'fall', title:'السقوط الحر', level:'جذع مشترك', icon:'🪂'},
+  {id:'optics', title:'انعكاس الضوء', level:'جذع مشترك', icon:'🔦'},
+  {id:'lever', title:'توازن الرافعة', level:'جذع مشترك', icon:'⚖️'}
+];
+const STORE_KEY_P = 'donia_physics_progress_v1';
+const NAME_KEY_P = 'donia_physics_student_name';
+
+function getProgressP(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_P)) || {}; }catch(e){ return {}; } }
+function setProgressP(p){ localStorage.setItem(STORE_KEY_P, JSON.stringify(p)); }
+
+function renderDashboardP(){
+  const grid = document.getElementById('phyGrid');
+  const progress = getProgressP();
+  grid.innerHTML = '';
+  let done = 0;
+  EXPERIMENTS_P.forEach(exp=>{
+    const isDone = !!progress[exp.id];
+    if(isDone) done++;
+    const card = document.createElement('div');
+    card.className = 'phy-card';
+    card.onclick = ()=>openExperimentP(exp.id);
+    card.innerHTML = `
+      ${isDone?'<div class="badge">✅</div>':''}
+      <div class="icon">${exp.icon}</div>
+      <div class="lvl">${exp.level}</div>
+      <h3>${exp.title}</h3>
+      <div class="phy-progress-wrap"><div class="phy-progress-bar" style="width:${isDone?100:0}%"></div></div>
+    `;
+    grid.appendChild(card);
+  });
+  document.getElementById('summaryTextP').textContent = `التقدم: ${done} من ${EXPERIMENTS_P.length} تجارب مُنجزة`;
+}
+function openExperimentP(id){
+  document.getElementById('dashboardViewP').style.display='none';
+  document.getElementById('panel-'+id).classList.add('active');
+  if(id==='ohm') updateOhm();
+  if(id==='optics') updateOptics();
+  if(id==='lever') updateLever();
+}
+function backToDashP(){
+  document.querySelectorAll('.phy-panel').forEach(p=>p.classList.remove('active'));
+  document.getElementById('dashboardViewP').style.display='block';
+  renderDashboardP();
+}
+function completeExperimentP(id){ const p=getProgressP(); p[id]=true; setProgressP(p); }
+function answerQuizP(btn, correct, expId){
+  const opts = btn.parentElement.querySelectorAll('.phy-opt-btn');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  const msg = btn.closest('.phy-quiz').querySelector('.phy-complete-msg');
+  if(correct){ msg.style.display='block'; completeExperimentP(expId); }
+}
+function saveNameP(){ localStorage.setItem(NAME_KEY_P, document.getElementById('studentNameP').value.trim()); }
+function loadNameP(){ const v=localStorage.getItem(NAME_KEY_P); if(v) document.getElementById('studentNameP').value=v; }
+function printReportP(){
+  const progress = getProgressP();
+  const name = localStorage.getItem(NAME_KEY_P) || 'غير محدد';
+  const done = EXPERIMENTS_P.filter(e=>progress[e.id]);
+  document.getElementById('printReportP').innerHTML = `<div style="font-family:'Rajdhani',sans-serif;padding:30px;">
+    <h1 style="text-align:center;">تقرير المختبر الافتراضي</h1>
+    <p style="text-align:center;">الفيزياء — DONIA LABS TECH</p>
+    <hr>
+    <p><b>اسم التلميذ:</b> ${name}</p>
+    <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-DZ')}</p>
+    <p><b>التجارب المُنجزة:</b> ${done.length} من ${EXPERIMENTS_P.length}</p>
+    <ul>${EXPERIMENTS_P.map(e=>`<li>${e.icon} ${e.title} (${e.level}) — ${progress[e.id]?'✅ منجزة':'⏳ غير منجزة'}</li>`).join('')}</ul>
+  </div>`;
+  window.print();
+}
+
+/* ---------- Experiment 1: Ohm's law ---------- */
+function updateOhm(){
+  const V = +document.getElementById('voltRange').value;
+  const R = +document.getElementById('resRange').value;
+  const I = V/R;
+  document.getElementById('voltVal').textContent = V+'V';
+  document.getElementById('resVal').textContent = R+'Ω';
+  const bulb = document.getElementById('bulb');
+  const brightness = Math.min(I*8, 1);
+  bulb.style.opacity = 0.25 + brightness*0.75;
+  bulb.style.boxShadow = `0 0 ${20+brightness*60}px ${10+brightness*30}px rgba(244,183,64,${0.15+brightness*0.4})`;
+  document.getElementById('ohmInfo').innerHTML =
+    `<b>I = U ÷ R = ${V} ÷ ${R} = ${I.toFixed(2)} A</b><br>كلما زادت المقاومة، انخفضت شدة التيار عند توتر ثابت.`;
+}
+
+/* ---------- Experiment 2: free fall ---------- */
+function updateHeightLabel(){
+  document.getElementById('heightVal').textContent = document.getElementById('heightRange').value+'m';
+}
+function runFreeFall(){
+  const h = +document.getElementById('heightRange').value;
+  const g = 9.8;
+  const t = Math.sqrt(2*h/g);
+  const v = g*t;
+  const ball = document.getElementById('fallBall');
+  const stageHeight = document.querySelector('.phy-fall-stage').clientHeight - 40;
+  const duration = Math.min(Math.max(t, 0.6), 4);
+  ball.style.transition = 'none';
+  ball.style.top = '10px';
+  void ball.offsetWidth;
+  ball.style.transition = `top ${duration}s ease-in`;
+  ball.style.top = stageHeight+'px';
+  document.getElementById('fallInfo').innerHTML =
+    `<b>t = √(2×${h}/9.8) = ${t.toFixed(2)} s</b><br><b>v = g×t = ${v.toFixed(2)} m/s</b>`;
+}
+
+/* ---------- Experiment 3: reflection ---------- */
+function updateOptics(){
+  const angle = +document.getElementById('angleRange').value;
+  document.getElementById('angleVal').textContent = angle+'°';
+  const cx=150, cy=180, len=140;
+  const rad = angle*Math.PI/180;
+  const inX = cx - len*Math.sin(rad);
+  const inY = cy - len*Math.cos(rad);
+  const outX = cx + len*Math.sin(rad);
+  const outY = cy - len*Math.cos(rad);
+  document.getElementById('opticsSvg').innerHTML = `
+    <line x1="20" y1="180" x2="280" y2="180" stroke="#3E8DFF" stroke-width="4"/>
+    <line x1="150" y1="180" x2="150" y2="30" stroke="#5c6c8f" stroke-width="1" stroke-dasharray="4,4"/>
+    <line x1="${inX}" y1="${inY}" x2="${cx}" y2="${cy}" stroke="#F4B740" stroke-width="3"/>
+    <line x1="${cx}" y1="${cy}" x2="${outX}" y2="${outY}" stroke="#4FD07A" stroke-width="3"/>
+    <text x="${inX-10}" y="${inY-6}" fill="#F4B740" font-size="12">شعاع ساقط</text>
+    <text x="${outX-30}" y="${outY-6}" fill="#4FD07A" font-size="12">شعاع منعكس</text>
+  `;
+  document.getElementById('opticsInfo').innerHTML =
+    `<b>زاوية السقوط = زاوية الانعكاس = ${angle}°</b>`;
+}
+
+/* ---------- Experiment 4: lever ---------- */
+function updateLever(){
+  const mL=+document.getElementById('mLeft').value, dL=+document.getElementById('dLeft').value;
+  const mR=+document.getElementById('mRight').value, dR=+document.getElementById('dRight').value;
+  document.getElementById('mLeftVal').textContent=mL;
+  document.getElementById('dLeftVal').textContent=dL;
+  document.getElementById('mRightVal').textContent=mR;
+  document.getElementById('dRightVal').textContent=dR;
+  const torqueL = mL*dL, torqueR = mR*dR;
+  const diff = torqueR - torqueL;
+  const angle = Math.max(-15, Math.min(15, diff*0.8));
+  document.getElementById('leverSvg').innerHTML = `
+    <polygon points="150,150 170,150 160,120" fill="#5c6c8f"/>
+    <g transform="rotate(${angle} 160 120)">
+      <rect x="30" y="115" width="260" height="8" fill="#3E8DFF" rx="4"/>
+      <circle cx="45" cy="119" r="${8+mL}" fill="#E05A5A"/>
+      <circle cx="275" cy="119" r="${8+mR}" fill="#4FD07A"/>
+    </g>
+  `;
+  let verdict = Math.abs(diff) < 0.5 ? 'متزنة ✅' : (diff>0 ? 'تميل لليمين ↘' : 'تميل لليسار ↙');
+  document.getElementById('leverInfo').innerHTML =
+    `<b>عزم اليسار = ${mL}×${dL} = ${torqueL} | عزم اليمين = ${mR}×${dR} = ${torqueR}</b><br>حالة الرافعة: ${verdict}`;
+}
+
+loadNameP();
+renderDashboardP();
+</script>
+</body>
+</html>

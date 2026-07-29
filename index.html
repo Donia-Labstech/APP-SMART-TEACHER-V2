@@ -524,6 +524,9 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
       <button class="nav-item" onclick="showPage('drawing')">
         <span class="nav-icon">🎨</span> لوحة الرسم والتوقيع
       </button>
+      <button class="nav-item" onclick="showPage('labs')">
+        <span class="nav-icon">🔬</span> المخبر الافتراضي
+      </button>
       <div class="nav-section-label">النظام</div>
       <button class="nav-item" onclick="showPage('guide')">
         <span class="nav-icon">📘</span> دليل الاستخدام
@@ -943,6 +946,41 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
                 <button class="btn btn-orange" onclick="sendCapturedToAI()">🤖 تحليل بالذكاء الاصطناعي</button>
               </div>
             </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ========== VIRTUAL LABS ========== -->
+      <div class="page" id="page-labs">
+        <div id="labs-selector">
+          <div class="card" style="margin-bottom:20px;">
+            <div class="card-title"><span class="card-title-icon">🔬</span> المخبر الافتراضي</div>
+            <div style="font-size:0.85rem;color:var(--text2);">تجارب تفاعلية آمنة لتلاميذكم، بدون أي معدات حقيقية — اختاري المخبر المناسب لمادتكم.</div>
+          </div>
+          <div class="grid-2">
+            <div class="doc-card" onclick="openLab('svt')" style="cursor:pointer;">
+              <div class="doc-icon">🌿</div>
+              <div class="doc-info">
+                <div class="doc-name">مخبر علوم الطبيعة والحياة</div>
+                <div class="doc-meta">الخلية، الوراثة، الكشف عن المواد، وأكثر</div>
+              </div>
+            </div>
+            <div class="doc-card" onclick="openLab('physics')" style="cursor:pointer;">
+              <div class="doc-icon">⚡</div>
+              <div class="doc-info">
+                <div class="doc-name">مخبر الفيزياء</div>
+                <div class="doc-meta">السقوط الحر، الدارات الكهربائية، الروافع، البصريات</div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div id="labs-viewer" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:10px;">
+            <button class="btn btn-blue" onclick="closeLab()">→ رجوع لاختيار المخبر</button>
+            <div class="topbar-title" id="labs-viewer-title" style="font-size:0.95rem;"></div>
+          </div>
+          <div class="card" style="padding:0;overflow:hidden;">
+            <iframe id="labs-iframe" src="" style="width:100%;height:calc(100vh - 220px);min-height:480px;border:none;display:block;background:#fff;" title="المخبر الافتراضي"></iframe>
           </div>
         </div>
       </div>
@@ -1432,12 +1470,30 @@ function toggleSidebar() {
   document.getElementById('sidebar-overlay').classList.toggle('show');
 }
 
+const LAB_MAP = {
+  svt: { src: 'lab-svt.html', title: '🌿 مخبر علوم الطبيعة والحياة' },
+  physics: { src: 'lab-physics.html', title: '⚡ مخبر الفيزياء' }
+};
+function openLab(which) {
+  const lab = LAB_MAP[which];
+  if (!lab) return;
+  document.getElementById('labs-iframe').src = lab.src;
+  document.getElementById('labs-viewer-title').textContent = lab.title;
+  document.getElementById('labs-selector').style.display = 'none';
+  document.getElementById('labs-viewer').style.display = 'block';
+}
+function closeLab() {
+  document.getElementById('labs-viewer').style.display = 'none';
+  document.getElementById('labs-selector').style.display = 'block';
+  document.getElementById('labs-iframe').src = '';
+}
+
 function showPage(id) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
-  const titles = { dashboard:'لوحة التحكم', evaluation:'تقييم الطلاب الذكي', attendance:'الحضور والغياب', portfolio:'الملف المهني الرقمي', ai:'المساعد الذكي AI' };
+  const titles = { dashboard:'لوحة التحكم', evaluation:'تقييم الطلاب الذكي', attendance:'الحضور والغياب', portfolio:'الملف المهني الرقمي', ai:'المساعد الذكي AI', labs:'المخبر الافتراضي' };
   document.getElementById('topbar-title').textContent = titles[id] || id;
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('show');
