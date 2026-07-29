@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>مختبر ديونيا الافتراضي | تجاربي الخاصة</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@600;700&family=Tajawal:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --cx-bg:#0E1B14; --cx-panel:#14261C; --cx-line:#233A2C;
+  --cx-ink:#E9F5EE; --cx-green:#2FBF6E; --cx-amber:#F4B740;
+  --cx-red:#E05A5A; --cx-blue:#3E8DFF; --cx-shadow:0 8px 24px rgba(0,0,0,.5);
+}
+*{box-sizing:border-box;}
+body{margin:0;background:var(--cx-bg);background-image:radial-gradient(circle at 20% 10%,rgba(47,191,110,.08),transparent 45%),radial-gradient(circle at 85% 90%,rgba(62,141,255,.06),transparent 45%);font-family:'Tajawal',sans-serif;color:var(--cx-ink);min-height:100vh;padding:24px 14px 60px;}
+.cx-wrap{max-width:980px;margin:0 auto;}
+.cx-header{text-align:center;margin-bottom:20px;}
+.cx-header h1{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:2.3rem;margin:0 0 4px;letter-spacing:1px;color:#fff;}
+.cx-header p{margin:0;color:#9db8a8;font-size:.92rem;}
+.cx-namebar{display:flex;justify-content:center;gap:10px;margin-bottom:22px;flex-wrap:wrap;}
+.cx-namebar input{padding:8px 14px;border-radius:8px;border:1px solid var(--cx-line);background:#1a2e21;color:var(--cx-ink);font-family:'Tajawal';font-size:.9rem;min-width:220px;text-align:center;}
+.cx-namebar button{padding:8px 18px;border-radius:8px;border:none;background:var(--cx-green);color:#08150e;font-weight:700;cursor:pointer;}
+
+.cx-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-bottom:10px;}
+.cx-card{background:var(--cx-panel);border:1px solid var(--cx-line);border-radius:14px;padding:18px;box-shadow:var(--cx-shadow);cursor:pointer;position:relative;transition:transform .15s,border-color .15s;}
+.cx-card:hover{transform:translateY(-3px);border-color:var(--cx-green);}
+.cx-card .lvl{display:inline-block;background:var(--cx-green);color:#08150e;font-size:.7rem;font-weight:700;padding:2px 10px;border-radius:20px;margin-bottom:8px;}
+.cx-card .lvl.hs{background:var(--cx-red);color:#fff;}
+.cx-card .lvl.prim{background:var(--cx-blue);color:#fff;}
+.cx-card h3{font-family:'Rajdhani',sans-serif;margin:0 0 6px;color:#fff;font-size:1.2rem;font-weight:700;}
+.cx-card .icon{font-size:1.8rem;}
+.cx-card .badge{position:absolute;top:12px;left:44px;font-size:1.2rem;}
+.cx-card .card-tools{position:absolute;top:10px;left:10px;display:flex;gap:4px;}
+.cx-card .card-tool-btn{width:26px;height:26px;border-radius:6px;border:none;background:#0E1B14;color:var(--cx-ink);cursor:pointer;font-size:.8rem;display:flex;align-items:center;justify-content:center;opacity:.75;}
+.cx-card .card-tool-btn:hover{opacity:1;}
+.cx-progress-wrap{background:#0E1B14;border:1px solid var(--cx-line);border-radius:20px;height:8px;overflow:hidden;margin-top:10px;}
+.cx-progress-bar{background:var(--cx-green);height:100%;width:0%;transition:width .4s;}
+
+.cx-dashboard-summary{background:var(--cx-panel);border:1px solid var(--cx-line);border-radius:14px;padding:16px 20px;margin-bottom:16px;box-shadow:var(--cx-shadow);display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;}
+.cx-btn{padding:9px 18px;border-radius:8px;border:none;font-weight:700;cursor:pointer;font-family:'Tajawal';font-size:.85rem;}
+.cx-btn-green{background:var(--cx-green);color:#08150e;}
+.cx-btn-ghost{background:#1a2e21;color:var(--cx-ink);border:1px solid var(--cx-line);}
+.cx-btn-red{background:rgba(224,90,90,.15);color:var(--cx-red);border:1px solid rgba(224,90,90,.3);}
+
+.cx-empty{text-align:center;padding:50px 20px;color:#6f8a7a;}
+.cx-empty .big{font-size:3rem;margin-bottom:10px;}
+
+.cx-panel{background:var(--cx-panel);border:1px solid var(--cx-line);border-radius:14px;box-shadow:var(--cx-shadow);padding:26px;display:none;}
+.cx-panel.active{display:block;}
+.cx-back{background:none;border:none;color:var(--cx-green);font-weight:700;cursor:pointer;font-family:'Tajawal';margin-bottom:10px;font-size:.9rem;}
+.cx-exp-tag{display:inline-block;background:var(--cx-green);color:#08150e;font-size:.72rem;font-weight:700;padding:3px 12px;border-radius:20px;margin-bottom:8px;}
+.cx-exp-tag.hs{background:var(--cx-red);color:#fff;}
+.cx-exp-tag.prim{background:var(--cx-blue);color:#fff;}
+.cx-exp-title{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:1.6rem;margin:0 0 4px;color:#fff;}
+.cx-exp-sub{margin:0 0 18px;color:#9db8a8;font-size:.88rem;}
+
+/* ---- form ---- */
+.cx-field-wrap{margin-bottom:16px;}
+.cx-field-label{display:block;font-size:.82rem;color:#9db8a8;margin-bottom:6px;font-weight:700;}
+.cx-field-input{width:100%;padding:10px 14px;background:#1a2e21;border:1px solid var(--cx-line);border-radius:8px;color:var(--cx-ink);font-family:'Tajawal';font-size:.9rem;outline:none;}
+.cx-field-input:focus{border-color:var(--cx-green);}
+textarea.cx-field-input{resize:vertical;min-height:80px;}
+.cx-emoji-row{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+.cx-emoji-choice{width:34px;height:34px;border-radius:8px;border:1px solid var(--cx-line);background:#1a2e21;cursor:pointer;font-size:1.1rem;display:flex;align-items:center;justify-content:center;}
+.cx-emoji-choice:hover{border-color:var(--cx-green);}
+
+.cx-img-drop{border:2px dashed var(--cx-line);border-radius:12px;padding:24px;text-align:center;cursor:pointer;color:#9db8a8;font-size:.85rem;}
+.cx-img-drop:hover{border-color:var(--cx-green);}
+.cx-img-stage{position:relative;width:100%;border-radius:12px;overflow:hidden;border:1px solid var(--cx-line);background:#000;}
+.cx-img-stage img{width:100%;display:block;}
+.cx-hotspot-dot{position:absolute;width:26px;height:26px;margin-left:-13px;margin-top:-13px;border-radius:50%;background:rgba(47,191,110,.85);border:2px solid #fff;box-shadow:0 0 10px rgba(47,191,110,.6);display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:800;color:#08150e;cursor:pointer;}
+.cx-hotspot-dot.pending{background:rgba(244,183,64,.9);}
+.cx-hotspot-list{margin-top:12px;}
+.cx-hotspot-item{display:flex;align-items:center;gap:10px;background:#1a2e21;border:1px solid var(--cx-line);border-radius:8px;padding:8px 12px;margin-bottom:6px;font-size:.82rem;}
+.cx-hotspot-item .num{width:22px;height:22px;border-radius:50%;background:var(--cx-green);color:#08150e;font-weight:800;font-size:.72rem;display:flex;align-items:center;justify-content:center;flex-shrink:0;}
+.cx-hotspot-item .txt{flex:1;}
+.cx-hotspot-item button{background:none;border:none;color:var(--cx-red);cursor:pointer;font-size:.85rem;}
+.cx-mini-form{background:#1a2e21;border:1px solid var(--cx-green);border-radius:10px;padding:14px;margin-top:12px;}
+
+.cx-opt-row{display:flex;align-items:center;gap:8px;margin-bottom:8px;}
+.cx-opt-row input[type=radio]{accent-color:var(--cx-green);width:18px;height:18px;flex-shrink:0;}
+.cx-opt-row input[type=text]{flex:1;}
+
+.cx-info-card{background:#1a2e21;border-right:5px solid var(--cx-green);border-radius:8px;padding:14px 16px;min-height:60px;font-size:.9rem;line-height:1.7;margin-top:14px;}
+.cx-info-card b{color:var(--cx-amber);}
+
+.cx-quiz{margin-top:20px;border-top:1px dashed var(--cx-line);padding-top:14px;}
+.cx-quiz p{font-weight:700;margin:0 0 10px;}
+.cx-quiz .opts{display:flex;flex-direction:column;gap:8px;}
+.cx-opt-btn{text-align:right;padding:9px 14px;border-radius:8px;border:1px solid var(--cx-line);background:#1a2e21;color:var(--cx-ink);cursor:pointer;font-family:'Tajawal';}
+.cx-opt-btn.correct{background:rgba(47,191,110,.15);border-color:var(--cx-green);}
+.cx-opt-btn.wrong{background:rgba(224,90,90,.15);border-color:var(--cx-red);}
+.cx-complete-msg{display:none;margin-top:10px;font-weight:700;color:var(--cx-green);}
+
+.cx-footer{text-align:center;color:#4d6659;font-size:.75rem;margin-top:24px;}
+
+@media print{
+  body{background:#fff;color:#000;padding:0;}
+  .cx-namebar,.cx-back,.no-print{display:none!important;}
+  .cx-panel{display:none!important;}
+  #printReportCX{display:block!important;color:#000;}
+}
+#printReportCX{display:none;}
+</style>
+</head>
+<body>
+<div class="cx-wrap">
+
+  <header class="cx-header">
+    <h1>مختبر ديونيا الافتراضي</h1>
+    <p>تجاربي الخاصة — ابنِ تجربتك التفاعلية بنفسك</p>
+  </header>
+
+  <div class="cx-namebar no-print">
+    <input type="text" id="studentNameCX" placeholder="اسم التلميذ (اختياري)">
+    <button onclick="saveNameCX()">حفظ الاسم</button>
+  </div>
+
+  <!-- ===================== DASHBOARD ===================== -->
+  <div id="dashboardViewCX">
+    <div class="cx-dashboard-summary no-print">
+      <div><b id="summaryTextCX">لا توجد تجارب مخصصة بعد</b></div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="cx-btn cx-btn-ghost" onclick="printReportCX()">🖨️ طباعة التقرير</button>
+        <button class="cx-btn cx-btn-green" onclick="openBuilder()">➕ أضف تجربة جديدة</button>
+      </div>
+    </div>
+    <div class="no-print" id="stageBannerCX" style="margin-bottom:14px;font-size:.82rem;color:#9db8a8;"></div>
+    <div class="cx-grid" id="cxGrid"></div>
+  </div>
+
+  <!-- ===================== BUILDER ===================== -->
+  <div class="cx-panel" id="panel-builder">
+    <button class="cx-back" onclick="cancelBuilder()">→ العودة إلى لوحة التجارب</button>
+    <span class="cx-exp-tag" id="builderModeTag">تجربة جديدة</span>
+    <h2 class="cx-exp-title">بناء تجربة تفاعلية</h2>
+    <p class="cx-exp-sub">املأ البيانات التالية، وأضف نقاطًا تفاعلية على الصورة إن أردت، ثم احفظ.</p>
+
+    <input type="hidden" id="builderEditId" value="">
+
+    <div class="cx-field-wrap">
+      <label class="cx-field-label">عنوان التجربة *</label>
+      <input class="cx-field-input" id="builderTitle" placeholder="مثال: أجزاء النبتة">
+    </div>
+    <div class="cx-field-wrap">
+      <label class="cx-field-label">الطور *</label>
+      <select class="cx-field-input" id="builderStage">
+        <option value="الابتدائي">الابتدائي</option>
+        <option value="المتوسط" selected>المتوسط</option>
+        <option value="الثانوي">الثانوي</option>
+      </select>
+    </div>
+    <div class="cx-field-wrap">
+      <label class="cx-field-label">المادة</label>
+      <input class="cx-field-input" id="builderSubject" placeholder="مثال: علوم طبيعية">
+    </div>
+    <div class="cx-field-wrap">
+      <label class="cx-field-label">الأيقونة (إيموجي)</label>
+      <input class="cx-field-input" id="builderIcon" placeholder="🔬" style="max-width:120px;" maxlength="4">
+      <div class="cx-emoji-row" id="emojiChoices"></div>
+    </div>
+    <div class="cx-field-wrap">
+      <label class="cx-field-label">وصف التجربة</label>
+      <textarea class="cx-field-input" id="builderDesc" placeholder="اشرح للتلميذ الهدف من هذه التجربة..."></textarea>
+    </div>
+
+    <div class="cx-field-wrap">
+      <label class="cx-field-label">صورة توضيحية (اختياري — انقر عليها بعد الرفع لإضافة نقاط تفاعلية)</label>
+      <div id="builderImgArea">
+        <div class="cx-img-drop" id="builderDropZone" onclick="document.getElementById('builderImgInput').click()">
+          📷 انقر لرفع صورة (سيتم ضغطها تلقائيًا)
+        </div>
+        <input type="file" id="builderImgInput" accept="image/*" style="display:none" onchange="handleBuilderImageUpload(this)">
+      </div>
+      <div id="builderHotspotList" class="cx-hotspot-list"></div>
+      <div id="builderMiniForm"></div>
+    </div>
+
+    <div class="cx-field-wrap" style="border-top:1px dashed var(--cx-line);padding-top:16px;">
+      <label class="cx-field-label">سؤال تقييمي (اختياري لكن مستحسن)</label>
+      <input class="cx-field-input" id="builderQuestion" placeholder="اكتب السؤال هنا..." style="margin-bottom:10px;">
+      <div class="cx-opt-row"><input type="radio" name="builderCorrect" value="0" checked><input type="text" class="cx-field-input" id="builderOpt0" placeholder="الإجابة الأولى"></div>
+      <div class="cx-opt-row"><input type="radio" name="builderCorrect" value="1"><input type="text" class="cx-field-input" id="builderOpt1" placeholder="الإجابة الثانية"></div>
+      <div class="cx-opt-row"><input type="radio" name="builderCorrect" value="2"><input type="text" class="cx-field-input" id="builderOpt2" placeholder="الإجابة الثالثة"></div>
+      <div style="font-size:.75rem;color:#9db8a8;">حدد الدائرة بجانب الإجابة الصحيحة.</div>
+    </div>
+
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="cx-btn cx-btn-green" style="flex:1;" onclick="saveCustomExperiment()">💾 حفظ التجربة</button>
+      <button class="cx-btn cx-btn-ghost" onclick="cancelBuilder()">إلغاء</button>
+    </div>
+  </div>
+
+  <!-- ===================== VIEWER ===================== -->
+  <div class="cx-panel" id="panel-viewer">
+    <button class="cx-back" onclick="backToDashCX()">→ العودة إلى لوحة التجارب</button>
+    <span class="cx-exp-tag" id="viewerTag"></span>
+    <h2 class="cx-exp-title" id="viewerTitle"></h2>
+    <p class="cx-exp-sub" id="viewerSub"></p>
+    <div id="viewerImgArea"></div>
+    <div class="cx-info-card" id="viewerInfo" style="display:none;"></div>
+    <div id="viewerQuizArea"></div>
+    <div style="display:flex;gap:10px;margin-top:20px;">
+      <button class="cx-btn cx-btn-ghost" onclick="editCustomExperiment(currentViewId)">✏️ تعديل</button>
+      <button class="cx-btn cx-btn-red" onclick="deleteCustomExperiment(currentViewId)">🗑️ حذف</button>
+    </div>
+  </div>
+
+  <div id="printReportCX"></div>
+  <div class="cx-footer">DONIA LABS TECH — وحدة المختبر الافتراضي | تجاربي الخاصة</div>
+</div>
+
+<script>
+const STORE_KEY_CX = 'donia_custom_experiments_v1';
+const PROGRESS_KEY_CX = 'donia_custom_progress_v1';
+const NAME_KEY_CX = 'donia_custom_student_name';
+const EMOJI_CHOICES = ['🔬','🧪','🧫','⚗️','🌿','🧲','💡','⚡','🌍','🧠','📐','🔭','🦠','🧬','💧','🔥'];
+
+let showAllStagesCX = false;
+let pendingHotspot = null; // {x,y} while adding a new hotspot in the builder
+let builderHotspots = [];  // current hotspots being edited in the builder
+let currentViewId = null;
+
+function getExperimentsCX(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_CX)) || []; }catch(e){ return []; } }
+function setExperimentsCX(list){ localStorage.setItem(STORE_KEY_CX, JSON.stringify(list)); }
+function getProgressCX(){ try{ return JSON.parse(localStorage.getItem(PROGRESS_KEY_CX)) || {}; }catch(e){ return {}; } }
+function setProgressCX(p){ localStorage.setItem(PROGRESS_KEY_CX, JSON.stringify(p)); }
+function completeExperimentCX(id){ const p=getProgressCX(); p[id]=true; setProgressCX(p); }
+
+function getStageCX(){ return localStorage.getItem('donia_stage_level') || ''; }
+function getVisibleExperimentsCX(){
+  const stage = getStageCX();
+  const all = getExperimentsCX();
+  if(!stage || showAllStagesCX) return all;
+  const filtered = all.filter(e=>e.stage===stage);
+  return filtered.length ? filtered : all;
+}
+function toggleShowAllStagesCX(){ showAllStagesCX = !showAllStagesCX; renderDashboardCX(); }
+
+function lvlClass(stage){ return stage==='الثانوي' ? 'hs' : (stage==='الابتدائي' ? 'prim' : ''); }
+
+function renderDashboardCX(){
+  const grid = document.getElementById('cxGrid');
+  const all = getExperimentsCX();
+  const progress = getProgressCX();
+  const stage = getStageCX();
+  const list = getVisibleExperimentsCX();
+  const banner = document.getElementById('stageBannerCX');
+  if(stage && all.length){
+    banner.innerHTML = showAllStagesCX
+      ? `🎓 عرض كل الأطوار — <a href="#" onclick="toggleShowAllStagesCX();return false;" style="color:var(--cx-green);">عرض طور ${stage} فقط</a>`
+      : `🎓 تُعرض تجارب طور <b style="color:var(--cx-green);">${stage}</b> فقط — <a href="#" onclick="toggleShowAllStagesCX();return false;" style="color:var(--cx-green);">عرض كل الأطوار</a>`;
+  } else { banner.innerHTML = ''; }
+
+  if(all.length === 0){
+    grid.innerHTML = '';
+    grid.insertAdjacentHTML('afterend', '');
+    document.getElementById('summaryTextCX').textContent = 'لا توجد تجارب مخصصة بعد';
+    grid.innerHTML = `<div class="cx-empty" style="grid-column:1/-1;">
+      <div class="big">🧩</div>
+      <div>لم تُنشئي أي تجربة بعد. اضغطي "أضف تجربة جديدة" لبناء أول تجربة خاصة بك.</div>
+    </div>`;
+    return;
+  }
+
+  grid.innerHTML = '';
+  let done = 0;
+  list.forEach(exp=>{
+    const isDone = !!progress[exp.id];
+    if(isDone) done++;
+    const card = document.createElement('div');
+    card.className = 'cx-card';
+    card.innerHTML = `
+      <div class="card-tools no-print">
+        <button class="card-tool-btn" onclick="event.stopPropagation();editCustomExperiment('${exp.id}')" title="تعديل">✏️</button>
+        <button class="card-tool-btn" onclick="event.stopPropagation();deleteCustomExperiment('${exp.id}')" title="حذف">🗑️</button>
+      </div>
+      ${isDone?'<div class="badge">✅</div>':''}
+      <div class="icon">${exp.icon || '🧩'}</div>
+      <div class="lvl ${lvlClass(exp.stage)}">${exp.stage}</div>
+      <h3>${exp.title}</h3>
+      <div class="cx-progress-wrap"><div class="cx-progress-bar" style="width:${isDone?100:0}%"></div></div>
+    `;
+    card.addEventListener('click', ()=>openViewer(exp.id));
+    grid.appendChild(card);
+  });
+  document.getElementById('summaryTextCX').textContent = `التقدم: ${done} من ${list.length} تجارب مُنجزة`;
+}
+
+/* ---------------- BUILDER ---------------- */
+function initEmojiChoices(){
+  const row = document.getElementById('emojiChoices');
+  row.innerHTML = '';
+  EMOJI_CHOICES.forEach(e=>{
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cx-emoji-choice';
+    b.textContent = e;
+    b.onclick = ()=>{ document.getElementById('builderIcon').value = e; };
+    row.appendChild(b);
+  });
+}
+
+function openBuilder(){
+  document.getElementById('builderEditId').value = '';
+  document.getElementById('builderModeTag').textContent = 'تجربة جديدة';
+  document.getElementById('builderTitle').value = '';
+  document.getElementById('builderStage').value = 'المتوسط';
+  document.getElementById('builderSubject').value = '';
+  document.getElementById('builderIcon').value = '';
+  document.getElementById('builderDesc').value = '';
+  document.getElementById('builderQuestion').value = '';
+  document.getElementById('builderOpt0').value = '';
+  document.getElementById('builderOpt1').value = '';
+  document.getElementById('builderOpt2').value = '';
+  document.querySelector('input[name="builderCorrect"][value="0"]').checked = true;
+  builderHotspots = [];
+  pendingHotspot = null;
+  document.getElementById('builderImgArea').dataset.image = '';
+  renderBuilderImageArea();
+  renderHotspotList();
+  document.getElementById('dashboardViewCX').style.display = 'none';
+  document.getElementById('panel-viewer').classList.remove('active');
+  document.getElementById('panel-builder').classList.add('active');
+}
+
+function editCustomExperiment(id){
+  const exp = getExperimentsCX().find(e=>e.id===id);
+  if(!exp) return;
+  document.getElementById('builderEditId').value = id;
+  document.getElementById('builderModeTag').textContent = 'تعديل تجربة';
+  document.getElementById('builderTitle').value = exp.title;
+  document.getElementById('builderStage').value = exp.stage;
+  document.getElementById('builderSubject').value = exp.subject || '';
+  document.getElementById('builderIcon').value = exp.icon || '';
+  document.getElementById('builderDesc').value = exp.description || '';
+  document.getElementById('builderQuestion').value = exp.quiz ? exp.quiz.question : '';
+  document.getElementById('builderOpt0').value = exp.quiz ? (exp.quiz.options[0]||'') : '';
+  document.getElementById('builderOpt1').value = exp.quiz ? (exp.quiz.options[1]||'') : '';
+  document.getElementById('builderOpt2').value = exp.quiz ? (exp.quiz.options[2]||'') : '';
+  document.querySelector(`input[name="builderCorrect"][value="${exp.quiz ? exp.quiz.correctIndex : 0}"]`).checked = true;
+  builderHotspots = exp.hotspots ? JSON.parse(JSON.stringify(exp.hotspots)) : [];
+  pendingHotspot = null;
+  document.getElementById('builderImgArea').dataset.image = exp.image || '';
+  renderBuilderImageArea();
+  renderHotspotList();
+  document.getElementById('dashboardViewCX').style.display = 'none';
+  document.getElementById('panel-viewer').classList.remove('active');
+  document.getElementById('panel-builder').classList.add('active');
+}
+
+function cancelBuilder(){
+  document.getElementById('panel-builder').classList.remove('active');
+  document.getElementById('dashboardViewCX').style.display = 'block';
+  renderDashboardCX();
+}
+
+function handleBuilderImageUpload(input){
+  const file = input.files[0];
+  if(!file) return;
+  const reader = new FileReader();
+  reader.onload = e=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const maxW = 700;
+      const scale = Math.min(1, maxW/img.width);
+      const canvas = document.createElement('canvas');
+      canvas.width = img.width*scale;
+      canvas.height = img.height*scale;
+      const ctx = canvas.getContext('2d');
+      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+      const dataUrl = canvas.toDataURL('image/jpeg', 0.78);
+      document.getElementById('builderImgArea').dataset.image = dataUrl;
+      builderHotspots = [];
+      renderBuilderImageArea();
+      renderHotspotList();
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+}
+
+function renderBuilderImageArea(){
+  const area = document.getElementById('builderImgArea');
+  const img = area.dataset.image;
+  if(!img){
+    area.innerHTML = `<div class="cx-img-drop" id="builderDropZone" onclick="document.getElementById('builderImgInput').click()">📷 انقر لرفع صورة (سيتم ضغطها تلقائيًا)</div>
+    <input type="file" id="builderImgInput" accept="image/*" style="display:none" onchange="handleBuilderImageUpload(this)">`;
+    return;
+  }
+  area.innerHTML = `
+    <div class="cx-img-stage" id="builderImgStage">
+      <img src="${img}" draggable="false">
+    </div>
+    <div style="display:flex;gap:8px;margin-top:8px;">
+      <button type="button" class="cx-btn cx-btn-ghost" style="font-size:.78rem;padding:6px 12px;" onclick="document.getElementById('builderImgInputReplace').click()">🔄 تغيير الصورة</button>
+      <button type="button" class="cx-btn cx-btn-ghost" style="font-size:.78rem;padding:6px 12px;" onclick="removeBuilderImage()">🗑️ إزالة الصورة</button>
+    </div>
+    <input type="file" id="builderImgInputReplace" accept="image/*" style="display:none" onchange="handleBuilderImageUpload(this)">
+    <div style="font-size:.75rem;color:#9db8a8;margin-top:6px;">💡 انقري على أي نقطة في الصورة لإضافة علامة تفاعلية هناك.</div>
+  `;
+  document.getElementById('builderImgStage').addEventListener('click', onBuilderImageClick);
+  renderHotspotDots();
+}
+
+function removeBuilderImage(){
+  document.getElementById('builderImgArea').dataset.image = '';
+  builderHotspots = [];
+  pendingHotspot = null;
+  renderBuilderImageArea();
+  renderHotspotList();
+}
+
+function onBuilderImageClick(e){
+  const stage = document.getElementById('builderImgStage');
+  const rect = stage.getBoundingClientRect();
+  const x = ((e.clientX - rect.left)/rect.width)*100;
+  const y = ((e.clientY - rect.top)/rect.height)*100;
+  pendingHotspot = {x, y};
+  renderHotspotDots();
+  document.getElementById('builderMiniForm').innerHTML = `
+    <div class="cx-mini-form">
+      <div class="cx-field-wrap" style="margin-bottom:8px;">
+        <label class="cx-field-label">اسم النقطة</label>
+        <input class="cx-field-input" id="miniHotspotName" placeholder="مثال: النواة">
+      </div>
+      <div class="cx-field-wrap" style="margin-bottom:8px;">
+        <label class="cx-field-label">الوصف</label>
+        <input class="cx-field-input" id="miniHotspotDesc" placeholder="وصف مختصر لهذه النقطة">
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button type="button" class="cx-btn cx-btn-green" style="flex:1;" onclick="confirmHotspot()">✔️ حفظ النقطة</button>
+        <button type="button" class="cx-btn cx-btn-ghost" onclick="cancelHotspot()">إلغاء</button>
+      </div>
+    </div>`;
+}
+
+function confirmHotspot(){
+  const name = document.getElementById('miniHotspotName').value.trim();
+  const desc = document.getElementById('miniHotspotDesc').value.trim();
+  if(!name){ alert('يرجى إدخال اسم للنقطة.'); return; }
+  builderHotspots.push({x:pendingHotspot.x, y:pendingHotspot.y, name, desc});
+  pendingHotspot = null;
+  document.getElementById('builderMiniForm').innerHTML = '';
+  renderHotspotDots();
+  renderHotspotList();
+}
+function cancelHotspot(){
+  pendingHotspot = null;
+  document.getElementById('builderMiniForm').innerHTML = '';
+  renderHotspotDots();
+}
+
+function renderHotspotDots(){
+  const stage = document.getElementById('builderImgStage');
+  if(!stage) return;
+  stage.querySelectorAll('.cx-hotspot-dot').forEach(d=>d.remove());
+  builderHotspots.forEach((h,i)=>{
+    const dot = document.createElement('div');
+    dot.className = 'cx-hotspot-dot';
+    dot.style.left = h.x+'%';
+    dot.style.top = h.y+'%';
+    dot.textContent = i+1;
+    stage.appendChild(dot);
+  });
+  if(pendingHotspot){
+    const dot = document.createElement('div');
+    dot.className = 'cx-hotspot-dot pending';
+    dot.style.left = pendingHotspot.x+'%';
+    dot.style.top = pendingHotspot.y+'%';
+    dot.textContent = '+';
+    stage.appendChild(dot);
+  }
+}
+
+function renderHotspotList(){
+  const list = document.getElementById('builderHotspotList');
+  if(!builderHotspots.length){ list.innerHTML=''; return; }
+  list.innerHTML = builderHotspots.map((h,i)=>`
+    <div class="cx-hotspot-item">
+      <div class="num">${i+1}</div>
+      <div class="txt"><b>${h.name}</b>${h.desc?' — '+h.desc:''}</div>
+      <button type="button" onclick="removeHotspot(${i})">🗑️</button>
+    </div>
+  `).join('');
+}
+function removeHotspot(i){
+  builderHotspots.splice(i,1);
+  renderHotspotDots();
+  renderHotspotList();
+}
+
+function saveCustomExperiment(){
+  const title = document.getElementById('builderTitle').value.trim();
+  if(!title){ alert('يرجى إدخال عنوان للتجربة.'); return; }
+  const stage = document.getElementById('builderStage').value;
+  const subject = document.getElementById('builderSubject').value.trim();
+  const icon = document.getElementById('builderIcon').value.trim() || '🧩';
+  const description = document.getElementById('builderDesc').value.trim();
+  const image = document.getElementById('builderImgArea').dataset.image || '';
+  const question = document.getElementById('builderQuestion').value.trim();
+  const opts = [document.getElementById('builderOpt0').value.trim(), document.getElementById('builderOpt1').value.trim(), document.getElementById('builderOpt2').value.trim()];
+  const correctIndex = +document.querySelector('input[name="builderCorrect"]:checked').value;
+  const hasQuiz = question && opts.every(o=>o);
+
+  const editId = document.getElementById('builderEditId').value;
+  const list = getExperimentsCX();
+  const expData = {
+    id: editId || ('cx_'+Date.now()),
+    title, stage, subject, icon, description,
+    image, hotspots: builderHotspots,
+    quiz: hasQuiz ? {question, options:opts, correctIndex} : null
+  };
+
+  if(editId){
+    const idx = list.findIndex(e=>e.id===editId);
+    if(idx>-1) list[idx] = expData;
+  } else {
+    list.push(expData);
+  }
+  setExperimentsCX(list);
+  document.getElementById('panel-builder').classList.remove('active');
+  document.getElementById('dashboardViewCX').style.display = 'block';
+  renderDashboardCX();
+}
+
+function deleteCustomExperiment(id){
+  if(!confirm('هل تريدين حذف هذه التجربة نهائيًا؟')) return;
+  let list = getExperimentsCX().filter(e=>e.id!==id);
+  setExperimentsCX(list);
+  const progress = getProgressCX();
+  delete progress[id];
+  setProgressCX(progress);
+  document.getElementById('panel-viewer').classList.remove('active');
+  document.getElementById('dashboardViewCX').style.display = 'block';
+  renderDashboardCX();
+}
+
+/* ---------------- VIEWER ---------------- */
+function openViewer(id){
+  const exp = getExperimentsCX().find(e=>e.id===id);
+  if(!exp) return;
+  currentViewId = id;
+  document.getElementById('viewerTag').textContent = exp.stage;
+  document.getElementById('viewerTag').className = 'cx-exp-tag ' + lvlClass(exp.stage);
+  document.getElementById('viewerTitle').textContent = (exp.icon?exp.icon+' ':'') + exp.title;
+  document.getElementById('viewerSub').textContent = exp.subject ? 'المادة: '+exp.subject : '';
+  document.getElementById('viewerInfo').style.display = exp.description ? 'block' : 'none';
+  document.getElementById('viewerInfo').innerHTML = exp.description || '';
+
+  const imgArea = document.getElementById('viewerImgArea');
+  if(exp.image){
+    imgArea.innerHTML = `<div class="cx-img-stage" id="viewerImgStage"><img src="${exp.image}"></div>`;
+    const stage = document.getElementById('viewerImgStage');
+    (exp.hotspots||[]).forEach((h,i)=>{
+      const dot = document.createElement('div');
+      dot.className = 'cx-hotspot-dot';
+      dot.style.left = h.x+'%';
+      dot.style.top = h.y+'%';
+      dot.textContent = i+1;
+      dot.onclick = ()=>{
+        document.getElementById('viewerInfo').style.display = 'block';
+        document.getElementById('viewerInfo').innerHTML = `<b>${h.name}</b>${h.desc?'<br>'+h.desc:''}`;
+      };
+      stage.appendChild(dot);
+    });
+  } else {
+    imgArea.innerHTML = '';
+  }
+
+  const quizArea = document.getElementById('viewerQuizArea');
+  if(exp.quiz){
+    quizArea.innerHTML = `
+      <div class="cx-quiz">
+        <p>${exp.quiz.question}</p>
+        <div class="opts">
+          ${exp.quiz.options.map((o,i)=>`<button class="cx-opt-btn" onclick="answerQuizCX(this, ${i===exp.quiz.correctIndex}, '${exp.id}')">${o}</button>`).join('')}
+        </div>
+        <div class="cx-complete-msg">✅ أُنجزت التجربة بنجاح!</div>
+      </div>`;
+  } else {
+    quizArea.innerHTML = '';
+  }
+
+  document.getElementById('dashboardViewCX').style.display = 'none';
+  document.getElementById('panel-builder').classList.remove('active');
+  document.getElementById('panel-viewer').classList.add('active');
+}
+
+function backToDashCX(){
+  document.getElementById('panel-viewer').classList.remove('active');
+  document.getElementById('dashboardViewCX').style.display = 'block';
+  renderDashboardCX();
+}
+
+function answerQuizCX(btn, correct, expId){
+  const opts = btn.parentElement.querySelectorAll('.cx-opt-btn');
+  opts.forEach(o=>o.disabled=true);
+  btn.classList.add(correct?'correct':'wrong');
+  const msg = btn.closest('.cx-quiz').querySelector('.cx-complete-msg');
+  if(correct){ msg.style.display='block'; completeExperimentCX(expId); }
+}
+
+/* ---------------- NAME + PRINT ---------------- */
+function saveNameCX(){ localStorage.setItem(NAME_KEY_CX, document.getElementById('studentNameCX').value.trim()); }
+function loadNameCX(){ const v=localStorage.getItem(NAME_KEY_CX); if(v) document.getElementById('studentNameCX').value=v; }
+function printReportCX(){
+  const list = getExperimentsCX();
+  const progress = getProgressCX();
+  const name = localStorage.getItem(NAME_KEY_CX) || 'غير محدد';
+  const done = list.filter(e=>progress[e.id]);
+  document.getElementById('printReportCX').innerHTML = `<div style="font-family:'Rajdhani',sans-serif;padding:30px;">
+    <h1 style="text-align:center;">تقرير المختبر الافتراضي</h1>
+    <p style="text-align:center;">تجاربي الخاصة — DONIA LABS TECH</p>
+    <hr>
+    <p><b>اسم التلميذ:</b> ${name}</p>
+    <p><b>التاريخ:</b> ${new Date().toLocaleDateString('ar-DZ')}</p>
+    <p><b>التجارب المُنجزة:</b> ${done.length} من ${list.length}</p>
+    <ul>${list.map(e=>`<li>${e.icon||'🧩'} ${e.title} (${e.stage}) — ${progress[e.id]?'✅ منجزة':'⏳ غير منجزة'}</li>`).join('')}</ul>
+  </div>`;
+  window.print();
+}
+
+initEmojiChoices();
+loadNameCX();
+renderDashboardCX();
+</script>
+</body>
+</html>

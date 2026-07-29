@@ -119,6 +119,7 @@ body{margin:0;background:var(--phy-bg);background-image:radial-gradient(circle a
       <div><b id="summaryTextP">لم تُنجز أي تجربة بعد</b></div>
       <button class="phy-print-btn" onclick="printReportP()">🖨️ طباعة التقرير</button>
     </div>
+    <div class="no-print" id="stageBannerP" style="margin-bottom:14px;font-size:.82rem;color:#93a2c2;"></div>
     <div class="phy-grid" id="phyGrid"></div>
   </div>
 
@@ -382,12 +383,29 @@ const NAME_KEY_P = 'donia_physics_student_name';
 function getProgressP(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_P)) || {}; }catch(e){ return {}; } }
 function setProgressP(p){ localStorage.setItem(STORE_KEY_P, JSON.stringify(p)); }
 
+let showAllStagesP = false;
+function getStageP(){ return localStorage.getItem('donia_stage_level') || ''; }
+function getVisibleExperimentsP(){
+  const stage = getStageP();
+  if(!stage || showAllStagesP) return EXPERIMENTS_P;
+  const filtered = EXPERIMENTS_P.filter(e=>e.level===stage);
+  return filtered.length ? filtered : EXPERIMENTS_P;
+}
+function toggleShowAllStagesP(){ showAllStagesP = !showAllStagesP; renderDashboardP(); }
 function renderDashboardP(){
   const grid = document.getElementById('phyGrid');
   const progress = getProgressP();
+  const stage = getStageP();
+  const list = getVisibleExperimentsP();
+  const banner = document.getElementById('stageBannerP');
+  if(stage){
+    banner.innerHTML = showAllStagesP
+      ? `🎓 عرض كل الأطوار — <a href="#" onclick="toggleShowAllStagesP();return false;" style="color:var(--phy-blue);">عرض طور ${stage} فقط</a>`
+      : `🎓 تُعرض تجارب طور <b style="color:var(--phy-blue);">${stage}</b> فقط (حسب إعداداتك) — <a href="#" onclick="toggleShowAllStagesP();return false;" style="color:var(--phy-blue);">عرض كل الأطوار</a>`;
+  } else { banner.innerHTML = ''; }
   grid.innerHTML = '';
   let done = 0;
-  EXPERIMENTS_P.forEach(exp=>{
+  list.forEach(exp=>{
     const isDone = !!progress[exp.id];
     if(isDone) done++;
     const card = document.createElement('div');
@@ -402,7 +420,7 @@ function renderDashboardP(){
     `;
     grid.appendChild(card);
   });
-  document.getElementById('summaryTextP').textContent = `التقدم: ${done} من ${EXPERIMENTS_P.length} تجارب مُنجزة`;
+  document.getElementById('summaryTextP').textContent = `التقدم: ${done} من ${list.length} تجارب مُنجزة`;
 }
 function openExperimentP(id){
   document.getElementById('dashboardViewP').style.display='none';

@@ -136,6 +136,7 @@ body{margin:0;background:#122016;background-image:radial-gradient(circle at 20% 
       <div><b id="summaryText">لم تُنجز أي تجربة بعد</b></div>
       <button class="svt-print-btn" onclick="printReport()">🖨️ طباعة التقرير</button>
     </div>
+    <div class="no-print" id="stageBanner" style="margin-bottom:14px;font-size:.82rem;color:#5a5238;"></div>
     <div class="svt-grid" id="svtGrid"></div>
   </div>
 
@@ -425,12 +426,29 @@ function getProgress(){
 }
 function setProgress(p){ localStorage.setItem(STORE_KEY, JSON.stringify(p)); }
 
+let showAllStages = false;
+function getStage(){ return localStorage.getItem('donia_stage_level') || ''; }
+function getVisibleExperiments(){
+  const stage = getStage();
+  if(!stage || showAllStages) return EXPERIMENTS;
+  const filtered = EXPERIMENTS.filter(e=>e.level===stage);
+  return filtered.length ? filtered : EXPERIMENTS;
+}
+function toggleShowAllStages(){ showAllStages = !showAllStages; renderDashboard(); }
 function renderDashboard(){
   const grid = document.getElementById('svtGrid');
   const progress = getProgress();
+  const stage = getStage();
+  const list = getVisibleExperiments();
+  const banner = document.getElementById('stageBanner');
+  if(stage){
+    banner.innerHTML = showAllStages
+      ? `🎓 عرض كل الأطوار — <a href="#" onclick="toggleShowAllStages();return false;" style="color:var(--svt-leaf-dark);">عرض طور ${stage} فقط</a>`
+      : `🎓 تُعرض تجارب طور <b style="color:var(--svt-leaf-dark);">${stage}</b> فقط (حسب إعداداتك) — <a href="#" onclick="toggleShowAllStages();return false;" style="color:var(--svt-leaf-dark);">عرض كل الأطوار</a>`;
+  } else { banner.innerHTML = ''; }
   grid.innerHTML = '';
   let done = 0;
-  EXPERIMENTS.forEach(exp=>{
+  list.forEach(exp=>{
     const isDone = !!progress[exp.id];
     if(isDone) done++;
     const card = document.createElement('div');
@@ -446,7 +464,7 @@ function renderDashboard(){
     grid.appendChild(card);
   });
   document.getElementById('summaryText').textContent =
-    `التقدم: ${done} من ${EXPERIMENTS.length} تجارب مُنجزة`;
+    `التقدم: ${done} من ${list.length} تجارب مُنجزة`;
 }
 
 function openExperiment(id){

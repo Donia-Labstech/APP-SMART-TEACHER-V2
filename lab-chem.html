@@ -128,6 +128,7 @@ body{margin:0;background:var(--chem-bg);background-image:radial-gradient(circle 
       <div><b id="summaryTextC">لم تُنجز أي تجربة بعد</b></div>
       <button class="chem-print-btn" onclick="printReportC()">🖨️ طباعة التقرير</button>
     </div>
+    <div class="no-print" id="stageBannerC" style="margin-bottom:14px;font-size:.82rem;color:#b3a6cf;"></div>
     <div class="chem-grid" id="chemGrid"></div>
   </div>
 
@@ -304,12 +305,29 @@ const NAME_KEY_C = 'donia_chem_student_name';
 function getProgressC(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_C)) || {}; }catch(e){ return {}; } }
 function setProgressC(p){ localStorage.setItem(STORE_KEY_C, JSON.stringify(p)); }
 
+let showAllStagesC = false;
+function getStageC(){ return localStorage.getItem('donia_stage_level') || ''; }
+function getVisibleExperimentsC(){
+  const stage = getStageC();
+  if(!stage || showAllStagesC) return EXPERIMENTS_C;
+  const filtered = EXPERIMENTS_C.filter(e=>e.level===stage);
+  return filtered.length ? filtered : EXPERIMENTS_C;
+}
+function toggleShowAllStagesC(){ showAllStagesC = !showAllStagesC; renderDashboardC(); }
 function renderDashboardC(){
   const grid = document.getElementById('chemGrid');
   const progress = getProgressC();
+  const stage = getStageC();
+  const list = getVisibleExperimentsC();
+  const banner = document.getElementById('stageBannerC');
+  if(stage){
+    banner.innerHTML = showAllStagesC
+      ? `🎓 عرض كل الأطوار — <a href="#" onclick="toggleShowAllStagesC();return false;" style="color:var(--chem-teal);">عرض طور ${stage} فقط</a>`
+      : `🎓 تُعرض تجارب طور <b style="color:var(--chem-teal);">${stage}</b> فقط (حسب إعداداتك) — <a href="#" onclick="toggleShowAllStagesC();return false;" style="color:var(--chem-teal);">عرض كل الأطوار</a>`;
+  } else { banner.innerHTML = ''; }
   grid.innerHTML = '';
   let done = 0;
-  EXPERIMENTS_C.forEach(exp=>{
+  list.forEach(exp=>{
     const isDone = !!progress[exp.id];
     if(isDone) done++;
     const card = document.createElement('div');
@@ -324,7 +342,7 @@ function renderDashboardC(){
     `;
     grid.appendChild(card);
   });
-  document.getElementById('summaryTextC').textContent = `التقدم: ${done} من ${EXPERIMENTS_C.length} تجارب مُنجزة`;
+  document.getElementById('summaryTextC').textContent = `التقدم: ${done} من ${list.length} تجارب مُنجزة`;
 }
 function openExperimentC(id){
   document.getElementById('dashboardViewC').style.display='none';

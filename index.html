@@ -957,7 +957,7 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
             <div class="card-title"><span class="card-title-icon">🔬</span> المخبر الافتراضي</div>
             <div style="font-size:0.85rem;color:var(--text2);">تجارب تفاعلية آمنة لتلاميذكم، بدون أي معدات حقيقية — اختاري المخبر المناسب لمادتكم.</div>
           </div>
-          <div class="grid-3">
+          <div class="grid-3" style="grid-template-columns:repeat(auto-fit,minmax(220px,1fr));">
             <div class="doc-card" onclick="openLab('svt')" style="cursor:pointer;">
               <div class="doc-icon">🌿</div>
               <div class="doc-info">
@@ -977,6 +977,13 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
               <div class="doc-info">
                 <div class="doc-name">مخبر الكيمياء</div>
                 <div class="doc-meta">6 تجارب — متوسط وثانوي: الحموضة، الذوبانية، المعايرة، الجدول الدوري</div>
+              </div>
+            </div>
+            <div class="doc-card" onclick="openLab('custom')" style="cursor:pointer;">
+              <div class="doc-icon">🧩</div>
+              <div class="doc-info">
+                <div class="doc-name">تجاربي الخاصة</div>
+                <div class="doc-meta">ابنِ تجربتك التفاعلية بنفسك: صور، نقاط تفاعلية، وسؤال تقييمي</div>
               </div>
             </div>
           </div>
@@ -1146,6 +1153,21 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
                 <button class="btn btn-orange" onclick="openNewYearModal()" style="flex:1;">🔄 فتح سنة دراسية جديدة</button>
                 <button class="btn btn-blue" onclick="saveYearSettings()" style="flex:1;">💾 حفظ</button>
               </div>
+            </div>
+            <!-- EDUCATION STAGE -->
+            <div class="card" style="margin-bottom:16px;">
+              <div class="card-title"><span class="card-title-icon">🎓</span> الطور التعليمي</div>
+              <div style="font-size:0.78rem;color:var(--text2);margin-bottom:14px;">حدّدي طوركم التعليمي ليتم تصفية التجارب في المخبر الافتراضي تلقائيًا حسب مستوى تلاميذكم.</div>
+              <div class="field-wrap">
+                <label class="field-label">الطور الدراسي</label>
+                <select class="field-input styled-select" id="setting-stage">
+                  <option value="">كل الأطوار (بدون تصفية)</option>
+                  <option value="الابتدائي">الابتدائي</option>
+                  <option value="المتوسط">المتوسط</option>
+                  <option value="الثانوي">الثانوي</option>
+                </select>
+              </div>
+              <button class="btn btn-solid" style="width:100%;" onclick="saveStageSetting()">💾 حفظ الطور التعليمي</button>
             </div>
             <!-- PASSWORD CHANGE (legacy, hidden — access is now controlled by the license key) -->
             <div class="card" style="margin-bottom:16px;display:none;">
@@ -1480,7 +1502,8 @@ function toggleSidebar() {
 const LAB_MAP = {
   svt: { src: 'lab-svt.html', title: '🌿 مخبر علوم الطبيعة والحياة' },
   physics: { src: 'lab-physics.html', title: '⚡ مخبر الفيزياء' },
-  chem: { src: 'lab-chem.html', title: '🧪 مخبر الكيمياء' }
+  chem: { src: 'lab-chem.html', title: '🧪 مخبر الكيمياء' },
+  custom: { src: 'lab-custom.html', title: '🧩 تجاربي الخاصة' }
 };
 function openLab(which) {
   const lab = LAB_MAP[which];
@@ -2681,6 +2704,8 @@ function loadProfile() {
   if (p.subject) currentSubject = p.subject;
   const yearEl = document.getElementById('setting-year');
   if (yearEl && p.year) { yearEl.value = p.year; document.getElementById('topbar-year').textContent = p.year; }
+  const stageEl = document.getElementById('setting-stage');
+  if (stageEl) stageEl.value = localStorage.getItem('donia_stage_level') || '';
   renderPortfolioCard();
 }
 
@@ -2812,6 +2837,15 @@ function saveYearSettings() {
   localStorage.setItem('donia_profile', JSON.stringify(userProfile));
   document.getElementById('topbar-year').textContent = year;
   showNotif('✅ تم حفظ إعدادات السنة الدراسية');
+}
+
+// Shared across the app and read directly by the virtual labs (same-origin
+// localStorage) to auto-filter experiments by education stage.
+function saveStageSetting() {
+  const stage = document.getElementById('setting-stage').value;
+  if (stage) localStorage.setItem('donia_stage_level', stage);
+  else localStorage.removeItem('donia_stage_level');
+  showNotif('✅ تم حفظ الطور التعليمي');
 }
 
 // ============================================================
