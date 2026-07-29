@@ -3072,6 +3072,8 @@ function showPage_direct(id) {
   if (pageEl) pageEl.classList.add('active');
   const titles = { settings:'الإعدادات الشخصية', drawing:'لوحة الرسم والتوقيع' };
   document.getElementById('topbar-title').textContent = titles[id] || id;
+  document.querySelector('.sidebar').classList.remove('open');
+  document.getElementById('sidebar-overlay').classList.remove('show');
 }
 
 // ============================================================
