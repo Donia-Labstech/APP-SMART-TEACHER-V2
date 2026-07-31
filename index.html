@@ -527,6 +527,9 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
       <button class="nav-item" onclick="showPage('labs')">
         <span class="nav-icon">🔬</span> المخبر الافتراضي
       </button>
+      <button class="nav-item" onclick="showPage('stories')">
+        <span class="nav-icon">📖</span> القصص ومسرح الطفل
+      </button>
       <div class="nav-section-label">النظام</div>
       <button class="nav-item" onclick="showPage('guide')">
         <span class="nav-icon">📘</span> دليل الاستخدام
@@ -1010,6 +1013,80 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
           <div class="card" style="padding:0;overflow:hidden;">
             <iframe id="labs-iframe" src="" style="width:100%;height:calc(100vh - 220px);min-height:480px;border:none;display:block;background:#fff;" title="المخبر الافتراضي"></iframe>
           </div>
+        </div>
+      </div>
+
+      <!-- ========== STORIES & CHILDREN'S THEATER GENERATOR ========== -->
+      <div class="page" id="page-stories">
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title"><span class="card-title-icon">📖</span> مولّد القصص وسيناريوهات مسرح الطفل</div>
+          <div style="font-size:0.82rem;color:var(--text2);margin-bottom:18px;">اكتبي الفكرة أو العبرة المطلوبة، وسيولّد الذكاء الاصطناعي قصة تربوية كاملة أو سيناريو مسرحي جاهز للطباعة وتوزيع الأدوار على التلاميذ.</div>
+
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div class="field-wrap">
+              <label class="field-label">نوع المحتوى</label>
+              <div style="display:flex;gap:8px;">
+                <button type="button" class="btn btn-solid" id="story-type-story" style="flex:1;" onclick="setStoryType('story')">📖 قصة تربوية</button>
+                <button type="button" class="btn btn-blue" id="story-type-theater" style="flex:1;" onclick="setStoryType('theater')">🎭 سيناريو مسرحي</button>
+              </div>
+            </div>
+            <div class="field-wrap">
+              <label class="field-label">الفئة العمرية / الطور</label>
+              <select class="field-input styled-select" id="story-stage">
+                <option value="الأطفال الصغار (تحضيري/السنوات الأولى)">الأطفال الصغار (تحضيري/السنوات الأولى)</option>
+                <option value="الابتدائي" selected>الابتدائي</option>
+                <option value="المتوسط">المتوسط</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-wrap" style="margin-bottom:16px;">
+            <label class="field-label">الموضوع أو العبرة المطلوبة *</label>
+            <input class="field-input" id="story-topic" placeholder="مثال: الصدق، التعاون، احترام البيئة، النظافة...">
+          </div>
+
+          <div class="grid-2" style="margin-bottom:16px;">
+            <div class="field-wrap" id="story-length-wrap">
+              <label class="field-label">طول القصة</label>
+              <select class="field-input styled-select" id="story-length">
+                <option value="قصيرة (حوالي 200 كلمة)">قصيرة (حوالي 200 كلمة)</option>
+                <option value="متوسطة (حوالي 400 كلمة)" selected>متوسطة (حوالي 400 كلمة)</option>
+                <option value="طويلة (حوالي 700 كلمة)">طويلة (حوالي 700 كلمة)</option>
+              </select>
+            </div>
+            <div class="field-wrap" id="story-characters-wrap" style="display:none;">
+              <label class="field-label">عدد الشخصيات</label>
+              <select class="field-input styled-select" id="story-characters">
+                <option value="2">2 شخصيات</option>
+                <option value="3" selected>3 شخصيات</option>
+                <option value="4">4 شخصيات</option>
+                <option value="5">5 شخصيات</option>
+                <option value="6">6 شخصيات</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="field-wrap" style="margin-bottom:18px;">
+            <label class="field-label">لغة النص</label>
+            <select class="field-input styled-select" id="story-lang">
+              <option value="العربية الفصحى" selected>العربية الفصحى</option>
+              <option value="الفرنسية">الفرنسية</option>
+              <option value="الإنجليزية">الإنجليزية</option>
+            </select>
+          </div>
+
+          <button class="btn btn-solid" style="width:100%;" id="story-generate-btn" onclick="generateStory()">✨ توليد المحتوى</button>
+        </div>
+
+        <div class="card" id="story-output-card" style="display:none;">
+          <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;flex-wrap:wrap;gap:10px;">
+            <div class="card-title" style="margin-bottom:0;"><span class="card-title-icon">📄</span> النتيجة</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button class="btn btn-blue" style="font-size:0.8rem;padding:8px 14px;" onclick="printStoryOutput()">🖨️ طباعة</button>
+              <button class="btn btn-blue" style="font-size:0.8rem;padding:8px 14px;" onclick="downloadStoryWord()">📥 تحميل Word</button>
+            </div>
+          </div>
+          <div id="story-output-content" style="line-height:2;"></div>
         </div>
       </div>
 
@@ -1540,7 +1617,7 @@ function showPage(id) {
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
   event.currentTarget.classList.add('active');
-  const titles = { dashboard:'لوحة التحكم', evaluation:'تقييم الطلاب الذكي', attendance:'الحضور والغياب', portfolio:'الملف المهني الرقمي', ai:'المساعد الذكي AI', labs:'المخبر الافتراضي' };
+  const titles = { dashboard:'لوحة التحكم', evaluation:'تقييم الطلاب الذكي', attendance:'الحضور والغياب', portfolio:'الملف المهني الرقمي', ai:'المساعد الذكي AI', labs:'المخبر الافتراضي', stories:'القصص ومسرح الطفل' };
   document.getElementById('topbar-title').textContent = titles[id] || id;
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('show');
@@ -2558,6 +2635,97 @@ function subjectLanguageInstruction(subject) {
   if (subject === 'اللغة الفرنسية') return 'أجب بالكامل باللغة الفرنسية الفصحى (français) — العناوين والمحتوى والتمارين كلها بالفرنسية، إلا إذا طلب المستخدم صراحة لغة أخرى.';
   if (subject === 'اللغة الإنجليزية') return 'أجب بالكامل باللغة الإنجليزية (English) — العناوين والمحتوى والتمارين كلها بالإنجليزية، إلا إذا طلب المستخدم صراحة لغة أخرى.';
   return 'تستجيب دائماً باللغة العربية الفصحى.';
+}
+
+// ============================================================
+// STORIES & CHILDREN'S THEATER GENERATOR
+// ============================================================
+let storyType = 'story'; // 'story' | 'theater'
+let lastStoryOutput = null; // { title, html } — used by print/word export
+
+function setStoryType(type) {
+  storyType = type;
+  document.getElementById('story-type-story').className = 'btn ' + (type === 'story' ? 'btn-solid' : 'btn-blue');
+  document.getElementById('story-type-theater').className = 'btn ' + (type === 'theater' ? 'btn-solid' : 'btn-blue');
+  document.getElementById('story-length-wrap').style.display = type === 'story' ? 'block' : 'none';
+  document.getElementById('story-characters-wrap').style.display = type === 'theater' ? 'block' : 'none';
+}
+
+async function generateStory() {
+  const topic = document.getElementById('story-topic').value.trim();
+  if (!topic) { showNotif('⚠️ يرجى كتابة الموضوع أو العبرة المطلوبة', 'warn'); return; }
+  if (!isLicenseValid()) { showNotif('⚠️ يرجى تسجيل الدخول بترخيص ساري أولًا', 'warn'); return; }
+
+  const stage = document.getElementById('story-stage').value;
+  const lang = document.getElementById('story-lang').value;
+  const btn = document.getElementById('story-generate-btn');
+  const outputCard = document.getElementById('story-output-card');
+  const outputContent = document.getElementById('story-output-content');
+
+  btn.disabled = true;
+  btn.textContent = '⏳ جارٍ التوليد...';
+  outputCard.style.display = 'block';
+  outputContent.innerHTML = '<div style="text-align:center;padding:30px;color:var(--text2);">⏳ يتم الآن توليد المحتوى، قد يستغرق ذلك بضع ثوانٍ...</div>';
+  outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+
+  let systemPrompt, userPrompt;
+  const langInstruction = lang === 'الفرنسية'
+    ? 'اكتب النص بالكامل باللغة الفرنسية الفصحى.'
+    : (lang === 'الإنجليزية' ? 'Write the entire text in clear English.' : 'اكتب النص بالكامل باللغة العربية الفصحى المبسّطة المناسبة للأطفال.');
+
+  if (storyType === 'story') {
+    const length = document.getElementById('story-length').value;
+    systemPrompt = `أنت كاتب قصص أطفال تربوية محترف، متخصص في الأدب الموجّه لتلاميذ ${stage} في الجزائر.
+تكتب قصصًا هادفة، بلغة بسيطة وواضحة تناسب الفئة العمرية، بأحداث مشوّقة وشخصيات محببة، وتنتهي دائمًا بعبرة أو درس أخلاقي واضح ومباشر (بدون وعظ مباشر مبالغ فيه).
+${langInstruction}
+نسّق الإخراج بصيغة Markdown كالتالي:
+# عنوان القصة
+(فقرات القصة، كل فقرة منفصلة بسطر فارغ)
+## 🌟 العبرة
+(جملة أو جملتين توضّحان الدرس المستفاد من القصة)`;
+    userPrompt = `اكتب قصة تربوية ${length} عن موضوع/عبرة: "${topic}"، مناسبة لتلاميذ ${stage}.`;
+  } else {
+    const characters = document.getElementById('story-characters').value;
+    systemPrompt = `أنت كاتب سيناريوهات مسرح طفل محترف، متخصص في المسرح المدرسي التربوي لتلاميذ ${stage} في الجزائر.
+تكتب سيناريوهات حوارية جاهزة للتمثيل الفعلي في الفصل أو على مسرح المدرسة، بحوار طبيعي ومناسب لأعمار التلاميذ، وإرشادات مسرحية بسيطة وواضحة (الحركة، تعبيرات الوجه، الدخول والخروج من المشهد) بين قوسين.
+${langInstruction}
+نسّق الإخراج بصيغة Markdown كالتالي:
+# عنوان المسرحية
+**الشخصيات:** (قائمة بأسماء الشخصيات وأدوارها)
+**المكان:** (وصف مختصر للديكور/المكان)
+
+## المشهد الأول
+(اسم الشخصية بخط عريض): الحوار
+(إرشاد مسرحي بين قوسين عند الحاجة)
+...
+(أضف مشاهد أخرى إذا لزم الأمر لإكمال القصة والوصول للعبرة)
+
+## 🌟 العبرة
+(جملة أو جملتين توضّحان الدرس المستفاد من المسرحية)`;
+    userPrompt = `اكتب سيناريو مسرحية مدرسية بعدد ${characters} شخصيات، عن موضوع/عبرة: "${topic}"، مناسبة لتلاميذ ${stage}.`;
+  }
+
+  try {
+    const reply = await callBackendAI(currentModel.provider, currentModel.model, systemPrompt, [{ role: 'user', content: userPrompt }]);
+    const html = renderMarkdown(reply || 'تعذّر توليد المحتوى، حاولي مرة أخرى.');
+    outputContent.innerHTML = html;
+    lastStoryOutput = { title: (storyType === 'story' ? 'قصة تربوية' : 'سيناريو مسرحي') + ' — ' + topic, html };
+  } catch (err) {
+    outputContent.innerHTML = `<span style="color:var(--danger)">❌ خطأ: ${err.message}</span>`;
+    lastStoryOutput = null;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ توليد المحتوى';
+  }
+}
+
+function printStoryOutput() {
+  if (!lastStoryOutput) { showNotif('⚠️ لا يوجد محتوى لطباعته بعد', 'warn'); return; }
+  printHtml(`<h1>${lastStoryOutput.title}</h1>${lastStoryOutput.html}`, lastStoryOutput.title);
+}
+function downloadStoryWord() {
+  if (!lastStoryOutput) { showNotif('⚠️ لا يوجد محتوى لتحميله بعد', 'warn'); return; }
+  downloadAsWord(`<h1>${lastStoryOutput.title}</h1>${lastStoryOutput.html}`, lastStoryOutput.title.replace(/[^\w\u0600-\u06FF ]/g, '').trim() + '.doc');
 }
 
 // الوثائق والشهادات الحقيقية — تبدأ فارغة، ترفع كل معلمة شهاداتها الخاصة
