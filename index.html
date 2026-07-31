@@ -504,37 +504,37 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
     </div>
     <nav class="sidebar-nav">
       <div class="nav-section-label">الرئيسية</div>
-      <button class="nav-item active" onclick="showPage('dashboard')">
+      <button class="nav-item active" onclick="showPage(\'dashboard\', this)">
         <span class="nav-icon">📊</span> لوحة التحكم
       </button>
 
       <div class="nav-section-label">الوحدات</div>
-      <button class="nav-item" onclick="showPage('evaluation')">
+      <button class="nav-item" onclick="showPage(\'evaluation\', this)">
         <span class="nav-icon">📝</span> تقييم الطلاب الذكي
       </button>
-      <button class="nav-item" onclick="showPage('attendance')">
+      <button class="nav-item" onclick="showPage(\'attendance\', this)">
         <span class="nav-icon">📅</span> الحضور والغياب
       </button>
-      <button class="nav-item" onclick="showPage('portfolio')">
+      <button class="nav-item" onclick="showPage(\'portfolio\', this)">
         <span class="nav-icon">🗂️</span> الملف المهني الرقمي
       </button>
-      <button class="nav-item" onclick="showPage('ai')">
+      <button class="nav-item" onclick="showPage(\'ai\', this)">
         <span class="nav-icon">🤖</span> المساعد الذكي AI
       </button>
-      <button class="nav-item" onclick="showPage('drawing')">
+      <button class="nav-item" onclick="showPage(\'drawing\', this)">
         <span class="nav-icon">🎨</span> لوحة الرسم والتوقيع
       </button>
-      <button class="nav-item" onclick="showPage('labs')">
+      <button class="nav-item" onclick="showPage(\'labs\', this)">
         <span class="nav-icon">🔬</span> المخبر الافتراضي
       </button>
-      <button class="nav-item" onclick="showPage('stories')">
+      <button class="nav-item" onclick="showPage(\'stories\', this)">
         <span class="nav-icon">📖</span> القصص ومسرح الطفل
       </button>
       <div class="nav-section-label">النظام</div>
-      <button class="nav-item" onclick="showPage('guide')">
+      <button class="nav-item" onclick="showPage(\'guide\', this)">
         <span class="nav-icon">📘</span> دليل الاستخدام
       </button>
-      <button class="nav-item" onclick="showPage('settings')">
+      <button class="nav-item" onclick="showPage(\'settings\', this)">
         <span class="nav-icon">⚙️</span> الإعدادات الشخصية
       </button>
     </nav>
@@ -638,10 +638,10 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
       <!-- ========== EVALUATION ========== -->
       <div class="page" id="page-evaluation">
         <div class="tabs">
-          <button class="tab active" onclick="switchEvalTab('import')">📥 استيراد الدرجات</button>
-          <button class="tab" onclick="switchEvalTab('results')">📊 تحليل النتائج</button>
-          <button class="tab" onclick="switchEvalTab('comments')">💬 التعليقات الذكية</button>
-          <button class="tab" onclick="switchEvalTab('ranking')">🏆 الترتيب</button>
+          <button class="tab active" onclick="switchEvalTab(\'import\', this)">📥 استيراد الدرجات</button>
+          <button class="tab" onclick="switchEvalTab(\'results\', this)">📊 تحليل النتائج</button>
+          <button class="tab" onclick="switchEvalTab(\'comments\', this)">💬 التعليقات الذكية</button>
+          <button class="tab" onclick="switchEvalTab(\'ranking\', this)">🏆 الترتيب</button>
         </div>
 
         <!-- IMPORT TAB -->
@@ -1612,15 +1612,16 @@ function closeLab() {
   document.getElementById('labs-iframe').src = '';
 }
 
-function showPage(id) {
+function showPage(id, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
   document.getElementById('page-' + id).classList.add('active');
-  event.currentTarget.classList.add('active');
-  const titles = { dashboard:'لوحة التحكم', evaluation:'تقييم الطلاب الذكي', attendance:'الحضور والغياب', portfolio:'الملف المهني الرقمي', ai:'المساعد الذكي AI', labs:'المخبر الافتراضي', stories:'القصص ومسرح الطفل' };
+  if (btn) btn.classList.add('active');
+  const titles = { dashboard:'لوحة التحكم', evaluation:'تقييم الطلاب الذكي', attendance:'الحضور والغياب', portfolio:'الملف المهني الرقمي', ai:'المساعد الذكي AI', drawing:'لوحة الرسم والتوقيع', labs:'المخبر الافتراضي', stories:'القصص ومسرح الطفل', guide:'دليل الاستخدام', settings:'الإعدادات الشخصية' };
   document.getElementById('topbar-title').textContent = titles[id] || id;
   document.querySelector('.sidebar').classList.remove('open');
   document.getElementById('sidebar-overlay').classList.remove('show');
+  if (id === 'settings') setTimeout(loadProfile, 50);
 }
 
 // ============================================================
@@ -1890,11 +1891,11 @@ function renderDistChart() {
 // ============================================================
 // EVAL TABS
 // ============================================================
-function switchEvalTab(id) {
+function switchEvalTab(id, btn) {
   document.querySelectorAll('.eval-tab').forEach(t => t.style.display = 'none');
   document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
   document.getElementById('eval-tab-' + id).style.display = 'block';
-  event.currentTarget.classList.add('active');
+  if (btn) btn.classList.add('active');
 }
 
 // ============================================================
@@ -2669,26 +2670,38 @@ async function generateStory() {
   outputCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 
   let systemPrompt, userPrompt;
-  const langInstruction = lang === 'الفرنسية'
-    ? 'اكتب النص بالكامل باللغة الفرنسية الفصحى.'
-    : (lang === 'الإنجليزية' ? 'Write the entire text in clear English.' : 'اكتب النص بالكامل باللغة العربية الفصحى المبسّطة المناسبة للأطفال.');
+  let langInstruction, langDirective;
+  if (lang === 'الفرنسية') {
+    langInstruction = "IMPORTANT : Rédige la totalité du texte exclusivement en français clair et adapté aux enfants. N'utilise aucun mot arabe ou anglais dans le texte final.";
+    langDirective = 'Écris entièrement en français.';
+  } else if (lang === 'الإنجليزية') {
+    langInstruction = 'IMPORTANT: Write the entire text exclusively in clear, child-friendly English. Do not use any Arabic or French words in the final text.';
+    langDirective = 'Write entirely in English.';
+  } else {
+    langInstruction = 'مهم جدًا: اكتب النص بالكامل باللغة العربية الفصحى المبسّطة المناسبة للأطفال فقط، بدون أي كلمات أجنبية.';
+    langDirective = 'اكتب بالكامل باللغة العربية.';
+  }
 
   if (storyType === 'story') {
     const length = document.getElementById('story-length').value;
-    systemPrompt = `أنت كاتب قصص أطفال تربوية محترف، متخصص في الأدب الموجّه لتلاميذ ${stage} في الجزائر.
+    systemPrompt = `${langInstruction}
+
+أنت كاتب قصص أطفال تربوية محترف، متخصص في الأدب الموجّه لتلاميذ ${stage} في الجزائر.
 تكتب قصصًا هادفة، بلغة بسيطة وواضحة تناسب الفئة العمرية، بأحداث مشوّقة وشخصيات محببة، وتنتهي دائمًا بعبرة أو درس أخلاقي واضح ومباشر (بدون وعظ مباشر مبالغ فيه).
-${langInstruction}
 نسّق الإخراج بصيغة Markdown كالتالي:
 # عنوان القصة
 (فقرات القصة، كل فقرة منفصلة بسطر فارغ)
 ## 🌟 العبرة
-(جملة أو جملتين توضّحان الدرس المستفاد من القصة)`;
-    userPrompt = `اكتب قصة تربوية ${length} عن موضوع/عبرة: "${topic}"، مناسبة لتلاميذ ${stage}.`;
+(جملة أو جملتين توضّحان الدرس المستفاد من القصة)
+
+تذكير أخير: ${langInstruction}`;
+    userPrompt = `اكتب قصة تربوية ${length} عن موضوع/عبرة: "${topic}"، مناسبة لتلاميذ ${stage}. ${langDirective}`;
   } else {
     const characters = document.getElementById('story-characters').value;
-    systemPrompt = `أنت كاتب سيناريوهات مسرح طفل محترف، متخصص في المسرح المدرسي التربوي لتلاميذ ${stage} في الجزائر.
+    systemPrompt = `${langInstruction}
+
+أنت كاتب سيناريوهات مسرح طفل محترف، متخصص في المسرح المدرسي التربوي لتلاميذ ${stage} في الجزائر.
 تكتب سيناريوهات حوارية جاهزة للتمثيل الفعلي في الفصل أو على مسرح المدرسة، بحوار طبيعي ومناسب لأعمار التلاميذ، وإرشادات مسرحية بسيطة وواضحة (الحركة، تعبيرات الوجه، الدخول والخروج من المشهد) بين قوسين.
-${langInstruction}
 نسّق الإخراج بصيغة Markdown كالتالي:
 # عنوان المسرحية
 **الشخصيات:** (قائمة بأسماء الشخصيات وأدوارها)
@@ -2701,8 +2714,10 @@ ${langInstruction}
 (أضف مشاهد أخرى إذا لزم الأمر لإكمال القصة والوصول للعبرة)
 
 ## 🌟 العبرة
-(جملة أو جملتين توضّحان الدرس المستفاد من المسرحية)`;
-    userPrompt = `اكتب سيناريو مسرحية مدرسية بعدد ${characters} شخصيات، عن موضوع/عبرة: "${topic}"، مناسبة لتلاميذ ${stage}.`;
+(جملة أو جملتين توضّحان الدرس المستفاد من المسرحية)
+
+تذكير أخير: ${langInstruction}`;
+    userPrompt = `اكتب سيناريو مسرحية مدرسية بعدد ${characters} شخصيات، عن موضوع/عبرة: "${topic}"، مناسبة لتلاميذ ${stage}. ${langDirective}`;
   }
 
   try {
@@ -3227,26 +3242,6 @@ ${usableRagDocs.length > 0
   }
   btn.disabled = false;
   document.getElementById('chat-msgs').scrollTop = 999999;
-};
-
-// ============================================================
-// showPage override to support new pages
-// ============================================================
-const _origShowPage = window.showPage;
-window.showPage = function(id) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  const pageEl = document.getElementById('page-' + id);
-  if (pageEl) pageEl.classList.add('active');
-  if (event && event.currentTarget) event.currentTarget.classList.add('active');
-  const titles = {
-    dashboard:'لوحة التحكم', evaluation:'تقييم الطلاب الذكي',
-    attendance:'الحضور والغياب', portfolio:'الملف المهني الرقمي',
-    ai:'المساعد الذكي AI', drawing:'لوحة الرسم والتوقيع', settings:'الإعدادات الشخصية',
-    guide:'دليل الاستخدام'
-  };
-  document.getElementById('topbar-title').textContent = titles[id] || id;
-  if (id === 'settings') setTimeout(loadProfile, 50);
 };
 
 function showPage_direct(id) {
