@@ -1328,7 +1328,7 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
         <!-- AI MODELS -->
         <div class="card" style="margin-bottom:20px;">
           <div class="card-title"><span class="card-title-icon">🤖</span> نماذج الذكاء الاصطناعي</div>
-          <div style="font-size:0.82rem;color:var(--text2);margin-bottom:14px;">اختاري النموذج المناسب لتفعيل المساعد الذكي. كل نموذج يتطلب مفتاح API خاص به.</div>
+          <div style="font-size:0.82rem;color:var(--text2);margin-bottom:14px;">اختاري النموذج المناسب لتفعيل المساعد الذكي.</div>
           <div class="grid-2" style="gap:10px;">
             <div class="model-card" onclick="selectModel('claude','claude-sonnet-4-6',this)">
               <div class="model-dot"></div>
@@ -1384,15 +1384,6 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
             <div id="license-status-box" style="font-size:0.85rem;color:var(--text2);margin-bottom:14px;"></div>
             <button class="btn btn-danger" onclick="logoutLicense()">🚪 تسجيل الخروج / تغيير الترخيص</button>
           </div>
-          <div style="margin-top:16px;display:none;" id="model-key-section">
-            <label class="field-label">مفتاح API للنموذج المحدد (<span id="model-key-label">Claude</span>) — للتجربة الشخصية فقط</label>
-            <div style="display:flex;gap:10px;">
-              <input class="field-input" id="model-api-key" type="password" placeholder="أدخل مفتاح API..." dir="ltr" style="flex:1">
-              <button class="btn btn-green" onclick="saveModelKey()">💾 حفظ</button>
-            </div>
-            <div style="margin-top:8px;font-size:0.78rem;color:var(--text2);" id="model-key-link"></div>
-
-          </div>
         </div>
 
         <!-- RAG DOCUMENTS -->
@@ -1439,18 +1430,6 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
 </div><!-- /app -->
 
 <!-- API KEY MODAL -->
-<div class="modal-bg" id="api-modal">
-  <div class="modal">
-    <div class="modal-title">🔑 إعداد مفتاح Claude API</div>
-    <div class="modal-desc">أدخل مفتاح Anthropic API لتفعيل المساعد الذكي. يُحفظ المفتاح محلياً فقط على جهازك ولا يُرسل لأي خادم خارجي.</div>
-    <label class="field-label">مفتاح API (sk-ant-...)</label>
-    <input class="field-input" id="api-key-input" type="password" placeholder="sk-ant-api03-..." dir="ltr">
-    <div class="modal-actions">
-      <button class="btn btn-solid" onclick="saveApiKey()">💾 حفظ المفتاح</button>
-      <button class="btn btn-danger" onclick="closeApiModal()">إلغاء</button>
-    </div>
-  </div>
-</div>
 
 
 <!-- NEW YEAR MODAL -->
@@ -2458,7 +2437,6 @@ async function sendMessage() {
   if (!text) return;
 
   if (!apiKey) {
-    showApiModal();
     showNotif('⚠️ يرجى إدخال مفتاح API أولاً', 'warn');
     return;
   }
@@ -2519,25 +2497,6 @@ function appendMsg(role, content, streaming = false) {
   msgs.appendChild(div);
   msgs.scrollTop = msgs.scrollHeight;
   return div;
-}
-
-// ============================================================
-// API KEY MODAL
-// ============================================================
-function showApiModal() {
-  document.getElementById('api-key-input').value = apiKey;
-  document.getElementById('api-modal').classList.add('show');
-}
-function closeApiModal() {
-  document.getElementById('api-modal').classList.remove('show');
-}
-function saveApiKey() {
-  const key = document.getElementById('api-key-input').value.trim();
-  if (!key) return showNotif('⚠️ أدخل مفتاح API', 'warn');
-  apiKey = key;
-  localStorage.setItem('donia_api_key', key);
-  closeApiModal();
-  showNotif('✅ تم حفظ مفتاح API');
 }
 
 // ============================================================
@@ -3116,24 +3075,7 @@ function selectModel(provider, model, el) {
   el.classList.add('selected');
   currentModel = { provider, model };
   const info = MODEL_KEYS[provider] || {};
-  document.getElementById('model-key-label').textContent = info.label || provider;
-  const inp = document.getElementById('model-api-key');
-  inp.placeholder = info.placeholder || 'أدخل مفتاح API...';
-  inp.value = localStorage.getItem('donia_key_' + provider) || '';
-  const linkEl = document.getElementById('model-key-link');
-  linkEl.innerHTML = info.link ? `<a href="${info.link}" style="color:var(--blue)" target="_blank">🔗 احصلي على مفتاح API مجاني</a>` : '';
   showNotif('🤖 تم اختيار: ' + (info.label || provider));
-}
-
-function saveModelKey() {
-  const key = document.getElementById('model-api-key').value.trim();
-  if (!key) return showNotif('⚠️ أدخل مفتاح API', 'warn');
-  localStorage.setItem('donia_key_' + currentModel.provider, key);
-  if (currentModel.provider === 'claude') {
-    apiKey = key;
-    localStorage.setItem('donia_api_key', key);
-  }
-  showNotif('✅ تم حفظ مفتاح ' + currentModel.provider);
 }
 
 // Override sendMessage to support multiple AI providers
@@ -3836,7 +3778,9 @@ setInterval(() => { if (gradeData.length > 0) autoBackup(); }, 5 * 60 * 1000);
 
 // Keyboard shortcut
 document.addEventListener('keydown', e => {
-  if (e.key === 'Escape') closeApiModal();
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-bg.show').forEach(m => m.classList.remove('show'));
+  }
 });
 </script>
 </body>
