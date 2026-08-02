@@ -849,6 +849,13 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
                 <div class="subject-chip" onclick="selectSubject(this,'اللغة الفرنسية')">🇫🇷 فرنسية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'اللغة الإنجليزية')">🇬🇧 إنجليزية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'إعلام آلي')">💻 إعلام آلي</div>
+                <div class="subject-chip" onclick="selectSubject(this,'الفلسفة')">🧠 فلسفة</div>
+                <div class="subject-chip" onclick="selectSubject(this,'الاقتصاد والمناجمنت')">📈 اقتصاد ومناجمنت</div>
+                <div class="subject-chip" onclick="selectSubject(this,'المحاسبة')">🧮 محاسبة</div>
+                <div class="subject-chip" onclick="selectSubject(this,'الهندسة المدنية')">🏗️ هندسة مدنية</div>
+                <div class="subject-chip" onclick="selectSubject(this,'هندسة الطرائق')">⚙️ هندسة الطرائق</div>
+                <div class="subject-chip" onclick="selectSubject(this,'اللغة الألمانية')">🇩🇪 ألمانية</div>
+                <div class="subject-chip" onclick="selectSubject(this,'اللغة الإسبانية')">🇪🇸 إسبانية</div>
               </div>
             </div>
             <div class="card">
@@ -1213,6 +1220,13 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
                 <option value="إعلام آلي">💻 الإعلام الآلي</option>
                 <option value="التربية البدنية">⚽ التربية البدنية</option>
                 <option value="الفنون التشكيلية">🎨 الفنون التشكيلية</option>
+                <option value="الفلسفة">🧠 الفلسفة</option>
+                <option value="الاقتصاد والمناجمنت">📈 الاقتصاد والمناجمنت</option>
+                <option value="المحاسبة">🧮 المحاسبة والمالية</option>
+                <option value="الهندسة المدنية">🏗️ الهندسة المدنية</option>
+                <option value="هندسة الطرائق">⚙️ هندسة الطرائق</option>
+                <option value="اللغة الألمانية">🇩🇪 اللغة الألمانية</option>
+                <option value="اللغة الإسبانية">🇪🇸 اللغة الإسبانية</option>
               </select>
             </div>
             <div class="field-wrap">
@@ -2613,6 +2627,8 @@ function logoutLicense() {
 function subjectLanguageInstruction(subject) {
   if (subject === 'اللغة الفرنسية') return 'أجب بالكامل باللغة الفرنسية الفصحى (français) — العناوين والمحتوى والتمارين كلها بالفرنسية، إلا إذا طلب المستخدم صراحة لغة أخرى.';
   if (subject === 'اللغة الإنجليزية') return 'أجب بالكامل باللغة الإنجليزية (English) — العناوين والمحتوى والتمارين كلها بالإنجليزية، إلا إذا طلب المستخدم صراحة لغة أخرى.';
+  if (subject === 'اللغة الألمانية') return 'أجب بالكامل باللغة الألمانية (Deutsch) — العناوين والمحتوى والتمارين كلها بالألمانية، إلا إذا طلب المستخدم صراحة لغة أخرى.';
+  if (subject === 'اللغة الإسبانية') return 'أجب بالكامل باللغة الإسبانية (español) — العناوين والمحتوى والتمارين كلها بالإسبانية، إلا إذا طلب المستخدم صراحة لغة أخرى.';
   return 'تستجيب دائماً باللغة العربية الفصحى.';
 }
 
@@ -3116,9 +3132,21 @@ window.sendMessage = async function() {
   }
   const profileName = userProfile.nom ? `${userProfile.nom} ${userProfile.prenom}` : 'الأستاذة';
   const school = userProfile.school || 'المؤسسة التعليمية';
-  const systemPrompt = `أنت مساعد ذكي متخصص في مادة ${currentSubject} للتعليم المتوسط الجزائري.
+  const stageLevel = localStorage.getItem('donia_stage_level') || '';
+  const secondaryOnlySubjects = ['الفلسفة', 'الاقتصاد والمناجمنت', 'المحاسبة', 'الهندسة المدنية', 'هندسة الطرائق', 'اللغة الألمانية', 'اللغة الإسبانية'];
+  const stagePhrase = secondaryOnlySubjects.includes(currentSubject)
+    ? 'للتعليم الثانوي الجزائري (البكالوريا)'
+    : (stageLevel ? `للتعليم ${stageLevel} الجزائري` : 'للتعليم الجزائري');
+  const subjectContext = {
+    'الفلسفة': 'اعتمد منهجية الإنشاء الفلسفي المعتمدة في البكالوريا الجزائرية (طرح المشكلة، تحليل الأطروحات، المناقشة، التركيب).',
+    'الاقتصاد والمناجمنت': 'وفق منهاج شعبة تسيير واقتصاد في البكالوريا الجزائرية (مبادئ الاقتصاد، التسيير، السوق، المؤسسة).',
+    'المحاسبة': 'وفق منهاج المحاسبة والمالية لشعبة تسيير واقتصاد في البكالوريا الجزائرية (القيد المحاسبي، الميزانية، جدول حسابات النتائج).',
+    'الهندسة المدنية': 'وفق منهاج تخصص الهندسة المدنية في شعبة تقني رياضي بالبكالوريا الجزائرية.',
+    'هندسة الطرائق': 'وفق منهاج تخصص هندسة الطرائق في شعبة تقني رياضي بالبكالوريا الجزائرية.',
+  }[currentSubject] || '';
+  const systemPrompt = `أنت مساعد ذكي متخصص في مادة ${currentSubject} ${stagePhrase}.
 أنت تساعد ${profileName} التي تدرّس في ${school}.
-${subjectLanguageInstruction(currentSubject)} تتخصص في:
+${subjectLanguageInstruction(currentSubject)}${subjectContext ? ' ' + subjectContext : ''} تتخصص في:
 - إعداد المذكرات التحضيرية وفق المنهاج الجزائري
 - المخططات السنوية والفصلية
 - إعداد الفروض والاختبارات والتمارين مع الحلول
