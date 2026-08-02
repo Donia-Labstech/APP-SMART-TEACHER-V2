@@ -2902,14 +2902,17 @@ window.doLogin = async function() {
   if (btn) { btn.disabled = true; btn.textContent = '⏳ جارٍ التحقق من الترخيص...'; }
   try {
     await verifyLicense(licenseKey);
-    if (!userProfile.nom && licenseTeacherName) {
+    const previousLicenseKey = localStorage.getItem('donia_profile_license_key') || '';
+    if (licenseTeacherName && previousLicenseKey !== licenseKey) {
       userProfile.nom = licenseTeacherName.split(' ')[0] || licenseTeacherName;
       userProfile.prenom = licenseTeacherName.split(' ').slice(1).join(' ');
       localStorage.setItem('donia_profile', JSON.stringify(userProfile));
     }
+    localStorage.setItem('donia_profile_license_key', licenseKey);
     document.getElementById('login-page').classList.remove('active');
     document.getElementById('app').classList.add('active');
     renderTrialBanner();
+    if (typeof renderPortfolioCard === 'function') renderPortfolioCard();
     initApp();
   } catch (err) {
     showNotif('❌ ' + err.message, 'error');
