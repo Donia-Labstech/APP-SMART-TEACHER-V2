@@ -2906,6 +2906,8 @@ window.doLogin = async function() {
     if (licenseTeacherName && previousLicenseKey !== licenseKey) {
       userProfile.nom = licenseTeacherName.split(' ')[0] || licenseTeacherName;
       userProfile.prenom = licenseTeacherName.split(' ').slice(1).join(' ');
+      delete userProfile.subject;
+      currentSubject = 'رياضيات';
       localStorage.setItem('donia_profile', JSON.stringify(userProfile));
     }
     localStorage.setItem('donia_profile_license_key', licenseKey);
