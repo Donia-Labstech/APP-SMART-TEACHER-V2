@@ -188,7 +188,39 @@ let currentMemPlayId = null;
 let currentQuizPlayId = null;
 
 function getGames(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_GM)) || []; }catch(e){ return []; } }
-function setGames(list){ localStorage.setItem(STORE_KEY_GM, JSON.stringify(list)); }
+function setGames(list){
+  localStorage.setItem(STORE_KEY_GM, JSON.stringify(list));
+  cloudSaveGM(list);
+}
+
+const CLOUD_BACKEND_URL_GM = 'https://donia-smart-teacher-v2.onrender.com';
+function getCloudTokenGM(){ return localStorage.getItem('donia_license_token') || ''; }
+async function cloudSaveGM(list){
+  const token = getCloudTokenGM();
+  if (!token) return;
+  try {
+    await fetch(CLOUD_BACKEND_URL_GM + '/api/storage/games', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ value: list })
+    });
+  } catch (e) { /* عدم توفر الإنترنت لا يجب أن يعطّل الحفظ المحلي */ }
+}
+async function cloudSyncOnLoadGM(){
+  const token = getCloudTokenGM();
+  if (!token) return;
+  try {
+    const res = await fetch(CLOUD_BACKEND_URL_GM + '/api/storage/games', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data.value)) {
+      localStorage.setItem(STORE_KEY_GM, JSON.stringify(data.value));
+      renderDashboardGM();
+    }
+  } catch (e) { /* لا مشكلة، نبقى على النسخة المحلية */ }
+}
 function getGProgress(){ try{ return JSON.parse(localStorage.getItem(PROGRESS_KEY_GM)) || {}; }catch(e){ return {}; } }
 function setGProgress(p){ localStorage.setItem(PROGRESS_KEY_GM, JSON.stringify(p)); }
 
@@ -562,6 +594,7 @@ function finishQuizGame(){
 }
 
 renderDashboardGM();
+cloudSyncOnLoadGM();
 </script>
 </body>
 </html>

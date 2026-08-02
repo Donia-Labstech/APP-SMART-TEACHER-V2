@@ -213,6 +213,7 @@ textarea.cx-field-input{resize:vertical;min-height:80px;}
 
 <script>
 const STORE_KEY_CX = 'donia_custom_experiments_v1';
+const CLOUD_BACKEND_URL_CX = 'https://donia-smart-teacher-v2.onrender.com';
 const PROGRESS_KEY_CX = 'donia_custom_progress_v1';
 const NAME_KEY_CX = 'donia_custom_student_name';
 const EMOJI_CHOICES = ['🔬','🧪','🧫','⚗️','🌿','🧲','💡','⚡','🌍','🧠','📐','🔭','🦠','🧬','💧','🔥'];
@@ -223,7 +224,41 @@ let builderHotspots = [];  // current hotspots being edited in the builder
 let currentViewId = null;
 
 function getExperimentsCX(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_CX)) || []; }catch(e){ return []; } }
-function setExperimentsCX(list){ localStorage.setItem(STORE_KEY_CX, JSON.stringify(list)); }
+function setExperimentsCX(list){
+  localStorage.setItem(STORE_KEY_CX, JSON.stringify(list));
+  cloudSaveCX(list);
+}
+
+// مزامنة سحابية (اختيارية وصامتة): تحفظ نسخة من التجارب على الخادم مرتبطة بترخيص
+// الأستاذة، فتتوفر تلقائيًا على أي جهاز آخر تسجّل دخولها منه — وتبقى localStorage
+// نسخة احتياطية فورية تعمل حتى دون اتصال بالإنترنت.
+function getCloudTokenCX(){ return localStorage.getItem('donia_license_token') || ''; }
+async function cloudSaveCX(list){
+  const token = getCloudTokenCX();
+  if (!token) return;
+  try {
+    await fetch(CLOUD_BACKEND_URL_CX + '/api/storage/custom_experiments', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ value: list })
+    });
+  } catch (e) { /* عدم توفر الإنترنت لا يجب أن يعطّل الحفظ المحلي */ }
+}
+async function cloudSyncOnLoadCX(){
+  const token = getCloudTokenCX();
+  if (!token) return;
+  try {
+    const res = await fetch(CLOUD_BACKEND_URL_CX + '/api/storage/custom_experiments', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data.value)) {
+      localStorage.setItem(STORE_KEY_CX, JSON.stringify(data.value));
+      renderDashboardCX();
+    }
+  } catch (e) { /* لا مشكلة، نبقى على النسخة المحلية */ }
+}
 function getProgressCX(){ try{ return JSON.parse(localStorage.getItem(PROGRESS_KEY_CX)) || {}; }catch(e){ return {}; } }
 function setProgressCX(p){ localStorage.setItem(PROGRESS_KEY_CX, JSON.stringify(p)); }
 function completeExperimentCX(id){ const p=getProgressCX(); p[id]=true; setProgressCX(p); }
@@ -625,6 +660,7 @@ function printReportCX(){
 initEmojiChoices();
 loadNameCX();
 renderDashboardCX();
+cloudSyncOnLoadCX();
 </script>
 </body>
 </html>

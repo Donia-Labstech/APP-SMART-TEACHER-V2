@@ -171,7 +171,39 @@ let mmTree = null; // {id, title, color, children:[]}
 let mmNodeCounter = 0;
 
 function getMindmaps(){ try{ return JSON.parse(localStorage.getItem(STORE_KEY_MM)) || []; }catch(e){ return []; } }
-function setMindmaps(list){ localStorage.setItem(STORE_KEY_MM, JSON.stringify(list)); }
+function setMindmaps(list){
+  localStorage.setItem(STORE_KEY_MM, JSON.stringify(list));
+  cloudSaveMM(list);
+}
+
+const CLOUD_BACKEND_URL_MM = 'https://donia-smart-teacher-v2.onrender.com';
+function getCloudTokenMM(){ return localStorage.getItem('donia_license_token') || ''; }
+async function cloudSaveMM(list){
+  const token = getCloudTokenMM();
+  if (!token) return;
+  try {
+    await fetch(CLOUD_BACKEND_URL_MM + '/api/storage/mindmaps', {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify({ value: list })
+    });
+  } catch (e) { /* عدم توفر الإنترنت لا يجب أن يعطّل الحفظ المحلي */ }
+}
+async function cloudSyncOnLoadMM(){
+  const token = getCloudTokenMM();
+  if (!token) return;
+  try {
+    const res = await fetch(CLOUD_BACKEND_URL_MM + '/api/storage/mindmaps', {
+      headers: { 'Authorization': 'Bearer ' + token }
+    });
+    if (!res.ok) return;
+    const data = await res.json();
+    if (Array.isArray(data.value)) {
+      localStorage.setItem(STORE_KEY_MM, JSON.stringify(data.value));
+      renderDashboardMM();
+    }
+  } catch (e) { /* لا مشكلة، نبقى على النسخة المحلية */ }
+}
 
 function getStageMM(){ return localStorage.getItem('donia_stage_level') || ''; }
 function getVisibleMindmaps(){
@@ -476,6 +508,7 @@ function printMindmapView(){
 }
 
 renderDashboardMM();
+cloudSyncOnLoadMM();
 </script>
 </body>
 </html>
