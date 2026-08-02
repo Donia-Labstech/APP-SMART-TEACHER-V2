@@ -1,0 +1,27 @@
+name: Trial Reminder Emails
+
+# يرسل إيميل تذكير تلقائي لكل تجربة مجانية توشك على الانتهاء (خلال 12-36 ساعة القادمة)،
+# مرة واحدة فقط لكل تجربة (لن يتكرر الإرسال). يعتمد على /api/admin/send-trial-reminders
+# في الخادم الخلفي، الذي يملك وصولاً كاملاً لقاعدة البيانات ويرسل عبر Resend.
+
+on:
+  schedule:
+    - cron: '0 8 * * *'  # كل يوم الساعة 8 صباحًا بتوقيت غرينتش
+  workflow_dispatch:
+
+jobs:
+  send-reminders:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Call backend to send trial reminder emails
+        run: |
+          HTTP_CODE=$(curl -s -o /tmp/response.json -w "%{http_code}" \
+            -X POST "https://donia-smart-teacher-v2.onrender.com/api/admin/send-trial-reminders" \
+            -H "x-admin-secret: ${{ secrets.ADMIN_SECRET }}")
+          echo "HTTP status: $HTTP_CODE"
+          cat /tmp/response.json
+          if [ "$HTTP_CODE" -ge 400 ]; then
+            echo "::error::Trial reminder job failed with status $HTTP_CODE"
+            exit 1
+          fi
+          echo "✅ Trial reminder job completed successfully."
