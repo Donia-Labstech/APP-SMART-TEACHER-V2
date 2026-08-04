@@ -568,10 +568,7 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
       </div>
       <div style="text-align:center;margin-top:10px;font-size:0.62rem;color:var(--text3);letter-spacing:0.3px;">
         © 2026 DONIA LABS TECH — جميع الحقوق محفوظة<br>
-        <span style="direction:ltr;display:inline-block;">donialabstech.online</span><br>
-        <a href="https://smart-teacher.donialabstech.online/privacy-policy.html" target="_blank" style="color:var(--text3);text-decoration:underline;">سياسة الخصوصية</a>
-        ·
-        <a href="https://smart-teacher.donialabstech.online/terms-of-service.html" target="_blank" style="color:var(--text3);text-decoration:underline;">شروط الاستخدام</a>
+        <span style="direction:ltr;display:inline-block;">donialabstech.online</span>
       </div>
     </div>
   </div>
@@ -950,6 +947,17 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
         </div>
         <div class="card">
           <div class="card-title"><span class="card-title-icon">📷</span> ماسح الوثائق بالكاميرا</div>
+          <div style="margin-bottom:14px;">
+            <label class="field-label">الغرض من المسح</label>
+            <div style="display:flex;gap:8px;flex-wrap:wrap;">
+              <button type="button" class="btn btn-solid" id="scan-mode-general" onclick="setScanMode('general')">📄 تحليل عام لوثيقة</button>
+              <button type="button" class="btn btn-orange" id="scan-mode-exam" onclick="setScanMode('exam')">📝 تصحيح ورقة إجابة وتقدير الدرجة</button>
+            </div>
+            <div id="scan-exam-options" style="display:none;margin-top:12px;">
+              <label class="field-label">الدرجة القصوى للاختبار</label>
+              <input type="number" class="field-input" id="scan-exam-max-grade" value="20" min="1" max="100" style="max-width:140px;">
+            </div>
+          </div>
           <div class="grid-2" style="gap:16px;">
             <div>
               <div style="margin-bottom:10px;display:flex;gap:10px;flex-wrap:wrap;">
@@ -3703,18 +3711,42 @@ function downloadCaptured() {
   showNotif('💾 تم تنزيل الوثيقة');
 }
 
+let scanMode = 'general'; // 'general' | 'exam'
+function setScanMode(mode) {
+  scanMode = mode;
+  document.getElementById('scan-mode-general').className = 'btn ' + (mode === 'general' ? 'btn-solid' : 'btn-blue');
+  document.getElementById('scan-mode-exam').className = 'btn ' + (mode === 'exam' ? 'btn-solid' : 'btn-orange');
+  document.getElementById('scan-exam-options').style.display = mode === 'exam' ? 'block' : 'none';
+}
+
 async function sendCapturedToAI() {
   if (!capturedImageData) return showNotif('⚠️ التقطي وثيقة أولاً', 'warn');
   const provider = currentModel.provider;
   const providerKey = localStorage.getItem('donia_key_' + provider) || (provider === 'claude' ? apiKey : '');
   if (connectionMode !== 'backend' && !providerKey) return showNotif('⚠️ يرجى إعداد مفتاح API أولاً', 'warn');
   if (connectionMode === 'backend' && !backendUrl) return showNotif('⚠️ يرجى إعداد رابط الخادم الخلفي أولاً', 'warn');
-  showNotif('🤖 جارٍ تحليل الوثيقة...');
+
+  const isExamMode = scanMode === 'exam';
+  const maxGrade = isExamMode ? (+document.getElementById('scan-exam-max-grade').value || 20) : null;
+  showNotif(isExamMode ? '🤖 جارٍ تصحيح ورقة الإجابة وتقدير الدرجة...' : '🤖 جارٍ تحليل الوثيقة...');
+
+  const examPromptText = `أنت مصحّحة خبيرة. هذه صورة ورقة إجابة تلميذ مكتوبة بخط اليد على اختبار من ${maxGrade} نقطة.
+اقرئي الإجابات بعناية، صحّحيها نقطة تلو الأخرى، ثم أعطي في النهاية درجة مقترحة.
+نسّقي إجابتك بصيغة Markdown كالتالي بالضبط:
+## 📝 تصحيح تفصيلي
+(لكل سؤال أو نقطة: صح ✅ أو خطأ ❌ مع تعليق مختصر يوضّح سبب الخطأ إن وجد)
+## 💡 ملاحظات عامة للتلميذ
+(نقطتان أو ثلاث لتحسين الأداء)
+## 🎯 الدرجة المقترحة
+**الدرجة: [رقم] / ${maxGrade}**
+تنبيه: هذه درجة مقترحة بالذكاء الاصطناعي، ويُنصح بمراجعتها من الأستاذة قبل اعتمادها رسمياً.`;
+  const generalPromptText = 'حللي محتوى هذه الوثيقة التعليمية وأعطيني ملخصاً باللغة العربية.';
+
   try {
     const base64 = capturedImageData.split(',')[1];
     const imgMessages = [{ role: 'user', content: [
       { type: 'image', source: { type: 'base64', media_type: 'image/jpeg', data: base64 } },
-      { type: 'text', text: 'حللي محتوى هذه الوثيقة التعليمية وأعطيني ملخصاً باللغة العربية.' }
+      { type: 'text', text: isExamMode ? examPromptText : generalPromptText }
     ]}];
     let reply = '';
     if (connectionMode === 'backend') {
@@ -3723,15 +3755,16 @@ async function sendCapturedToAI() {
       const resp = await fetch('https://api.anthropic.com/v1/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-api-key': providerKey, 'anthropic-version': '2023-06-01' },
-        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, messages: imgMessages })
+        body: JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 2000, messages: imgMessages })
       });
       const data = await resp.json();
       if (data.error) throw new Error(data.error.message);
       reply = data.content?.[0]?.text || '';
     }
-    appendMsg('ai', '📷 تحليل الوثيقة الملتقطة:\n\n' + reply);
+    const header = isExamMode ? '📝 نتيجة تصحيح ورقة الإجابة:' : '📷 تحليل الوثيقة الملتقطة:';
+    appendMsg('ai', header + '\n\n' + renderMarkdown(reply));
     showPage_direct('ai');
-    showNotif('✅ تم تحليل الوثيقة');
+    showNotif(isExamMode ? '✅ تم تصحيح الورقة واقتراح الدرجة' : '✅ تم تحليل الوثيقة');
   } catch (e) { showNotif('❌ خطأ في التحليل: ' + e.message, 'error'); }
 }
 
