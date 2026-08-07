@@ -843,7 +843,7 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
               <div class="card-title"><span class="card-title-icon">📚</span> المادة الدراسية</div>
               <div class="subject-chips" id="subject-chips">
                 <div class="subject-chip active" onclick="selectSubject(this,'رياضيات')">📐 رياضيات</div>
-                <div class="subject-chip" onclick="selectSubject(this,'فيزياء')">⚗️ فيزياء</div>
+                <div class="subject-chip" onclick="selectSubject(this,'فيزياء')">⚗️ فيزياء وكيمياء</div>
                 <div class="subject-chip" onclick="selectSubject(this,'علوم طبيعية')">🌿 علوم طبيعية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'اللغة العربية')">📖 عربية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'اللغة الفرنسية')">🇫🇷 فرنسية</div>
@@ -861,14 +861,14 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
             <div class="card">
               <div class="card-title"><span class="card-title-icon">⚡</span> طلبات سريعة</div>
               <div class="quick-prompts">
-                <button class="qp-btn" onclick="quickPrompt('اكتبي لي مذكرة تحضيرية لدرس الجذر التربيعي للسنة الرابعة متوسط')"><span class="qp-icon">📝</span>مذكرة تحضيرية</button>
-                <button class="qp-btn" onclick="quickPrompt('ضعي مخططاً سنوياً لمادة الرياضيات للسنة الرابعة متوسط')"><span class="qp-icon">📅</span>المخطط السنوي</button>
-                <button class="qp-btn" onclick="quickPrompt('صمّمي فرضاً في الرياضيات للفصل الثالث — السنة الرابعة متوسط')"><span class="qp-icon">📄</span>إعداد فرض</button>
-                <button class="qp-btn" onclick="quickPrompt('ضعي تمارين تطبيقية في المعادلات من الدرجة الأولى مع الحلول')"><span class="qp-icon">✏️</span>تمارين + حلول</button>
-                <button class="qp-btn" onclick="quickPrompt('ما هي أساليب التدريس الفعّالة للطلاب ذوي الصعوبات في الرياضيات؟')"><span class="qp-icon">🎯</span>استراتيجيات التدريس</button>
-                <button class="qp-btn" onclick="quickPrompt('أعدّي شبكة تقييم للكفاءات الرياضية للمرحلة المتوسطة')"><span class="qp-icon">📊</span>شبكة تقييم</button>
-                <button class="qp-btn" onclick="quickPrompt('اكتبي تعليقاً بناءً لطالب حصل على معدل 8/20 في الفرض')"><span class="qp-icon">💬</span>تعليق بناء</button>
-                <button class="qp-btn" onclick="quickPrompt('ما هي الكفاءات المستهدفة في وحدة المثلثات للسنة الرابعة متوسط؟')"><span class="qp-icon">🎯</span>كفاءات المنهج</button>
+                <button class="qp-btn" onclick="quickPromptSubject('memo')"><span class="qp-icon">📝</span>مذكرة تحضيرية</button>
+                <button class="qp-btn" onclick="quickPromptSubject('annual')"><span class="qp-icon">📅</span>المخطط السنوي</button>
+                <button class="qp-btn" onclick="quickPromptSubject('homework')"><span class="qp-icon">📄</span>إعداد فرض</button>
+                <button class="qp-btn" onclick="quickPromptSubject('exercises')"><span class="qp-icon">✏️</span>تمارين + حلول</button>
+                <button class="qp-btn" onclick="quickPromptSubject('strategies')"><span class="qp-icon">🎯</span>استراتيجيات التدريس</button>
+                <button class="qp-btn" onclick="quickPromptSubject('rubric')"><span class="qp-icon">📊</span>شبكة تقييم</button>
+                <button class="qp-btn" onclick="quickPromptSubject('comment')"><span class="qp-icon">💬</span>تعليق بناء</button>
+                <button class="qp-btn" onclick="quickPromptSubject('competencies')"><span class="qp-icon">🎯</span>كفاءات المنهج</button>
               </div>
             </div>
           </div>
@@ -2520,6 +2520,25 @@ function selectSubject(el, subject) {
 function quickPrompt(text) {
   document.getElementById('chat-input').value = text;
   sendMessage();
+}
+
+// نسخة "ذكية" من الطلبات السريعة: تبني النص وقت الضغط نفسه بالمادة المختارة
+// فعليًا حاليًا (لا تُثبَّت أي مادة داخل الزر نفسه)، فتعمل بشكل صحيح لأي مادة.
+function quickPromptSubject(kind) {
+  const s = currentSubject || 'المادة المختارة';
+  const stageLevel = localStorage.getItem('donia_stage_level') || '';
+  const stagePhrase = stageLevel ? ' لل' + stageLevel : '';
+  const templates = {
+    memo: `اكتبي لي مذكرة تحضيرية لأحد أهم دروس مادة ${s}${stagePhrase}`,
+    annual: `ضعي مخططاً سنوياً لمادة ${s}${stagePhrase}`,
+    homework: `صمّمي فرضاً في مادة ${s}${stagePhrase}`,
+    exercises: `ضعي تمارين تطبيقية في مادة ${s} مع الحلول`,
+    strategies: `ما هي أساليب التدريس الفعّالة للطلاب ذوي الصعوبات في مادة ${s}؟`,
+    rubric: `أعدّي شبكة تقييم للكفاءات في مادة ${s}${stagePhrase}`,
+    comment: `اكتبي تعليقاً بناءً لطالب حصل على معدل 8/20 في فرض مادة ${s}`,
+    competencies: `ما هي الكفاءات المستهدفة في أهم وحدات مادة ${s}${stagePhrase}؟`
+  };
+  quickPrompt(templates[kind] || templates.memo);
 }
 
 async function sendMessage() {
