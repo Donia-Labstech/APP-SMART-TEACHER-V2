@@ -2727,7 +2727,7 @@ async function callBackendAI(provider, model, systemPrompt, messages) {
   if (resp.status === 401) { clearLicense(); throw new Error('انتهت صلاحية الترخيص — يرجى تسجيل الدخول من جديد'); }
   if (!resp.ok || data.error) throw new Error(data.error || ('خطأ خادم: ' + resp.status));
   if (data.usedProvider && data.usedProvider !== provider) {
-    showNotif('ℹ️ تم التبديل تلقائيًا إلى ' + data.usedProvider + ' (تعذّر الوصول إلى ' + provider + ')', 'warn');
+    showNotif('⚠️ تعذّر الوصول إلى Gemini، تم التبديل تلقائيًا إلى ' + data.usedProvider + ' — قد تختلف جودة الرد قليلاً', 'error');
   }
   return data.reply || '';
 }
