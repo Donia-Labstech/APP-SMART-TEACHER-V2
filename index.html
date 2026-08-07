@@ -843,12 +843,15 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
               <div class="card-title"><span class="card-title-icon">📚</span> المادة الدراسية</div>
               <div class="subject-chips" id="subject-chips">
                 <div class="subject-chip active" onclick="selectSubject(this,'رياضيات')">📐 رياضيات</div>
-                <div class="subject-chip" onclick="selectSubject(this,'فيزياء')">⚗️ فيزياء وكيمياء</div>
+                <div class="subject-chip" onclick="selectSubject(this,'الفيزياء')">⚗️ فيزياء</div>
+                <div class="subject-chip" onclick="selectSubject(this,'الكيمياء')">🧪 كيمياء</div>
                 <div class="subject-chip" onclick="selectSubject(this,'علوم طبيعية')">🌿 علوم طبيعية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'اللغة العربية')">📖 عربية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'اللغة الفرنسية')">🇫🇷 فرنسية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'اللغة الإنجليزية')">🇬🇧 إنجليزية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'إعلام آلي')">💻 إعلام آلي</div>
+                <div class="subject-chip" onclick="selectSubject(this,'التاريخ والجغرافيا')">🗺️ تاريخ وجغرافيا</div>
+                <div class="subject-chip" onclick="selectSubject(this,'التربية المدنية')">🏛️ تربية مدنية</div>
                 <div class="subject-chip" onclick="selectSubject(this,'الفلسفة')">🧠 فلسفة</div>
                 <div class="subject-chip" onclick="selectSubject(this,'الاقتصاد والمناجمنت')">📈 اقتصاد ومناجمنت</div>
                 <div class="subject-chip" onclick="selectSubject(this,'المحاسبة')">🧮 محاسبة</div>
@@ -1287,12 +1290,14 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
               <label class="field-label">المادة الرئيسية</label>
               <select class="field-input styled-select" id="prof-subject">
                 <option value="رياضيات">📐 رياضيات</option>
-                <option value="فيزياء">⚗️ فيزياء وكيمياء</option>
+                <option value="الفيزياء">⚗️ الفيزياء</option>
+                <option value="الكيمياء">🧪 الكيمياء</option>
                 <option value="علوم طبيعية">🌿 علوم طبيعية</option>
                 <option value="اللغة العربية">📖 اللغة العربية وآدابها</option>
                 <option value="اللغة الفرنسية">🇫🇷 اللغة الفرنسية</option>
                 <option value="اللغة الإنجليزية">🇬🇧 اللغة الإنجليزية</option>
                 <option value="التاريخ والجغرافيا">🗺️ التاريخ والجغرافيا</option>
+                <option value="التربية المدنية">🏛️ التربية المدنية</option>
                 <option value="التربية الإسلامية">☪️ التربية الإسلامية</option>
                 <option value="إعلام آلي">💻 الإعلام الآلي</option>
                 <option value="التربية البدنية">⚽ التربية البدنية</option>
@@ -3267,6 +3272,8 @@ window.sendMessage = async function() {
     'المحاسبة': 'وفق منهاج المحاسبة والمالية لشعبة تسيير واقتصاد في البكالوريا الجزائرية (القيد المحاسبي، الميزانية، جدول حسابات النتائج).',
     'الهندسة المدنية': 'وفق منهاج تخصص الهندسة المدنية في شعبة تقني رياضي بالبكالوريا الجزائرية.',
     'هندسة الطرائق': 'وفق منهاج تخصص هندسة الطرائق في شعبة تقني رياضي بالبكالوريا الجزائرية.',
+    'التاريخ والجغرافيا': 'وفق المنهاج الجزائري، مع التمييز الواضح بين الجزء التاريخي (منهجية تحليل الوثائق التاريخية) والجزء الجغرافي (قراءة الخرائط والمبيانات) حسب طلب الأستاذة.',
+    'التربية المدنية': 'ركّز على قيم المواطنة، الحقوق والواجبات، والمؤسسات الدستورية الجزائرية، وفق المنهاج الرسمي لهذه المادة.',
   }[currentSubject] || '';
   const systemPrompt = `أنت مساعد ذكي متخصص في مادة ${currentSubject}.
 الطور الافتراضي المحدد في إعدادات الأستاذة هو: ${stagePhrase} — لكن هذا افتراضي فقط وليس ثابتًا؛ إذا ذكرت الأستاذة في المحادثة (سواء في هذه الرسالة أو ردًا على سؤال توضيحي منك) طورًا أو مستوى أو فصلًا مختلفًا صراحةً، فاعتمدي دائمًا على ما ذكرته في المحادثة، وتجاهلي الطور الافتراضي كليًا في تلك الحالة.
