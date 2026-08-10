@@ -2938,7 +2938,7 @@ function renderMarkdown(text) {
   return html;
 }
 
-let currentModel = { provider: 'gemini', model: 'gemini-2.0-flash' };
+let currentModel = { provider: 'deepseek', model: 'deepseek-v4-flash' }; // ⚠️ اختبار مؤقت — DeepSeek كأول محاولة
 let currentTrimester = 3;
 let userPassword = localStorage.getItem('donia_password') || '1234';
 let ragDocuments = JSON.parse(localStorage.getItem('donia_rag') || '[]');
