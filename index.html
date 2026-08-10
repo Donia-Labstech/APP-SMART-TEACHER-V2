@@ -2711,9 +2711,9 @@ function renderLicenseStatus() {
 // عدّلي هذا الترتيب حسب المزوّدين الذين وضعتِ مفاتيحهم فعليًا على الخادم.
 const FALLBACK_CHAIN = [
   { provider: 'gemini', model: 'gemini-2.0-flash' },
+  { provider: 'deepseek', model: 'deepseek-v4-flash' },
   { provider: 'groq', model: 'llama-3.3-70b-versatile' },
-  { provider: 'cerebras', model: 'llama3.1-70b' },
-  { provider: 'deepseek', model: 'deepseek-v4-flash' }
+  { provider: 'cerebras', model: 'llama3.1-70b' }
 ];
 
 // Calls the secure backend proxy instead of exposing API keys in the browser.
