@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة الأرقام | DONIA SMART TEACHER</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&family=Tajawal:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ink:#05070f; --panel:#0d1428; --panel2:#131c38; --border: rgba(255,255,255,0.08);
+  --cyan:#00b4ff; --cyan-dim: rgba(0,180,255,0.12);
+  --amber:#ff9500; --amber-dim: rgba(255,149,0,0.12);
+  --mint:#00e676; --mint-dim: rgba(0,230,118,0.12);
+  --ivory:#eef2fb; --slate:#8fa0c4; --slate-dim:#57678c;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--ink);color:var(--ivory);font-family:'Tajawal','Cairo',sans-serif;line-height:1.7;min-height:100vh;}
+.wrap{max-width:1000px;margin:0 auto;padding:30px 20px 60px;}
+h1{font-family:'Cairo',sans-serif;font-size:1.5rem;font-weight:900;margin-bottom:4px;}
+.sub{color:var(--slate);font-size:0.85rem;margin-bottom:24px;}
+
+.gate{max-width:420px;margin:80px auto;background:var(--panel);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center;}
+.gate input{width:100%;padding:12px 14px;border-radius:10px;border:1px solid var(--border);background:var(--ink);color:var(--ivory);font-size:0.9rem;margin:14px 0;}
+.gate button{width:100%;padding:12px;border-radius:10px;border:none;background:var(--cyan);color:#04121c;font-weight:800;cursor:pointer;font-size:0.9rem;}
+.gate-error{color:#ff6b6b;font-size:0.8rem;margin-top:10px;display:none;}
+
+#dashboard{display:none;}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:30px;}
+@media (max-width:760px){.stats-grid{grid-template-columns:repeat(2,1fr);}}
+.stat-card{background:linear-gradient(160deg,var(--panel),var(--panel2));border:1px solid var(--border);border-radius:16px;padding:20px 16px;text-align:center;}
+.stat-card .num{font-family:'Cairo',sans-serif;font-size:2rem;font-weight:900;color:var(--cyan);}
+.stat-card.paid .num{color:var(--mint);}
+.stat-card.rate .num{color:var(--amber);}
+.stat-card .label{font-size:0.78rem;color:var(--slate);margin-top:4px;}
+
+.refresh-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+.refresh-btn{background:var(--panel2);border:1px solid var(--border);color:var(--ivory);padding:8px 16px;border-radius:10px;cursor:pointer;font-size:0.8rem;font-family:inherit;}
+.refresh-btn:hover{border-color:var(--cyan);}
+.last-updated{font-size:0.75rem;color:var(--slate-dim);}
+
+table{width:100%;border-collapse:collapse;background:var(--panel);border-radius:12px;overflow:hidden;}
+th,td{padding:12px 14px;text-align:right;font-size:0.85rem;border-bottom:1px solid var(--border);}
+th{background:var(--panel2);color:var(--slate);font-weight:700;font-size:0.78rem;}
+tr:last-child td{border-bottom:none;}
+.badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;}
+.badge.active{background:var(--mint-dim);color:var(--mint);}
+.badge.expired{background:var(--amber-dim);color:var(--amber);}
+.wa-btn{background:var(--mint);color:#04160d;padding:6px 14px;border-radius:20px;text-decoration:none;font-size:0.78rem;font-weight:800;white-space:nowrap;}
+.empty{text-align:center;color:var(--slate);padding:30px;}
+</style>
+</head>
+<body>
+
+<div class="gate" id="gate">
+  <h1 style="font-size:1.2rem;">🔒 لوحة أرقام DONIA SMART TEACHER</h1>
+  <p class="sub" style="margin-bottom:0;">أدخلي كلمة السر الإدارية للمتابعة</p>
+  <input type="password" id="secret-input" placeholder="كلمة السر الإدارية">
+  <button onclick="loadDashboard()">دخول</button>
+  <div class="gate-error" id="gate-error">كلمة سر غير صحيحة، حاولي مجددًا</div>
+</div>
+
+<div class="wrap" id="dashboard">
+  <h1>📊 لوحة أرقام DONIA SMART TEACHER</h1>
+  <p class="sub">أرقام حية مباشرة من قاعدة البيانات — لا حاجة لأي استعلام يدوي بعد اليوم</p>
+
+  <div class="stats-grid">
+    <div class="stat-card"><div class="num" id="stat-trials">—</div><div class="label">إجمالي التجارب</div></div>
+    <div class="stat-card paid"><div class="num" id="stat-paid">—</div><div class="label">اشتراكات مفعّلة</div></div>
+    <div class="stat-card rate"><div class="num" id="stat-rate">—</div><div class="label">معدل التحويل</div></div>
+    <div class="stat-card"><div class="num" id="stat-active">—</div><div class="label">تجارب سارية الآن</div></div>
+  </div>
+
+  <div class="refresh-row">
+    <button class="refresh-btn" onclick="fetchStats()">🔄 تحديث الآن</button>
+    <span class="last-updated" id="last-updated"></span>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>الاسم</th><th>الحالة</th><th>تاريخ الانتهاء</th><th>تواصل سريع</th></tr>
+    </thead>
+    <tbody id="trial-table-body"></tbody>
+  </table>
+  <div class="empty" id="empty-msg" style="display:none;">لا توجد أي تجارب مسجّلة بعد</div>
+</div>
+
+<script>
+const BACKEND_URL = 'https://donia-smart-teacher-v2.onrender.com';
+
+function normalizePhoneForWhatsApp(phone) {
+  if (!phone) return '';
+  let p = phone.replace(/[\s-]/g, '');
+  if (p.startsWith('+')) p = p.slice(1);
+  else if (p.startsWith('0')) p = '213' + p.slice(1);
+  return p;
+}
+
+function formatDate(iso) {
+  const d = new Date(iso);
+  return d.toLocaleDateString('ar-DZ', { day: 'numeric', month: 'short', year: 'numeric' });
+}
+
+async function fetchStats() {
+  const secret = localStorage.getItem('donia_admin_secret') || '';
+  try {
+    const res = await fetch(BACKEND_URL + '/api/admin/stats', {
+      headers: { 'x-admin-secret': secret }
+    });
+    if (res.status === 401) {
+      localStorage.removeItem('donia_admin_secret');
+      document.getElementById('gate').style.display = 'block';
+      document.getElementById('dashboard').style.display = 'none';
+      document.getElementById('gate-error').style.display = 'block';
+      return;
+    }
+    const data = await res.json();
+    if (data.error) { alert('خطأ: ' + data.error); return; }
+
+    document.getElementById('stat-trials').textContent = data.total_trials;
+    document.getElementById('stat-paid').textContent = data.total_paid;
+    document.getElementById('stat-rate').textContent = data.conversion_rate_percent + '%';
+    document.getElementById('stat-active').textContent = data.active_trials;
+    document.getElementById('last-updated').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-DZ');
+
+    const tbody = document.getElementById('trial-table-body');
+    tbody.innerHTML = '';
+    if (!data.trial_list || data.trial_list.length === 0) {
+      document.getElementById('empty-msg').style.display = 'block';
+    } else {
+      document.getElementById('empty-msg').style.display = 'none';
+      data.trial_list.forEach(t => {
+        const tr = document.createElement('tr');
+        const waPhone = normalizePhoneForWhatsApp(t.phone);
+        tr.innerHTML = `
+          <td>${t.name}</td>
+          <td><span class="badge ${t.is_expired ? 'expired' : 'active'}">${t.is_expired ? 'انتهت' : 'سارية'}</span></td>
+          <td>${formatDate(t.expires_at)}</td>
+          <td>${waPhone ? `<a class="wa-btn" href="https://wa.me/${waPhone}" target="_blank">💬 واتساب</a>` : '—'}</td>
+        `;
+        tbody.appendChild(tr);
+      });
+    }
+  } catch (e) {
+    alert('تعذّر الاتصال بالخادم: ' + e.message);
+  }
+}
+
+function loadDashboard() {
+  const val = document.getElementById('secret-input').value.trim();
+  if (!val) return;
+  localStorage.setItem('donia_admin_secret', val);
+  document.getElementById('gate-error').style.display = 'none';
+  document.getElementById('gate').style.display = 'none';
+  document.getElementById('dashboard').style.display = 'block';
+  fetchStats();
+}
+
+// دخول تلقائي لو كلمة السر محفوظة من قبل
+window.addEventListener('DOMContentLoaded', () => {
+  const saved = localStorage.getItem('donia_admin_secret');
+  if (saved) {
+    document.getElementById('gate').style.display = 'none';
+    document.getElementById('dashboard').style.display = 'block';
+    fetchStats();
+  }
+});
+</script>
+</body>
+</html>
