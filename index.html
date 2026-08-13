@@ -541,7 +541,7 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
       <button class="nav-item" onclick="showPage('ai', this)">
         <span class="nav-icon">🤖</span> المساعد الذكي AI
       </button>
-      <button class="nav-item" onclick="showPage('grading', this)">
+      <button class="nav-item" onclick="showPage('grading', this); if(typeof refreshFojDropdown==='function') refreshFojDropdown();">
         <span class="nav-icon">📚</span> تصحيح الفوج الجماعي
         <span style="background:var(--green-dim);color:var(--green);font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:20px;margin-right:4px;">🆕</span>
       </button>
@@ -1017,8 +1017,19 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
         </div>
 
         <div class="card" style="margin-bottom:20px;">
+          <div class="card-title"><span class="card-title-icon">🏫</span> استيراد فوج جاهز (اختياري)</div>
+          <div style="font-size:0.8rem;color:var(--text3);margin-bottom:12px;">لو عندك فوج مستورَد أصلاً من صفحة "تقييم الطلاب"، اختاريه هنا لتعبئة أسماء الطلاب تلقائيًا بدل كتابتها يدويًا.</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;">
+            <select class="field-input" id="grading-foj-select" style="max-width:280px;" onclick="refreshFojDropdown()">
+              <option value="">— اختاري الفوج —</option>
+            </select>
+            <button type="button" class="btn btn-blue" onclick="loadFojIntoGrading()">📥 تحميل طلاب هذا الفوج</button>
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
           <div class="card-title"><span class="card-title-icon">👥</span> الطلاب وإجاباتهم</div>
-          <div style="font-size:0.8rem;color:var(--text3);margin-bottom:12px;">أضيفي الأسئلة أولاً، ثم أضيفي كل طالب مع إجاباته.</div>
+          <div style="font-size:0.8rem;color:var(--text3);margin-bottom:12px;">أضيفي الأسئلة أولاً، ثم استوردي فوجًا أعلاه أو أضيفي كل طالب يدويًا.</div>
           <div id="grading-students-container"></div>
           <button type="button" class="btn btn-solid" onclick="addGradingStudent()">➕ إضافة طالب</button>
         </div>
@@ -1863,6 +1874,8 @@ function processFile(file) {
 
       renderAllData();
       showNotif('✅ تم استيراد ' + gradeData.length + ' طالب بنجاح');
+      saveGradesToCloud();
+      if (typeof refreshFojDropdown === 'function') refreshFojDropdown();
     } catch (err) {
       status.innerHTML = `<span style="color:var(--danger)">❌ خطأ في قراءة الملف: ${err.message}</span>`;
       console.error(err);
@@ -2174,6 +2187,7 @@ function setAtt(name, session, status, btn) {
   cell.querySelectorAll('.att-btn').forEach(b => b.classList.remove('selected'));
   btn.classList.add('selected');
   updateAttCounts();
+  saveAttendanceToCloud();
 }
 
 function updateAttCounts() {
@@ -2909,6 +2923,41 @@ function getGradingStudents() {
   return students;
 }
 
+// ربط الأفواج الموجودة أصلاً (من صفحة تقييم الطلاب) بصفحة تصحيح الفوج —
+// يعبّئ قائمة الطلاب تلقائيًا بدل كتابتهم يدويًا واحدًا واحدًا.
+function refreshFojDropdown() {
+  const sel = document.getElementById('grading-foj-select');
+  if (!sel) return;
+  const currentVal = sel.value;
+  const fojs = [...new Set(gradeData.map(s => s.foj).filter(Boolean))];
+  sel.innerHTML = '<option value="">— اختاري الفوج —</option>' +
+    fojs.map(f => {
+      const count = gradeData.filter(s => s.foj === f).length;
+      return `<option value="${f}">${f} (${count} طالب)</option>`;
+    }).join('');
+  if (fojs.includes(currentVal)) sel.value = currentVal;
+}
+
+function loadFojIntoGrading() {
+  const sel = document.getElementById('grading-foj-select');
+  const fojCode = sel ? sel.value : '';
+  if (!fojCode) { showNotif('⚠️ اختاري فوجًا أولاً من القائمة', 'warn'); return; }
+
+  const rosterStudents = gradeData.filter(s => s.foj === fojCode);
+  if (!rosterStudents.length) { showNotif('⚠️ لا يوجد طلاب بهذا الفوج', 'warn'); return; }
+
+  // نمسح الطلاب الحاليين بصفحة التصحيح (لو موجودين) حتى ما يتكرروا، ونعبّي القائمة من الفوج
+  document.getElementById('grading-students-container').innerHTML = '';
+  gradingStudentCount = 0;
+  rosterStudents.forEach(s => {
+    addGradingStudent();
+    const lastCard = document.querySelector('#grading-students-container [data-sid]:last-child');
+    if (lastCard) lastCard.querySelector('.gs-name').value = s.fullName;
+  });
+  showNotif('✅ تم تحميل ' + rosterStudents.length + ' طالب من فوج ' + fojCode);
+  updateGradingSubmitState();
+}
+
 function updateGradingSubmitState() {
   const btn = document.getElementById('grading-submit-btn');
   if (!btn) return;
@@ -2999,6 +3048,84 @@ function logoutLicense() {
   showNotif('تم تسجيل الخروج');
   document.getElementById('app').classList.remove('active');
   document.getElementById('login-page').classList.add('active');
+}
+
+// ============================================================
+// مزامنة سحابية (إضافة جديدة) — تستخدم نقطة الاتصال /api/storage/:key
+// الموجودة أصلاً بالخادم، لم تكن مستخدمة من الواجهة الأمامية سابقًا.
+// تحمي الدرجات والحضور من الضياع عند تغيير الجهاز أو مسح بيانات المتصفح.
+// ============================================================
+async function cloudSaveKey(key, value) {
+  if (!isLicenseValid()) return false;
+  try {
+    const resp = await fetch(backendUrl + '/api/storage/' + encodeURIComponent(key), {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + licenseToken },
+      body: JSON.stringify({ value })
+    });
+    return resp.ok;
+  } catch (e) {
+    console.error('cloudSaveKey error:', e.message);
+    return false;
+  }
+}
+
+async function cloudLoadKey(key) {
+  if (!isLicenseValid()) return null;
+  try {
+    const resp = await fetch(backendUrl + '/api/storage/' + encodeURIComponent(key), {
+      headers: { 'Authorization': 'Bearer ' + licenseToken }
+    });
+    if (resp.status === 404) return null;
+    if (!resp.ok) return null;
+    const data = await resp.json();
+    return data.value;
+  } catch (e) {
+    console.error('cloudLoadKey error:', e.message);
+    return null;
+  }
+}
+
+// حفظ مؤجَّل (debounce) حتى لا نرسل طلبًا لكل ضغطة — ننتظر توقف التعديل 2 ثانية
+const _cloudSaveTimers = {};
+function scheduleCloudSave(key, getValueFn, label) {
+  clearTimeout(_cloudSaveTimers[key]);
+  _cloudSaveTimers[key] = setTimeout(async () => {
+    const ok = await cloudSaveKey(key, getValueFn());
+    if (ok) showNotif('☁️ تم حفظ ' + label + ' سحابيًا', 'success');
+  }, 2000);
+}
+
+function saveGradesToCloud() {
+  scheduleCloudSave('grade_data_v1', () => ({ gradeData, currentClass, currentTrimester }), 'الدرجات');
+}
+function saveAttendanceToCloud() {
+  scheduleCloudSave('attendance_state_v1', () => attState, 'الحضور');
+}
+
+// تُستدعى مرة واحدة بعد تسجيل الدخول — تحمّل النسخة السحابية فقط إذا كانت
+// البيانات المحلية فارغة، حتى لا تُستبدَل تعديلات محلية حديثة بالخطأ.
+async function loadCloudDataOnStartup() {
+  if (gradeData.length === 0) {
+    const cloudGrades = await cloudLoadKey('grade_data_v1');
+    if (cloudGrades && Array.isArray(cloudGrades.gradeData) && cloudGrades.gradeData.length > 0) {
+      gradeData = cloudGrades.gradeData;
+      if (cloudGrades.currentClass) currentClass = cloudGrades.currentClass;
+      if (cloudGrades.currentTrimester) currentTrimester = cloudGrades.currentTrimester;
+      renderAllData();
+      showNotif('☁️ تم تحميل آخر نسخة محفوظة من الدرجات');
+      if (typeof refreshFojDropdown === 'function') refreshFojDropdown();
+    }
+  }
+  const localAttEmpty = !attState || Object.keys(attState).length === 0;
+  if (localAttEmpty) {
+    const cloudAtt = await cloudLoadKey('attendance_state_v1');
+    if (cloudAtt && Object.keys(cloudAtt).length > 0) {
+      attState = cloudAtt;
+      if (typeof updateAttendanceFromGrades === 'function') updateAttendanceFromGrades();
+      showNotif('☁️ تم تحميل آخر نسخة محفوظة من الحضور');
+    }
+  }
 }
 
 function subjectLanguageInstruction(subject) {
@@ -3230,6 +3357,7 @@ window.doLogin = async function() {
     if (typeof renderPortfolioCard === 'function') renderPortfolioCard();
     initApp();
     if (typeof updateGradingSubmitState === 'function') updateGradingSubmitState();
+    if (typeof loadCloudDataOnStartup === 'function') loadCloudDataOnStartup();
   } catch (err) {
     showNotif('❌ ' + err.message, 'error');
   }
@@ -3395,6 +3523,7 @@ function switchTrimester(val) {
   if (gradeData.length > 0) {
     allTrimesters[currentTrimester] = { gradeData: [...gradeData], currentClass };
     localStorage.setItem('donia_trimesters', JSON.stringify(allTrimesters));
+    saveGradesToCloud();
   }
   // Load trimester data if exists
   const td = allTrimesters[currentTrimester];
