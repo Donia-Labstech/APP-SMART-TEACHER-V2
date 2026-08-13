@@ -541,6 +541,10 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
       <button class="nav-item" onclick="showPage('ai', this)">
         <span class="nav-icon">🤖</span> المساعد الذكي AI
       </button>
+      <button class="nav-item" onclick="showPage('grading', this)">
+        <span class="nav-icon">📚</span> تصحيح الفوج الجماعي
+        <span style="background:var(--green-dim);color:var(--green);font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:20px;margin-right:4px;">🆕</span>
+      </button>
       <button class="nav-item" onclick="showPage('drawing', this)">
         <span class="nav-icon">🎨</span> لوحة الرسم والتوقيع
       </button>
@@ -993,6 +997,43 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
         </div>
       </div>
 
+      <!-- ========== BATCH GRADING (تصحيح الفوج الجماعي) ========== -->
+      <div class="page" id="page-grading">
+        <div class="card" style="margin-bottom:20px;border-color:rgba(0,230,118,0.35);background:linear-gradient(160deg,rgba(0,230,118,0.06),transparent);">
+          <div class="card-title"><span class="card-title-icon">📚</span> تصحيح الفوج الجماعي <span style="background:var(--green-dim);color:var(--green);font-size:0.65rem;font-weight:800;padding:3px 10px;border-radius:20px;margin-right:6px;">🆕 جديد</span></div>
+          <div style="font-size:0.85rem;color:var(--text2);line-height:1.9;">
+            صححي فوج كامل دفعة واحدة — كل طالب، كل سؤال، بدرجة مقترحة وسبب واضح، خلال ثوانٍ بدل ساعات. الدرجات <strong>مقترحة فقط</strong> وتتطلب مراجعتك ومصادقتك قبل الاعتماد النهائي.
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title"><span class="card-title-icon">📖</span> المادة والأسئلة</div>
+          <div style="margin-bottom:14px;">
+            <label class="field-label">المادة</label>
+            <input type="text" class="field-input" id="grading-subject" placeholder="مثال: الرياضيات" style="max-width:340px;">
+          </div>
+          <div id="grading-questions-container"></div>
+          <button type="button" class="btn btn-solid" onclick="addGradingQuestion()">➕ إضافة سؤال</button>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div class="card-title"><span class="card-title-icon">👥</span> الطلاب وإجاباتهم</div>
+          <div style="font-size:0.8rem;color:var(--text3);margin-bottom:12px;">أضيفي الأسئلة أولاً، ثم أضيفي كل طالب مع إجاباته.</div>
+          <div id="grading-students-container"></div>
+          <button type="button" class="btn btn-solid" onclick="addGradingStudent()">➕ إضافة طالب</button>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;">
+          <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-orange" id="grading-submit-btn" onclick="submitGradeBatch()" style="font-size:0.95rem;padding:12px 24px;" disabled>✅ صححي الفوج الآن</button>
+            <span id="grading-loading" style="display:none;color:var(--blue);font-size:0.85rem;font-weight:700;">⏳ جاري التصحيح، قد يستغرق بضع ثوانٍ...</span>
+          </div>
+          <div id="grading-error" style="display:none;margin-top:12px;background:var(--danger-dim);color:var(--danger);border-radius:var(--radius-sm);padding:10px 14px;font-size:0.85rem;"></div>
+        </div>
+
+        <div id="grading-results-wrap"></div>
+      </div>
+
       <!-- ========== VIRTUAL LABS ========== -->
       <div class="page" id="page-labs">
         <div id="labs-selector">
@@ -1155,6 +1196,18 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
             3) صوّري ورقة إجابة التلميذ بالكاميرا مباشرة.<br>
             4) اضغطي "إرسال للذكاء الاصطناعي" — تحصلين خلال ثوانٍ على تصحيح تفصيلي سؤالاً بسؤال، ملاحظات لتحسين أداء التلميذ، ودرجة نهائية مقترحة.<br>
             💡 <b>تذكير مهم</b>: الدرجة اقتراح ذكي يسهّل عليك، لكن المراجعة والاعتماد النهائي دائمًا بيدك.
+          </div>
+        </div>
+
+        <div class="card" style="margin-bottom:16px;border-color:rgba(0,230,118,0.35);background:linear-gradient(160deg,rgba(0,230,118,0.06),transparent);">
+          <div class="card-title">📚 تصحيح الفوج الجماعي <span style="background:var(--green-dim);color:var(--green);font-size:0.65rem;font-weight:800;padding:3px 10px;border-radius:20px;margin-right:6px;">🆕 جديد</span></div>
+          <div style="font-size:0.85rem;color:var(--text2);line-height:2;">
+            صححي فوج كامل دفعة واحدة بدل التصحيح ورقة بورقة، من صفحة "تصحيح الفوج الجماعي":<br>
+            1) أدخلي المادة، ثم أضيفي كل سؤال بدرجته القصوى (ومعيار التصحيح إن رغبتِ لدقة أعلى).<br>
+            2) أضيفي كل طالب باسمه وإجاباته على كل سؤال.<br>
+            3) اضغطي "صححي الفوج الآن" — تحصلين خلال ثوانٍ على درجة وسبب لكل سؤال ولكل طالب، مع مجموع الدرجات.<br>
+            4) أي إجابة يشتبه النظام في دقة تقييمها تُعلَّم تلقائيًا بـ"⚠ تحتاج مراجعتك".<br>
+            💡 <b>تذكير مهم</b>: كل الدرجات مقترحة فقط، والاعتماد النهائي دائمًا بيدك.
           </div>
         </div>
 
@@ -2740,6 +2793,207 @@ async function callBackendAI(provider, model, systemPrompt, messages) {
 
 const connectionMode = 'backend'; // الاتصال المباشر (غير الآمن) لم يعد متاحًا في النسخة التجارية
 
+// ============================================================
+// تصحيح الفوج الجماعي (إضافة جديدة) — يستدعي /api/grade-batch على نفس
+// الخادم الخلفي، بنفس نمط licenseToken/backendUrl المستخدم في callBackendAI.
+// ============================================================
+let gradingQuestionCount = 0;
+let gradingStudentCount = 0;
+
+function addGradingQuestion() {
+  gradingQuestionCount++;
+  const qid = 'gq' + gradingQuestionCount;
+  const wrap = document.getElementById('grading-questions-container');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.cssText = 'margin-bottom:12px;background:var(--surface);';
+  card.dataset.qid = qid;
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:0.75rem;color:var(--blue);font-weight:700;">سؤال ${gradingQuestionCount}</span>
+      <button type="button" class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="removeGradingQuestion('${qid}')">🗑️ حذف</button>
+    </div>
+    <label class="field-label">نص السؤال</label>
+    <textarea class="field-input gq-text" placeholder="مثال: اشرح قانون نيوتن الثاني" style="min-height:52px;"></textarea>
+    <div style="margin-top:10px;max-width:180px;">
+      <label class="field-label">الدرجة القصوى</label>
+      <input type="number" class="field-input gq-max" value="4" min="0" step="0.5">
+    </div>
+    <label class="field-label" style="margin-top:10px;">معيار التصحيح (اختياري)</label>
+    <textarea class="field-input gq-model" placeholder="عناصر الإجابة النموذجية أو نقاط يجب توفرها" style="min-height:44px;"></textarea>
+  `;
+  wrap.appendChild(card);
+  renderGradingAnswerFieldsForAllStudents();
+  updateGradingSubmitState();
+}
+
+function removeGradingQuestion(qid) {
+  const card = document.querySelector('#grading-questions-container [data-qid="' + qid + '"]');
+  if (card) card.remove();
+  renderGradingAnswerFieldsForAllStudents();
+  updateGradingSubmitState();
+}
+
+function getGradingQuestions() {
+  const cards = document.querySelectorAll('#grading-questions-container [data-qid]');
+  const qs = [];
+  cards.forEach(card => {
+    qs.push({
+      id: card.dataset.qid,
+      text: card.querySelector('.gq-text').value.trim(),
+      max_score: parseFloat(card.querySelector('.gq-max').value) || 0,
+      model_answer: card.querySelector('.gq-model').value.trim()
+    });
+  });
+  return qs;
+}
+
+function addGradingStudent() {
+  gradingStudentCount++;
+  const sid = 'gs' + gradingStudentCount;
+  const wrap = document.getElementById('grading-students-container');
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.cssText = 'margin-bottom:12px;background:var(--surface);';
+  card.dataset.sid = sid;
+  card.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+      <span style="font-size:0.75rem;color:var(--blue);font-weight:700;">طالب ${gradingStudentCount}</span>
+      <button type="button" class="btn btn-danger" style="padding:4px 10px;font-size:0.75rem;" onclick="removeGradingStudent('${sid}')">🗑️ حذف</button>
+    </div>
+    <label class="field-label">اسم الطالب</label>
+    <input type="text" class="field-input gs-name" placeholder="مثال: أحمد بن علي" style="margin-bottom:10px;max-width:340px;">
+    <div class="gs-answers"></div>
+  `;
+  wrap.appendChild(card);
+  renderGradingAnswerFieldsForStudent(card);
+  updateGradingSubmitState();
+}
+
+function removeGradingStudent(sid) {
+  const card = document.querySelector('#grading-students-container [data-sid="' + sid + '"]');
+  if (card) card.remove();
+  updateGradingSubmitState();
+}
+
+function renderGradingAnswerFieldsForStudent(card) {
+  const box = card.querySelector('.gs-answers');
+  box.innerHTML = '';
+  getGradingQuestions().forEach((q, i) => {
+    const label = q.text ? ('إجابة سؤال ' + (i + 1) + ': ' + q.text.slice(0, 40) + (q.text.length > 40 ? '…' : '')) : ('إجابة سؤال ' + (i + 1));
+    const item = document.createElement('div');
+    item.style.marginBottom = '8px';
+    item.dataset.qid = q.id;
+    item.innerHTML = `<label class="field-label">${escapeHtmlText(label)}</label><textarea class="field-input gs-answer-text" style="min-height:44px;" placeholder="إجابة الطالب هنا"></textarea>`;
+    box.appendChild(item);
+  });
+}
+
+function renderGradingAnswerFieldsForAllStudents() {
+  document.querySelectorAll('#grading-students-container [data-sid]').forEach(renderGradingAnswerFieldsForStudent);
+}
+
+function getGradingStudents() {
+  const cards = document.querySelectorAll('#grading-students-container [data-sid]');
+  const students = [];
+  cards.forEach(card => {
+    const answers = {};
+    card.querySelectorAll('.gs-answers [data-qid]').forEach(item => {
+      answers[item.dataset.qid] = item.querySelector('.gs-answer-text').value.trim();
+    });
+    students.push({
+      student_id: card.querySelector('.gs-name').value.trim() || card.dataset.sid,
+      answers
+    });
+  });
+  return students;
+}
+
+function updateGradingSubmitState() {
+  const btn = document.getElementById('grading-submit-btn');
+  if (!btn) return;
+  const hasQ = document.querySelectorAll('#grading-questions-container [data-qid]').length > 0;
+  const hasS = document.querySelectorAll('#grading-students-container [data-sid]').length > 0;
+  btn.disabled = !(isLicenseValid() && hasQ && hasS);
+}
+
+async function submitGradeBatch() {
+  const errBox = document.getElementById('grading-error');
+  const loadingEl = document.getElementById('grading-loading');
+  const resultsWrap = document.getElementById('grading-results-wrap');
+  errBox.style.display = 'none';
+  resultsWrap.innerHTML = '';
+
+  const subject = document.getElementById('grading-subject').value.trim();
+  const questions = getGradingQuestions();
+  const students = getGradingStudents();
+
+  if (!subject) { errBox.textContent = 'يرجى إدخال اسم المادة'; errBox.style.display = 'block'; return; }
+  if (!questions.length || questions.some(q => !q.text)) { errBox.textContent = 'يرجى إكمال نص كل سؤال'; errBox.style.display = 'block'; return; }
+  if (!students.length || students.some(s => !s.student_id)) { errBox.textContent = 'يرجى إدخال اسم كل طالب'; errBox.style.display = 'block'; return; }
+  if (!isLicenseValid()) { errBox.textContent = 'يرجى تسجيل الدخول أولاً'; errBox.style.display = 'block'; return; }
+
+  loadingEl.style.display = 'inline';
+  document.getElementById('grading-submit-btn').disabled = true;
+
+  try {
+    const resp = await fetch(backendUrl + '/api/grade-batch', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + licenseToken },
+      body: JSON.stringify({ subject, questions, students })
+    });
+    const data = await resp.json();
+    if (resp.status === 401) { clearLicense(); throw new Error('انتهت صلاحية الترخيص — يرجى تسجيل الدخول من جديد'); }
+    if (!resp.ok || data.error) throw new Error(data.error || ('خطأ خادم: ' + resp.status));
+    renderGradeBatchResults(data, questions);
+  } catch (err) {
+    errBox.textContent = err.message || 'حدث خطأ أثناء التصحيح';
+    errBox.style.display = 'block';
+  } finally {
+    loadingEl.style.display = 'none';
+    updateGradingSubmitState();
+  }
+}
+
+function renderGradeBatchResults(data, questions) {
+  const qMap = {};
+  questions.forEach(q => qMap[q.id] = q.text);
+  const wrap = document.getElementById('grading-results-wrap');
+
+  const confColors = { high: 'var(--green)', medium: 'var(--warn)', low: 'var(--danger)' };
+  const confLabels = { high: 'ثقة مرتفعة', medium: 'ثقة متوسطة', low: 'ثقة منخفضة' };
+
+  let html = `<div class="card" style="margin-bottom:16px;background:var(--green-dim);border-color:rgba(0,230,118,0.3);">
+    <div style="font-size:0.82rem;color:var(--green);font-weight:700;">${escapeHtmlText(data.disclaimer || 'درجات مقترحة من الذكاء الاصطناعي — تتطلب مراجعة ومصادقة المعلم قبل الاعتماد النهائي')}</div>
+  </div>`;
+
+  (data.results || []).forEach(r => {
+    html += `<div class="card" style="margin-bottom:14px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;margin-bottom:12px;">
+        <span style="font-weight:800;font-size:1rem;">${escapeHtmlText(r.student_id)}</span>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <span style="font-family:monospace;font-weight:700;background:var(--blue-dim);color:var(--blue);padding:4px 12px;border-radius:20px;font-size:0.85rem;">${r.total_score} / ${r.total_max}</span>
+          ${r.needs_teacher_review ? '<span style="font-size:0.7rem;font-weight:700;background:var(--danger-dim);color:var(--danger);padding:4px 12px;border-radius:20px;">⚠ تحتاج مراجعتك</span>' : ''}
+        </div>
+      </div>`;
+    (r.per_question || []).forEach(pq => {
+      html += `<div style="border-top:1px solid var(--border);padding:10px 0;display:flex;gap:12px;">
+        <div style="font-family:monospace;font-weight:700;color:var(--orange);min-width:50px;text-align:center;">${pq.score}/${pq.max_score}</div>
+        <div style="flex:1;">
+          <div style="font-size:0.85rem;">${escapeHtmlText(qMap[pq.question_id] || pq.question_id)}
+            <span style="font-size:0.65rem;font-weight:700;color:${confColors[pq.confidence] || 'var(--text3)'};margin-right:8px;">${confLabels[pq.confidence] || pq.confidence}</span>
+          </div>
+          <div style="font-size:0.8rem;color:var(--text2);margin-top:3px;">${escapeHtmlText(pq.rationale || '')}</div>
+        </div>
+      </div>`;
+    });
+    html += `</div>`;
+  });
+
+  wrap.innerHTML = html;
+  wrap.scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
 function logoutLicense() {
   clearLicense();
   showNotif('تم تسجيل الخروج');
@@ -2975,6 +3229,7 @@ window.doLogin = async function() {
     renderTrialBanner();
     if (typeof renderPortfolioCard === 'function') renderPortfolioCard();
     initApp();
+    if (typeof updateGradingSubmitState === 'function') updateGradingSubmitState();
   } catch (err) {
     showNotif('❌ ' + err.message, 'error');
   }
