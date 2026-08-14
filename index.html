@@ -1439,6 +1439,16 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
               </div>
               <button class="btn btn-solid" style="width:100%;" onclick="saveStageSetting()">💾 حفظ الطور التعليمي</button>
             </div>
+            <!-- STUDENT PORTAL CODES (إضافة جديدة، مُعدَّلة: رمز مستقل لكل مادة) -->
+            <div class="card" style="margin-bottom:16px;border-color:rgba(0,230,118,0.35);background:linear-gradient(160deg,rgba(0,230,118,0.06),transparent);">
+              <div class="card-title"><span class="card-title-icon">🎓</span> بوابة الطالب <span style="background:var(--green-dim);color:var(--green);font-size:0.65rem;font-weight:800;padding:3px 10px;border-radius:20px;margin-right:6px;">🆕 جديد</span></div>
+              <div style="font-size:0.85rem;color:var(--text2);line-height:1.9;margin-bottom:14px;">
+                لكل مادة تستوردينها رمز بوابة مستقل خاص فيها — الطالب يدخل برمز مادته + رقم تسجيله + تاريخ ميلاده، ويشوف درجاته وحضوره فقط، بدون أي وصول لباقي بياناتك.
+              </div>
+              <button class="btn btn-solid" id="portal-publish-btn" onclick="publishCurrentSubjectPortal()" style="width:100%;margin-bottom:14px;">📢 نشر رمز بوابة للمادة المحمَّلة حاليًا</button>
+              <div id="portal-codes-list" style="display:flex;flex-direction:column;gap:8px;"></div>
+              <div style="font-size:0.75rem;color:var(--text3);margin-top:12px;">رابط دخول الطالب: <span style="font-family:monospace;color:var(--blue);">teacher.donialabstech.online/student-portal.html</span></div>
+            </div>
             <!-- PASSWORD CHANGE (legacy, hidden — access is now controlled by the license key) -->
             <div class="card" style="margin-bottom:16px;display:none;">
               <div class="card-title"><span class="card-title-icon">🔐</span> تغيير كلمة المرور</div>
@@ -1729,6 +1739,7 @@ function initApp() {
   initAttendance();
   initCharts();
   renderSessionsList();
+  if (typeof loadPortalCodesList === 'function') loadPortalCodesList();
 }
 
 function startClock() {
@@ -2925,6 +2936,58 @@ function getGradingStudents() {
 
 // ربط الأفواج الموجودة أصلاً (من صفحة تقييم الطلاب) بصفحة تصحيح الفوج —
 // يعبّئ قائمة الطلاب تلقائيًا بدل كتابتهم يدويًا واحدًا واحدًا.
+// نشر بوابة الطالب (إضافة جديدة، مُعدَّلة: رمز مستقل لكل مادة محمَّلة حاليًا)
+async function publishCurrentSubjectPortal() {
+  if (!isLicenseValid()) { showNotif('⚠️ يرجى تسجيل الدخول أولاً', 'warn'); return; }
+  if (!gradeData || !gradeData.length) { showNotif('⚠️ استوردي ملف درجات مادة أولاً من صفحة "تقييم الطلاب"', 'warn'); return; }
+
+  const btn = document.getElementById('portal-publish-btn');
+  const originalText = btn.textContent;
+  btn.disabled = true; btn.textContent = '⏳ جارٍ النشر...';
+  try {
+    const resp = await fetch(backendUrl + '/api/teacher/portal-code/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + licenseToken },
+      body: JSON.stringify({ gradeData, currentClass })
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.error || 'خطأ خادم');
+    showNotif('✅ تم نشر رمز بوابة لمادة "' + data.subject_label + '"');
+    loadPortalCodesList();
+  } catch (err) {
+    showNotif('❌ ' + (err.message || 'تعذّر نشر رمز البوابة'), 'error');
+  } finally {
+    btn.disabled = false; btn.textContent = originalText;
+  }
+}
+
+async function loadPortalCodesList() {
+  const listEl = document.getElementById('portal-codes-list');
+  if (!listEl || !isLicenseValid()) return;
+  try {
+    const resp = await fetch(backendUrl + '/api/teacher/portal-codes', {
+      headers: { 'Authorization': 'Bearer ' + licenseToken }
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.error || 'خطأ خادم');
+    if (!data.codes || !data.codes.length) {
+      listEl.innerHTML = '<div style="font-size:0.8rem;color:var(--text3);">لا توجد رموز منشورة بعد.</div>';
+      return;
+    }
+    listEl.innerHTML = data.codes.map(c => `
+      <div style="display:flex;justify-content:space-between;align-items:center;background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:10px 14px;">
+        <div>
+          <div style="font-weight:700;font-size:0.85rem;">${escapeHtmlText(c.subject_label)}</div>
+          <div style="font-size:0.7rem;color:var(--text3);">${new Date(c.created_at).toLocaleDateString('ar-DZ')}</div>
+        </div>
+        <div style="font-family:monospace;font-weight:800;letter-spacing:2px;color:var(--green);font-size:1.1rem;">${c.code}</div>
+      </div>
+    `).join('');
+  } catch (err) {
+    listEl.innerHTML = '<div style="font-size:0.8rem;color:var(--danger);">تعذّر تحميل قائمة الرموز</div>';
+  }
+}
+
 function refreshFojDropdown() {
   const sel = document.getElementById('grading-foj-select');
   if (!sel) return;
