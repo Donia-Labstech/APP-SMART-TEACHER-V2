@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>بوابة الطالب | DONIA SMART TEACHER</title>
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#eef2f4; --bg-deep:#0a1f2b; --bg-panel:#0f2a3a; --bg-panel-2:#123448;
+    --line:rgba(238,242,244,0.10);
+    --teal:#2dd4bf; --teal-dim:rgba(45,212,191,0.14);
+    --gold:#e8b64c; --gold-dim:rgba(232,182,76,0.14);
+    --muted:#9fb3bd;
+    --danger:#f0785a; --danger-dim:rgba(240,120,90,0.14);
+    --ok:#63d29a; --ok-dim:rgba(99,210,154,0.14);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 85% -10%, rgba(45,212,191,0.10), transparent 60%),var(--bg-deep);color:var(--ink);font-family:'Tajawal',sans-serif;min-height:100vh;line-height:1.6;}
+  .wrap{max-width:520px;margin:0 auto;padding:32px 20px 60px}
+  header{text-align:center;margin-bottom:26px}
+  .mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--teal),#1b8f82);display:flex;align-items:center;justify-content:center;font-weight:900;color:#04211d;font-size:22px;margin:0 auto 12px}
+  h1{font-size:20px;font-weight:900;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px}
+  .panel{background:linear-gradient(180deg,var(--bg-panel),var(--bg-panel-2));border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin-bottom:18px}
+  label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:500}
+  input{width:100%;background:rgba(0,0,0,.18);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:11px 12px;font-family:inherit;font-size:14px;margin-bottom:14px}
+  input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:transparent}
+  .btn{width:100%;appearance:none;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:14.5px;padding:13px;border-radius:9px;background:var(--teal);color:#04211d}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .error-box{background:var(--danger-dim);border:1px solid rgba(240,120,90,.35);color:#ffcbbd;border-radius:11px;padding:12px 14px;font-size:13.5px;margin-top:14px;display:none}
+  .error-box.active{display:block}
+  #resultView{display:none}
+  .student-name{font-weight:900;font-size:18px;margin-bottom:2px}
+  .meta{color:var(--muted);font-size:13px;margin-bottom:18px}
+  .g-row{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-top:1px solid var(--line)}
+  .g-row:first-of-type{border-top:none}
+  .g-label{font-size:13.5px;color:var(--muted)}
+  .g-val{font-family:'IBM Plex Mono',monospace;font-weight:700;color:var(--gold)}
+  .moy{font-size:1.6rem;color:var(--teal);text-align:center;margin:6px 0 18px}
+  .att-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:6px;margin-top:10px}
+  .att-cell{aspect-ratio:1;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:800;border:1px solid var(--line)}
+  .att-P{background:var(--ok-dim);color:var(--ok)}
+  .att-A{background:var(--danger-dim);color:var(--danger)}
+  .att-L{background:var(--gold-dim);color:var(--gold)}
+  .att-none{background:rgba(255,255,255,.03);color:var(--muted)}
+  .backBtn{background:transparent;border:1px solid var(--line);color:var(--muted);width:100%;padding:11px;border-radius:9px;font-family:inherit;cursor:pointer;margin-top:14px}
+  footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:20px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">DS</div>
+    <h1>بوابة الطالب</h1>
+    <div class="sub">DONIA SMART TEACHER — عرض الدرجات والحضور فقط</div>
+  </header>
+
+  <div class="panel" id="loginPanel">
+    <label for="portalCode">رمز بوابة المادة (من الأستاذ/ة)</label>
+    <input type="text" id="portalCode" placeholder="مثال: 8F3K9Q" style="text-transform:uppercase;letter-spacing:2px;">
+    <label for="matricule">رقم التسجيل (ماتريكول)</label>
+    <input type="text" id="matricule" placeholder="رقم التسجيل الرسمي">
+    <label for="dob">تاريخ الميلاد</label>
+    <input type="text" id="dob" placeholder="كما هو مسجَّل لدى المدرسة">
+    <button class="btn" id="loginBtn" onclick="studentLogin()">🔓 عرض درجاتي</button>
+    <div class="error-box" id="errorBox"></div>
+  </div>
+
+  <div id="resultView">
+    <div class="panel">
+      <div class="student-name" id="rStudentName"></div>
+      <div class="meta" id="rMeta"></div>
+      <div id="rGradesList"></div>
+      <div class="moy" id="rMoyenne"></div>
+    </div>
+    <div class="panel" id="attPanel" style="display:none;">
+      <div style="font-weight:800;font-size:14px;margin-bottom:10px;">الحضور (آخر 6 حصص مسجَّلة)</div>
+      <div class="att-grid" id="attGrid"></div>
+      <div style="font-size:11px;color:var(--muted);margin-top:10px;display:flex;gap:14px;justify-content:center;">
+        <span>🟢 حاضر</span><span>🔴 غائب</span><span>🟡 متأخر</span>
+      </div>
+    </div>
+    <button class="backBtn" onclick="resetPortal()">↩ خروج</button>
+  </div>
+
+  <footer>DONIA LABS TECH — حلول ذكية مبتكرة لأجلكم</footer>
+</div>
+
+<script>
+const API_BASE = 'https://donia-smart-teacher-v2.onrender.com';
+
+async function studentLogin(){
+  const portal_code = document.getElementById('portalCode').value.trim();
+  const matricule = document.getElementById('matricule').value.trim();
+  const dob = document.getElementById('dob').value.trim();
+  const errorBox = document.getElementById('errorBox');
+  const btn = document.getElementById('loginBtn');
+  errorBox.classList.remove('active');
+
+  if (!portal_code || !matricule || !dob){
+    errorBox.textContent = 'يرجى تعبئة كل الحقول';
+    errorBox.classList.add('active');
+    return;
+  }
+
+  btn.disabled = true; btn.textContent = '⏳ جارٍ التحقق...';
+  try{
+    const resp = await fetch(API_BASE + '/api/student/portal-login', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ portal_code, matricule, dob })
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error){
+      errorBox.textContent = data.error || 'حدث خطأ، حاول مجددًا';
+      errorBox.classList.add('active');
+      return;
+    }
+    renderResult(data);
+  } catch(e){
+    errorBox.textContent = 'تعذّر الاتصال بالخادم، تحقق من اتصالك بالإنترنت';
+    errorBox.classList.add('active');
+  } finally {
+    btn.disabled = false; btn.textContent = '🔓 عرض درجاتي';
+  }
+}
+
+function renderResult(data){
+  document.getElementById('loginPanel').style.display = 'none';
+  document.getElementById('resultView').style.display = 'block';
+
+  document.getElementById('rStudentName').textContent = data.student_name || '';
+  document.getElementById('rMeta').textContent = [data.classe, data.matiere].filter(Boolean).join(' — ');
+
+  const g = (data.grades && data.grades[0]) || {};
+  const listHtml = [
+    ['الأنشطة', g.activites],
+    ['الفرض', g.fardh],
+    ['الاختبار', g.ikhtibAr],
+  ].map(([label, val]) => `<div class="g-row"><span class="g-label">${label}</span><span class="g-val">${val != null ? val : '—'}</span></div>`).join('');
+  document.getElementById('rGradesList').innerHTML = listHtml + (g.obs ? `<div class="g-row"><span class="g-label">ملاحظة</span><span style="font-size:13px;color:var(--muted)">${escapeHtml(g.obs)}</span></div>` : '');
+  document.getElementById('rMoyenne').textContent = (g.moyenne != null ? g.moyenne : '—') + ' / 20';
+
+  const attPanel = document.getElementById('attPanel');
+  if (data.attendance){
+    attPanel.style.display = 'block';
+    const grid = document.getElementById('attGrid');
+    const sessions = ['s1','s2','s3','s4','s5','s6'];
+    grid.innerHTML = sessions.map((s, i) => {
+      const v = data.attendance[s] || '';
+      const cls = v === 'P' ? 'att-P' : v === 'A' ? 'att-A' : v === 'L' ? 'att-L' : 'att-none';
+      const label = v === 'P' ? '✓' : v === 'A' ? '✗' : v === 'L' ? '⟳' : (i+1);
+      return `<div class="att-cell ${cls}">${label}</div>`;
+    }).join('');
+  } else {
+    attPanel.style.display = 'none';
+  }
+}
+
+function resetPortal(){
+  document.getElementById('loginPanel').style.display = 'block';
+  document.getElementById('resultView').style.display = 'none';
+  document.getElementById('portalCode').value = '';
+  document.getElementById('matricule').value = '';
+  document.getElementById('dob').value = '';
+}
+
+function escapeHtml(str){
+  const div = document.createElement('div');
+  div.textContent = str == null ? '' : String(str);
+  return div.innerHTML;
+}
+</script>
+</body>
+</html>
