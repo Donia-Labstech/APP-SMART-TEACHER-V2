@@ -47,6 +47,12 @@
   .att-none{background:rgba(255,255,255,.03);color:var(--muted)}
   .backBtn{background:transparent;border:1px solid var(--line);color:var(--muted);width:100%;padding:11px;border-radius:9px;font-family:inherit;cursor:pointer;margin-top:14px}
   footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:20px}
+  .eq-item{margin-bottom:14px}
+  .eq-label{font-size:13px;color:var(--ink);margin-bottom:6px;display:block}
+  .eq-max{font-size:11px;color:var(--muted)}
+  textarea.eq-input{width:100%;background:rgba(0,0,0,.18);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:10px 12px;font-family:inherit;font-size:14px;min-height:60px;resize:vertical}
+  textarea.eq-input:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:transparent}
+  .closedNote{background:var(--danger-dim);border:1px solid rgba(240,120,90,.35);color:#ffcbbd;border-radius:11px;padding:12px 14px;font-size:13px;margin-bottom:12px}
 </style>
 </head>
 <body>
@@ -82,6 +88,14 @@
         <span>🟢 حاضر</span><span>🔴 غائب</span><span>🟡 متأخر</span>
       </div>
     </div>
+    <div class="panel" id="examPanel" style="display:none;">
+      <div style="font-weight:800;font-size:14px;margin-bottom:4px;">📝 اختبار عن بعد</div>
+      <div id="examDeadlineNote" style="font-size:12px;color:var(--muted);margin-bottom:14px;"></div>
+      <div id="examQuestionsList"></div>
+      <div class="error-box" id="examErrorBox"></div>
+      <button class="btn" id="examSubmitBtn" onclick="submitExam()" style="margin-top:10px;">📤 إرسال إجابتي</button>
+      <div id="examSubmitStatus" style="font-size:12px;color:var(--ok);margin-top:8px;text-align:center;display:none;"></div>
+    </div>
     <button class="backBtn" onclick="resetPortal()">↩ خروج</button>
   </div>
 
@@ -90,6 +104,7 @@
 
 <script>
 const API_BASE = 'https://donia-smart-teacher-v2.onrender.com';
+let currentPortalCode = '', currentMatricule = '', currentDob = '';
 
 async function studentLogin(){
   const portal_code = document.getElementById('portalCode').value.trim();
@@ -119,6 +134,8 @@ async function studentLogin(){
       return;
     }
     renderResult(data);
+    currentPortalCode = portal_code; currentMatricule = matricule; currentDob = dob;
+    fetchExam();
   } catch(e){
     errorBox.textContent = 'تعذّر الاتصال بالخادم، تحقق من اتصالك بالإنترنت';
     errorBox.classList.add('active');
@@ -159,12 +176,81 @@ function renderResult(data){
   }
 }
 
+async function fetchExam(){
+  const panel = document.getElementById('examPanel');
+  try{
+    const resp = await fetch(API_BASE + '/api/student/exam?portal_code=' + encodeURIComponent(currentPortalCode));
+    if (resp.status === 404){ panel.style.display = 'none'; return; }
+    const data = await resp.json();
+    if (!resp.ok || data.error){ panel.style.display = 'none'; return; }
+    renderExam(data);
+  } catch(e){ panel.style.display = 'none'; }
+}
+
+function renderExam(exam){
+  const panel = document.getElementById('examPanel');
+  panel.style.display = 'block';
+  panel.dataset.examClosed = exam.closed ? '1' : '0';
+
+  const deadlineNote = document.getElementById('examDeadlineNote');
+  const dl = new Date(exam.deadline);
+  deadlineNote.textContent = 'آخر أجل للإرسال: ' + dl.toLocaleString('ar-DZ');
+
+  const list = document.getElementById('examQuestionsList');
+  const closedHtml = exam.closed ? '<div class="closedNote">⛔ انتهى الموعد النهائي — لم يعد الإرسال ممكنًا</div>' : '';
+  list.innerHTML = closedHtml + exam.questions.map(q => `
+    <div class="eq-item" data-qid="${q.id}">
+      <label class="eq-label">${escapeHtml(q.text)} <span class="eq-max">(${q.max_score} نقطة)</span></label>
+      <textarea class="eq-input" ${exam.closed ? 'disabled' : ''} placeholder="اكتبي إجابتك هنا"></textarea>
+    </div>
+  `).join('');
+
+  document.getElementById('examSubmitBtn').style.display = exam.closed ? 'none' : 'block';
+}
+
+async function submitExam(){
+  const errBox = document.getElementById('examErrorBox');
+  const statusEl = document.getElementById('examSubmitStatus');
+  const btn = document.getElementById('examSubmitBtn');
+  errBox.classList.remove('active');
+  statusEl.style.display = 'none';
+
+  const answers = {};
+  document.querySelectorAll('#examQuestionsList .eq-item').forEach(item => {
+    answers[item.dataset.qid] = item.querySelector('.eq-input').value.trim();
+  });
+
+  btn.disabled = true; btn.textContent = '⏳ جارٍ الإرسال...';
+  try{
+    const resp = await fetch(API_BASE + '/api/student/exam/submit', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({ portal_code: currentPortalCode, matricule: currentMatricule, dob: currentDob, answers })
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error){
+      errBox.textContent = data.error || 'تعذّر إرسال الإجابة';
+      errBox.classList.add('active');
+      return;
+    }
+    statusEl.textContent = '✅ تم إرسال إجابتك بنجاح — تقدرين تعدّليها وترسليها من جديد قبل الموعد النهائي';
+    statusEl.style.display = 'block';
+  } catch(e){
+    errBox.textContent = 'تعذّر الاتصال بالخادم';
+    errBox.classList.add('active');
+  } finally {
+    btn.disabled = false; btn.textContent = '📤 إرسال إجابتي';
+  }
+}
+
 function resetPortal(){
   document.getElementById('loginPanel').style.display = 'block';
   document.getElementById('resultView').style.display = 'none';
+  document.getElementById('examPanel').style.display = 'none';
   document.getElementById('portalCode').value = '';
   document.getElementById('matricule').value = '';
   document.getElementById('dob').value = '';
+  currentPortalCode = ''; currentMatricule = ''; currentDob = '';
 }
 
 function escapeHtml(str){
