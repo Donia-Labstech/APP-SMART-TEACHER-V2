@@ -541,7 +541,7 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
       <button class="nav-item" onclick="showPage('ai', this)">
         <span class="nav-icon">🤖</span> المساعد الذكي AI
       </button>
-      <button class="nav-item" onclick="showPage('grading', this); if(typeof refreshFojDropdown==='function') refreshFojDropdown();">
+      <button class="nav-item" onclick="showPage('grading', this); if(typeof refreshFojDropdown==='function') refreshFojDropdown(); if(typeof loadPortalCodesIntoExamSelect==='function') loadPortalCodesIntoExamSelect();">
         <span class="nav-icon">📚</span> تصحيح الفوج الجماعي
         <span style="background:var(--green-dim);color:var(--green);font-size:0.6rem;font-weight:800;padding:2px 7px;border-radius:20px;margin-right:4px;">🆕</span>
       </button>
@@ -1025,6 +1025,28 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
             </select>
             <button type="button" class="btn btn-blue" onclick="loadFojIntoGrading()">📥 تحميل طلاب هذا الفوج</button>
           </div>
+        </div>
+
+        <div class="card" style="margin-bottom:20px;border-color:rgba(0,180,255,0.35);background:linear-gradient(160deg,rgba(0,180,255,0.06),transparent);">
+          <div class="card-title"><span class="card-title-icon">📡</span> اختبار عن بعد <span style="background:var(--blue-dim);color:var(--blue);font-size:0.65rem;font-weight:800;padding:3px 10px;border-radius:20px;margin-right:6px;">🆕 جديد</span></div>
+          <div style="font-size:0.8rem;color:var(--text3);margin-bottom:14px;">انشري الأسئلة المكتوبة أعلاه كاختبار عن بعد لرمز بوابة مادة، يجاوب عليه الطلاب من بيوتهم، ثم استوردي كل إجاباتهم دفعة واحدة هنا.</div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;align-items:flex-end;margin-bottom:12px;">
+            <div style="flex:1;min-width:180px;">
+              <label class="field-label">رمز بوابة المادة</label>
+              <select class="field-input" id="exam-portal-select" onclick="loadPortalCodesIntoExamSelect()">
+                <option value="">— اختاري رمز البوابة —</option>
+              </select>
+            </div>
+            <div style="flex:1;min-width:180px;">
+              <label class="field-label">الموعد النهائي للإرسال</label>
+              <input type="datetime-local" class="field-input" id="exam-deadline">
+            </div>
+          </div>
+          <div style="display:flex;gap:10px;flex-wrap:wrap;">
+            <button type="button" class="btn btn-orange" onclick="publishRemoteExam()">📢 نشر الأسئلة كاختبار عن بعد</button>
+            <button type="button" class="btn btn-blue" onclick="importExamSubmissions()">📥 استيراد إجابات الطلاب المُرسَلة</button>
+          </div>
+          <div id="exam-status" style="font-size:0.8rem;color:var(--text3);margin-top:10px;"></div>
         </div>
 
         <div class="card" style="margin-bottom:20px;">
@@ -2985,6 +3007,94 @@ async function loadPortalCodesList() {
     `).join('');
   } catch (err) {
     listEl.innerHTML = '<div style="font-size:0.8rem;color:var(--danger);">تعذّر تحميل قائمة الرموز</div>';
+  }
+}
+
+// اختبار عن بعد (إضافة جديدة) — ينشر أسئلة صفحة التصحيح الحالية كاختبار
+// يجاوب عليه الطلاب من بوابتهم، ثم يستورد إجاباتهم للتصحيح الجماعي.
+async function loadPortalCodesIntoExamSelect() {
+  const sel = document.getElementById('exam-portal-select');
+  if (!sel || !isLicenseValid()) return;
+  try {
+    const resp = await fetch(backendUrl + '/api/teacher/portal-codes', {
+      headers: { 'Authorization': 'Bearer ' + licenseToken }
+    });
+    const data = await resp.json();
+    if (!resp.ok || !data.codes) return;
+    const currentVal = sel.value;
+    sel.innerHTML = '<option value="">— اختاري رمز البوابة —</option>' +
+      data.codes.map(c => `<option value="${c.code}">${escapeHtmlText(c.subject_label)} — ${c.code}</option>`).join('');
+    if (currentVal) sel.value = currentVal;
+  } catch (e) { /* صامت — القائمة تبقى كما هي */ }
+}
+
+async function publishRemoteExam() {
+  const statusEl = document.getElementById('exam-status');
+  if (!isLicenseValid()) { showNotif('⚠️ يرجى تسجيل الدخول أولاً', 'warn'); return; }
+  const portalCode = document.getElementById('exam-portal-select').value;
+  const deadlineLocal = document.getElementById('exam-deadline').value;
+  const questions = getGradingQuestions();
+
+  if (!portalCode) { showNotif('⚠️ اختاري رمز بوابة المادة أولاً', 'warn'); return; }
+  if (!deadlineLocal) { showNotif('⚠️ حددي الموعد النهائي للإرسال', 'warn'); return; }
+  if (!questions.length || questions.some(q => !q.text)) { showNotif('⚠️ أكملي نص كل سؤال أولاً بقسم "المادة والأسئلة" أعلاه', 'warn'); return; }
+
+  statusEl.textContent = '⏳ جارٍ النشر...';
+  try {
+    const resp = await fetch(backendUrl + '/api/teacher/exam/publish', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + licenseToken },
+      body: JSON.stringify({ portal_code: portalCode, questions, deadline: new Date(deadlineLocal).toISOString() })
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.error || 'خطأ خادم');
+    statusEl.textContent = '✅ تم نشر الاختبار — الطلاب يقدرون يرسلون إجاباتهم الآن عبر بوابتهم';
+    showNotif('✅ تم نشر الاختبار عن بعد بنجاح');
+  } catch (err) {
+    statusEl.textContent = '';
+    showNotif('❌ ' + (err.message || 'تعذّر نشر الاختبار'), 'error');
+  }
+}
+
+async function importExamSubmissions() {
+  const statusEl = document.getElementById('exam-status');
+  if (!isLicenseValid()) { showNotif('⚠️ يرجى تسجيل الدخول أولاً', 'warn'); return; }
+  const portalCode = document.getElementById('exam-portal-select').value;
+  if (!portalCode) { showNotif('⚠️ اختاري رمز بوابة المادة أولاً', 'warn'); return; }
+
+  statusEl.textContent = '⏳ جارٍ استيراد الإجابات...';
+  try {
+    const resp = await fetch(backendUrl + '/api/teacher/exam/submissions?portal_code=' + encodeURIComponent(portalCode), {
+      headers: { 'Authorization': 'Bearer ' + licenseToken }
+    });
+    const data = await resp.json();
+    if (!resp.ok || data.error) throw new Error(data.error || 'خطأ خادم');
+    if (!data.submissions || !data.submissions.length) {
+      statusEl.textContent = '⚠️ لا توجد إجابات مُرسَلة بعد من الطلاب';
+      return;
+    }
+
+    // نمسح الطلاب الحاليين بصفحة التصحيح ونعبّيها بإجابات الاختبار المستوردة
+    document.getElementById('grading-students-container').innerHTML = '';
+    gradingStudentCount = 0;
+    data.submissions.forEach(sub => {
+      addGradingStudent();
+      const lastCard = document.querySelector('#grading-students-container [data-sid]:last-child');
+      if (!lastCard) return;
+      lastCard.querySelector('.gs-name').value = sub.student_name;
+      lastCard.querySelectorAll('.gs-answers [data-qid]').forEach(item => {
+        const qid = item.dataset.qid;
+        if (sub.answers && sub.answers[qid] != null) {
+          item.querySelector('.gs-answer-text').value = sub.answers[qid];
+        }
+      });
+    });
+    statusEl.textContent = '✅ تم استيراد ' + data.submissions.length + ' إجابة — جاهزة للتصحيح بالأسفل';
+    showNotif('✅ تم استيراد إجابات ' + data.submissions.length + ' طالب');
+    updateGradingSubmitState();
+  } catch (err) {
+    statusEl.textContent = '';
+    showNotif('❌ ' + (err.message || 'تعذّر استيراد الإجابات'), 'error');
   }
 }
 
