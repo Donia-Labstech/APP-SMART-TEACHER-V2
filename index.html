@@ -921,7 +921,15 @@ body { font-family: 'Cairo', 'Tajawal', 'Segoe UI Emoji', 'Noto Color Emoji', 'A
               <button class="btn btn-blue shape-tool" data-mode="circle" onclick="setDrawMode('circle',this)">⭕ دائرة</button>
               <button class="btn btn-blue shape-tool" data-mode="triangle" onclick="setDrawMode('triangle',this)">🔺 مثلث</button>
               <button class="btn btn-blue shape-tool" data-mode="rect" onclick="setDrawMode('rect',this)">▭ مستطيل</button>
-              <div style="font-size:0.72rem;color:var(--text3);align-self:center;">للدائرة: اسحبي من المركز للخارج — للمثلث/المستطيل: اسحبي قطريًا</div>
+              <button class="btn btn-blue shape-tool" data-mode="text" onclick="setDrawMode('text',this)">🔤 نص</button>
+              <div style="font-size:0.72rem;color:var(--text3);align-self:center;">للدائرة: اسحبي من المركز للخارج — للمثلث/المستطيل: اسحبي قطريًا — للنص: دوسي بمكان الكتابة</div>
+            </div>
+            <div class="draw-toolbar" style="margin-top:8px;">
+              <button class="btn btn-solid" onclick="undoDraw()" id="draw-undo-btn" disabled>↩️ تراجع</button>
+              <button class="btn btn-solid" onclick="redoDraw()" id="draw-redo-btn" disabled>↪️ إعادة</button>
+              <label class="btn btn-solid" style="cursor:pointer;margin:0;">🖼️ إدراج صورة<input type="file" accept="image/*" onchange="insertDrawImage(event)" style="display:none;"></label>
+              <button class="btn btn-green" onclick="cloudSaveWhiteboard()" style="margin-right:auto;">☁️ حفظ سحابي</button>
+              <button class="btn btn-blue" onclick="cloudLoadWhiteboard()">📂 تحميل من السحابة</button>
             </div>
             <canvas id="draw-canvas" class="sig-canvas" width="600" height="340" style="height:340px;background:#1a1a2e;border-radius:var(--radius-sm);"></canvas>
           </div>
@@ -4086,8 +4094,106 @@ function removeRagDoc(idx) {
 // ============================================================
 let drawCtx = null, drawIsDrawing = false, drawLastX = 0, drawLastY = 0;
 let drawColor = '#00b4ff';
-let drawMode = 'free'; // free | line | circle | triangle | rect
+let drawMode = 'free'; // free | line | circle | triangle | rect | text
 let drawStartX = 0, drawStartY = 0, drawSnapshot = null;
+
+// سجل التراجع/الإعادة (إضافة جديدة) — لقطة كاملة من اللوحة بعد كل عملية مكتملة
+let drawHistory = [], drawHistoryIndex = -1;
+const DRAW_HISTORY_LIMIT = 30;
+
+function pushDrawHistory() {
+  const c = document.getElementById('draw-canvas');
+  if (!c || !drawCtx) return;
+  // نقص أي "إعادة" معلّقة إذا رسمنا شيئًا جديدًا بعد تراجع سابق
+  drawHistory = drawHistory.slice(0, drawHistoryIndex + 1);
+  drawHistory.push(c.toDataURL());
+  if (drawHistory.length > DRAW_HISTORY_LIMIT) drawHistory.shift();
+  drawHistoryIndex = drawHistory.length - 1;
+  updateDrawHistoryButtons();
+}
+
+function updateDrawHistoryButtons() {
+  const undoBtn = document.getElementById('draw-undo-btn');
+  const redoBtn = document.getElementById('draw-redo-btn');
+  if (undoBtn) undoBtn.disabled = drawHistoryIndex <= 0;
+  if (redoBtn) redoBtn.disabled = drawHistoryIndex >= drawHistory.length - 1;
+}
+
+function restoreDrawHistory(index) {
+  const c = document.getElementById('draw-canvas');
+  if (!c || !drawCtx || !drawHistory[index]) return;
+  const img = new Image();
+  img.onload = () => { drawCtx.clearRect(0, 0, c.width, c.height); drawCtx.drawImage(img, 0, 0); };
+  img.src = drawHistory[index];
+}
+
+function undoDraw() {
+  if (drawHistoryIndex <= 0) return;
+  drawHistoryIndex--;
+  restoreDrawHistory(drawHistoryIndex);
+  updateDrawHistoryButtons();
+}
+
+function redoDraw() {
+  if (drawHistoryIndex >= drawHistory.length - 1) return;
+  drawHistoryIndex++;
+  restoreDrawHistory(drawHistoryIndex);
+  updateDrawHistoryButtons();
+}
+
+// إدراج نص باللوحة (إضافة جديدة)
+function insertDrawText(x, y) {
+  const text = prompt('اكتبي النص المراد إضافته:');
+  if (!text) return;
+  drawCtx.font = (parseInt(document.getElementById('draw-size')?.value || 20) * 2.5) + 'px Tajawal, Arial';
+  drawCtx.fillStyle = drawColor;
+  drawCtx.textBaseline = 'middle';
+  drawCtx.fillText(text, x, y);
+  pushDrawHistory();
+}
+
+// إدراج صورة باللوحة (إضافة جديدة)
+function insertDrawImage(event) {
+  const file = event.target.files && event.target.files[0];
+  if (!file || !drawCtx) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    const img = new Image();
+    img.onload = () => {
+      const c = document.getElementById('draw-canvas');
+      const maxW = c.width * 0.6;
+      const scale = Math.min(1, maxW / img.width);
+      const w = img.width * scale, h = img.height * scale;
+      const x = (c.width - w) / 2, y = (c.height - h) / 2;
+      drawCtx.drawImage(img, x, y, w, h);
+      pushDrawHistory();
+      showNotif('🖼️ تم إدراج الصورة — تقدرين ترسمي فوقها الآن');
+    };
+    img.src = e.target.result;
+  };
+  reader.readAsDataURL(file);
+  event.target.value = ''; // يسمح باختيار نفس الملف مرة ثانية لاحقًا
+}
+
+// حفظ/تحميل اللوحة سحابيًا (إضافة جديدة) — تستخدم نفس دوال cloudSaveKey/cloudLoadKey
+// المستخدمة أصلاً للدرجات والحضور، بدون أي تعديل على الخادم.
+async function cloudSaveWhiteboard() {
+  const c = document.getElementById('draw-canvas');
+  if (!c) return;
+  if (!isLicenseValid()) { showNotif('⚠️ يرجى تسجيل الدخول أولاً', 'warn'); return; }
+  const ok = await cloudSaveKey('whiteboard_v1', c.toDataURL());
+  showNotif(ok ? '☁️ تم حفظ اللوحة سحابيًا' : '❌ تعذّر الحفظ السحابي', ok ? 'success' : 'error');
+}
+
+async function cloudLoadWhiteboard() {
+  if (!isLicenseValid()) { showNotif('⚠️ يرجى تسجيل الدخول أولاً', 'warn'); return; }
+  const dataUrl = await cloudLoadKey('whiteboard_v1');
+  if (!dataUrl) { showNotif('⚠️ لا توجد لوحة محفوظة سحابيًا بعد', 'warn'); return; }
+  const c = document.getElementById('draw-canvas');
+  const img = new Image();
+  img.onload = () => { drawCtx.clearRect(0, 0, c.width, c.height); drawCtx.drawImage(img, 0, 0); pushDrawHistory(); showNotif('📂 تم تحميل آخر لوحة محفوظة'); };
+  img.src = dataUrl;
+}
 
 function setDrawMode(mode, el) {
   drawMode = mode;
@@ -4127,8 +4233,9 @@ function initDrawCanvas() {
   const getPos = e => ({ x: e.offsetX, y: e.offsetY });
 
   c.addEventListener('mousedown', e => {
-    drawIsDrawing = true;
     const { x, y } = getPos(e);
+    if (drawMode === 'text') { insertDrawText(x, y); return; }
+    drawIsDrawing = true;
     [drawLastX, drawLastY] = [x, y];
     [drawStartX, drawStartY] = [x, y];
     if (drawMode !== 'free') drawSnapshot = drawCtx.getImageData(0, 0, c.width, c.height);
@@ -4144,13 +4251,15 @@ function initDrawCanvas() {
       drawShapePreview(x, y);
     }
   });
-  c.addEventListener('mouseup', () => { drawIsDrawing = false; drawSnapshot = null; });
-  c.addEventListener('mouseleave', () => { drawIsDrawing = false; drawSnapshot = null; });
+  c.addEventListener('mouseup', () => { if (drawIsDrawing) pushDrawHistory(); drawIsDrawing = false; drawSnapshot = null; });
+  c.addEventListener('mouseleave', () => { if (drawIsDrawing) pushDrawHistory(); drawIsDrawing = false; drawSnapshot = null; });
 
   // Touch support (رسم حر فقط باللمس؛ الأشكال أدق بالفأرة)
   c.addEventListener('touchstart', e => { e.preventDefault(); const t = e.touches[0]; const r = c.getBoundingClientRect(); drawIsDrawing = true; [drawLastX, drawLastY] = [t.clientX - r.left, t.clientY - r.top]; });
   c.addEventListener('touchmove', e => { e.preventDefault(); if (!drawIsDrawing) return; const t = e.touches[0]; const r = c.getBoundingClientRect(); drawCtx.beginPath(); drawCtx.moveTo(drawLastX, drawLastY); drawCtx.lineTo(t.clientX - r.left, t.clientY - r.top); drawCtx.stroke(); [drawLastX, drawLastY] = [t.clientX - r.left, t.clientY - r.top]; });
-  c.addEventListener('touchend', () => drawIsDrawing = false);
+  c.addEventListener('touchend', () => { if (drawIsDrawing) pushDrawHistory(); drawIsDrawing = false; });
+
+  pushDrawHistory(); // لقطة أولى فارغة حتى يعمل التراجع من أول ضغطة
 }
 
 // رسم دالة رياضية f(x) على محاور حقيقية — مفيد لمعلمي الرياضيات (منحنيات، أسهم، إلخ)
@@ -4230,7 +4339,7 @@ function setDrawColor(color, el) {
 
 function clearDrawCanvas() {
   const c = document.getElementById('draw-canvas');
-  if (c && drawCtx) { drawCtx.clearRect(0, 0, c.width, c.height); }
+  if (c && drawCtx) { drawCtx.clearRect(0, 0, c.width, c.height); pushDrawHistory(); }
 }
 
 function downloadDrawing() {
