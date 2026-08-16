@@ -45,8 +45,10 @@ tr:last-child td{border-bottom:none;}
 .badge{display:inline-block;padding:3px 10px;border-radius:20px;font-size:0.7rem;font-weight:800;}
 .badge.active{background:var(--mint-dim);color:var(--mint);}
 .badge.expired{background:var(--amber-dim);color:var(--amber);}
+.badge.disabled{background:rgba(255,71,87,0.12);color:#ff4757;}
 .wa-btn{background:var(--mint);color:#04160d;padding:6px 14px;border-radius:20px;text-decoration:none;font-size:0.78rem;font-weight:800;white-space:nowrap;}
 .empty{text-align:center;color:var(--slate);padding:30px;}
+.data-warning{background:rgba(255,149,0,0.1);border:1px solid rgba(255,149,0,0.35);border-radius:12px;padding:14px 16px;margin-bottom:20px;font-size:0.8rem;color:var(--amber);display:none;line-height:1.9;}
 </style>
 </head>
 <body>
@@ -69,6 +71,8 @@ tr:last-child td{border-bottom:none;}
     <div class="stat-card rate"><div class="num" id="stat-rate">—</div><div class="label">معدل التحويل</div></div>
     <div class="stat-card"><div class="num" id="stat-active">—</div><div class="label">تجارب سارية الآن</div></div>
   </div>
+
+  <div class="data-warning" id="data-warning"></div>
 
   <div class="refresh-row">
     <button class="refresh-btn" onclick="fetchStats()">🔄 تحديث الآن</button>
@@ -122,18 +126,28 @@ async function fetchStats() {
     document.getElementById('stat-active').textContent = data.active_trials;
     document.getElementById('last-updated').textContent = 'آخر تحديث: ' + new Date().toLocaleTimeString('ar-DZ');
 
+    const warnEl = document.getElementById('data-warning');
+    if (data.data_issues && data.data_issues.length > 0) {
+      warnEl.style.display = 'block';
+      warnEl.innerHTML = '⚠️ تنبيه: يوجد ' + data.data_issues.length + ' ترخيص باسم "TRIAL" لكن حقل is_trial غير مضبوط بشكل صحيح في قاعدة البيانات (على الأغلب أُدخل يدويًا)، وهذا يُفسد دقة الأرقام أعلاه: <br><span style="font-family:monospace;">' + data.data_issues.join('، ') + '</span><br>يُرجى تصحيح حقل is_trial لهذه الأكواد يدويًا في Supabase.';
+    } else {
+      warnEl.style.display = 'none';
+    }
+
     const tbody = document.getElementById('trial-table-body');
     tbody.innerHTML = '';
     if (!data.trial_list || data.trial_list.length === 0) {
       document.getElementById('empty-msg').style.display = 'block';
     } else {
       document.getElementById('empty-msg').style.display = 'none';
+      const statusLabels = { active: 'سارية', expired: 'انتهت', disabled: 'معطّلة' };
       data.trial_list.forEach(t => {
         const tr = document.createElement('tr');
         const waPhone = normalizePhoneForWhatsApp(t.phone);
+        const status = t.status || (t.is_expired ? 'expired' : 'active');
         tr.innerHTML = `
           <td>${t.name}</td>
-          <td><span class="badge ${t.is_expired ? 'expired' : 'active'}">${t.is_expired ? 'انتهت' : 'سارية'}</span></td>
+          <td><span class="badge ${status}">${statusLabels[status] || status}</span></td>
           <td>${formatDate(t.expires_at)}</td>
           <td>${waPhone ? `<a class="wa-btn" href="https://wa.me/${waPhone}" target="_blank">💬 واتساب</a>` : '—'}</td>
         `;
