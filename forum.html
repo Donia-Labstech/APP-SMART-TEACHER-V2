@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>منتدى الأستاذ الذكي | DONIA SMART TEACHER</title>
+<meta name="description" content="بوابة مجانية للأساتذة: شاركي أفكارك وتحدياتك اليومية، واحصلي على رد فوري من مساعد ذكي.">
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;900&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#eef2f4; --bg-deep:#0a1f2b; --bg-panel:#0f2a3a; --bg-panel-2:#123448;
+    --line:rgba(238,242,244,0.10);
+    --teal:#2dd4bf; --teal-dim:rgba(45,212,191,0.14);
+    --gold:#e8b64c; --gold-dim:rgba(232,182,76,0.14);
+    --muted:#9fb3bd;
+    --danger:#f0785a; --danger-dim:rgba(240,120,90,0.14);
+    --ok:#63d29a; --ok-dim:rgba(99,210,154,0.14);
+    --radius:14px;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:radial-gradient(1200px 600px at 85% -10%, rgba(45,212,191,0.10), transparent 60%),var(--bg-deep);color:var(--ink);font-family:'Tajawal',sans-serif;min-height:100vh;line-height:1.6;}
+  .wrap{max-width:560px;margin:0 auto;padding:32px 20px 60px}
+  header{text-align:center;margin-bottom:22px}
+  .mark{width:52px;height:52px;border-radius:14px;background:linear-gradient(135deg,var(--teal),#1b8f82);display:flex;align-items:center;justify-content:center;font-weight:900;color:#04211d;font-size:22px;margin:0 auto 12px}
+  h1{font-size:21px;font-weight:900;margin:0 0 4px}
+  .sub{color:var(--muted);font-size:13px}
+  .panel{background:linear-gradient(180deg,var(--bg-panel),var(--bg-panel-2));border:1px solid var(--line);border-radius:var(--radius);padding:20px;margin-bottom:16px}
+  label{display:block;font-size:12.5px;color:var(--muted);margin-bottom:6px;font-weight:500}
+  input,textarea{width:100%;background:rgba(0,0,0,.18);border:1px solid var(--line);color:var(--ink);border-radius:9px;padding:11px 12px;font-family:inherit;font-size:14px;margin-bottom:12px}
+  textarea{min-height:90px;resize:vertical}
+  input:focus,textarea:focus{outline:2px solid var(--teal);outline-offset:1px;border-color:transparent}
+  .btn{width:100%;appearance:none;border:none;cursor:pointer;font-family:inherit;font-weight:700;font-size:14.5px;padding:13px;border-radius:9px;background:var(--teal);color:#04211d}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  .btn-ghost{background:transparent;border:1px solid var(--line);color:var(--muted)}
+  .error-box{background:var(--danger-dim);border:1px solid rgba(240,120,90,.35);color:#ffcbbd;border-radius:11px;padding:12px 14px;font-size:13.5px;margin-top:6px;display:none}
+  .error-box.active{display:block}
+  .ok-box{background:var(--ok-dim);border:1px solid rgba(99,210,154,.35);color:#c9f3dd;border-radius:11px;padding:12px 14px;font-size:13.5px;margin-top:6px;display:none}
+  .ok-box.active{display:block}
+  .check-row{display:flex;align-items:center;gap:8px;margin-bottom:12px;font-size:13px;color:var(--muted)}
+  .check-row input{width:auto;margin:0}
+  #composePanel,#wallSection{display:none}
+  .me-badge{display:inline-flex;align-items:center;gap:8px;background:var(--teal-dim);color:var(--teal);border-radius:99px;padding:6px 14px;font-size:12.5px;font-weight:700;margin-bottom:14px}
+  .post{background:rgba(0,0,0,.16);border:1px solid var(--line);border-radius:11px;padding:14px 16px;margin-bottom:12px}
+  .post-head{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}
+  .post-author{font-weight:800;font-size:13.5px;color:var(--gold)}
+  .post-date{font-size:11px;color:var(--muted)}
+  .post-content{font-size:14px;color:var(--ink);white-space:pre-wrap}
+  .post-wa{font-size:11.5px;color:var(--muted);margin-top:4px}
+  .ai-reply{margin-top:10px;background:var(--teal-dim);border-radius:9px;padding:10px 12px;font-size:13px;color:#d6f7f1;border-inline-start:3px solid var(--teal)}
+  .ai-reply b{color:var(--teal)}
+  .section-title{font-size:14px;font-weight:800;color:var(--ink);margin:0 0 12px;display:flex;align-items:center;gap:8px}
+  .cta{background:linear-gradient(135deg,var(--gold-dim),transparent);border:1px solid rgba(232,182,76,.35);border-radius:var(--radius);padding:18px;text-align:center;margin-top:22px}
+  .cta a{display:inline-block;margin-top:10px;background:var(--gold);color:#241a04;font-weight:800;padding:11px 22px;border-radius:9px;text-decoration:none;font-size:13.5px}
+  footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:24px}
+  .empty{text-align:center;color:var(--muted);font-size:13px;padding:20px}
+  .char-count{font-size:11px;color:var(--muted);text-align:left;margin-top:-8px;margin-bottom:12px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="mark">DS</div>
+    <h1>منتدى الأستاذ الذكي</h1>
+    <div class="sub">شاركي فكرتك أو تحدّيك اليومي — بوابة مجانية 100% للأساتذة</div>
+  </header>
+
+  <!-- تسجيل / دخول خفيف: اسم + واتساب فقط، بدون كلمة سر -->
+  <div class="panel" id="registerPanel">
+    <div class="section-title">👋 انضمّي إلينا</div>
+    <label for="regName">اسمك</label>
+    <input type="text" id="regName" placeholder="مثال: أستاذة سارة">
+    <label for="regWa">رقم الواتساب</label>
+    <input type="text" id="regWa" placeholder="0555 XX XX XX" dir="ltr" style="text-align:right">
+    <div class="sub" style="margin-bottom:12px">نستخدمه فقط لتسجيل الدخول لاحقًا بنفس الرقم — لا حاجة لكلمة سر، ولن يظهر علنًا إلا إذا اخترتِ ذلك مع كل فكرة.</div>
+    <button class="btn" id="registerBtn" onclick="registerTeacher()">🔓 دخول / تسجيل</button>
+    <div class="error-box" id="regError"></div>
+  </div>
+
+  <!-- نشر فكرة -->
+  <div class="panel" id="composePanel">
+    <div class="me-badge">✅ <span id="meName"></span></div>
+    <div class="section-title">💡 شاركي فكرتك أو تحدّيك</div>
+    <textarea id="ideaText" maxlength="2000" placeholder="مثال: كل أسبوع نضيّع وقت طويل في تصحيح فروض 40 تلميذ... كيفاش نحلّوها؟"></textarea>
+    <div class="char-count"><span id="charCount">0</span>/2000</div>
+    <div class="check-row"><input type="checkbox" id="showName"> <label for="showName" style="margin:0">أظهري اسمي علنًا مع هذه الفكرة</label></div>
+    <div class="check-row"><input type="checkbox" id="showWa"> <label for="showWa" style="margin:0">أظهري رقم واتسابي علنًا مع هذه الفكرة</label></div>
+    <button class="btn" id="postBtn" onclick="postIdea()">📤 نشر الفكرة</button>
+    <div class="error-box" id="postError"></div>
+    <div class="ok-box" id="postOk"></div>
+  </div>
+
+  <!-- الحائط العام -->
+  <div id="wallSection">
+    <div class="section-title">🗂️ آخر الأفكار المشتركة</div>
+    <div id="wallList"></div>
+  </div>
+
+  <div class="cta">
+    <div style="font-weight:800;font-size:14.5px;margin-bottom:6px">تعبتِ من تضييع الوقت في التحضير والتصحيح؟ 🌿</div>
+    <div class="sub">جرّبي DONIA SMART TEACHER مجانًا — مساعد ذكي، تصحيح آلي، ودفتر درجات في مكان واحد.</div>
+    <a href="https://smart-teacher.donialabstech.online" target="_blank">جرّبي التطبيق مجانًا ←</a>
+  </div>
+
+  <footer>DONIA LABS TECH — حلول ذكية مبتكرة لأجلكم</footer>
+</div>
+
+<script>
+const API_BASE = 'https://donia-smart-teacher-v2.onrender.com';
+let me = null; // { teacher_id, name, whatsapp }
+
+// نحاول استرجاع الحساب من هذا المتصفح فقط (راحة، وليس مصدر الحقيقة — الخادم دائمًا يتحقق)
+try {
+  const saved = localStorage.getItem('donia_forum_me');
+  if (saved) me = JSON.parse(saved);
+} catch (e) {}
+
+function showRegError(msg) {
+  const box = document.getElementById('regError');
+  box.textContent = msg; box.classList.add('active');
+}
+function showPostError(msg) {
+  const box = document.getElementById('postError');
+  box.textContent = msg; box.classList.add('active');
+  document.getElementById('postOk').classList.remove('active');
+}
+function showPostOk(msg) {
+  const box = document.getElementById('postOk');
+  box.textContent = msg; box.classList.add('active');
+  document.getElementById('postError').classList.remove('active');
+}
+
+async function registerTeacher() {
+  const name = document.getElementById('regName').value.trim();
+  const whatsapp = document.getElementById('regWa').value.trim();
+  document.getElementById('regError').classList.remove('active');
+
+  if (!name || name.length < 2) return showRegError('يرجى إدخال اسمك');
+  if (!whatsapp || whatsapp.length < 8) return showRegError('يرجى إدخال رقم واتساب صحيح');
+
+  const btn = document.getElementById('registerBtn');
+  btn.disabled = true; btn.textContent = '...جارٍ الدخول';
+
+  try {
+    const res = await fetch(API_BASE + '/api/forum/register', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, whatsapp })
+    });
+    const data = await res.json();
+    if (!res.ok) { showRegError(data.error || 'حدث خطأ، حاولي مجددًا'); btn.disabled = false; btn.textContent = '🔓 دخول / تسجيل'; return; }
+
+    me = { teacher_id: data.teacher_id, name: data.name, whatsapp: data.whatsapp };
+    try { localStorage.setItem('donia_forum_me', JSON.stringify(me)); } catch (e) {}
+    enterComposeMode();
+  } catch (e) {
+    showRegError('تعذّر الاتصال بالخادم، تأكدي من الإنترنت وحاولي مجددًا');
+    btn.disabled = false; btn.textContent = '🔓 دخول / تسجيل';
+  }
+}
+
+function enterComposeMode() {
+  document.getElementById('registerPanel').style.display = 'none';
+  document.getElementById('composePanel').style.display = 'block';
+  document.getElementById('meName').textContent = me.name;
+}
+
+async function postIdea() {
+  const content = document.getElementById('ideaText').value.trim();
+  const showName = document.getElementById('showName').checked;
+  const showWa = document.getElementById('showWa').checked;
+  document.getElementById('postError').classList.remove('active');
+  document.getElementById('postOk').classList.remove('active');
+
+  if (!content || content.length < 5) return showPostError('يرجى كتابة فكرة أوضح قليلًا');
+
+  const btn = document.getElementById('postBtn');
+  btn.disabled = true; btn.textContent = '...جارٍ النشر';
+
+  try {
+    const res = await fetch(API_BASE + '/api/forum/post', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ teacher_id: me.teacher_id, content, show_name: showName, show_whatsapp: showWa })
+    });
+    const data = await res.json();
+    btn.disabled = false; btn.textContent = '📤 نشر الفكرة';
+    if (!res.ok) return showPostError(data.error || 'حدث خطأ، حاولي مجددًا');
+
+    showPostOk('✅ تم نشر فكرتك، شكرًا لمشاركتك!');
+    document.getElementById('ideaText').value = '';
+    document.getElementById('charCount').textContent = '0';
+    document.getElementById('showName').checked = false;
+    document.getElementById('showWa').checked = false;
+    loadWall();
+  } catch (e) {
+    btn.disabled = false; btn.textContent = '📤 نشر الفكرة';
+    showPostError('تعذّر الاتصال بالخادم، تأكدي من الإنترنت وحاولي مجددًا');
+  }
+}
+
+function fmtDate(iso) {
+  try {
+    const d = new Date(iso);
+    return d.toLocaleDateString('ar-DZ', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+  } catch (e) { return ''; }
+}
+
+async function loadWall() {
+  const wallSection = document.getElementById('wallSection');
+  const list = document.getElementById('wallList');
+  try {
+    const res = await fetch(API_BASE + '/api/forum/wall');
+    const data = await res.json();
+    if (!res.ok) return;
+    wallSection.style.display = 'block';
+    if (!data.wall || data.wall.length === 0) {
+      list.innerHTML = '<div class="empty">لا توجد أفكار منشورة بعد — كوني أول من يشارك! 🌟</div>';
+      return;
+    }
+    list.innerHTML = data.wall.map(p => `
+      <div class="post">
+        <div class="post-head">
+          <span class="post-author">${p.name ? escapeHtml(p.name) : 'أستاذ(ة) مجهول(ة)'}</span>
+          <span class="post-date">${fmtDate(p.created_at)}</span>
+        </div>
+        <div class="post-content">${escapeHtml(p.content)}</div>
+        ${p.whatsapp ? `<div class="post-wa">واتساب: ${escapeHtml(p.whatsapp)}</div>` : ''}
+        ${p.ai_reply ? `<div class="ai-reply"><b>🤖 مساعد المنتدى:</b> ${escapeHtml(p.ai_reply)}</div>` : ''}
+      </div>
+    `).join('');
+  } catch (e) { /* صامت — الحائط ثانوي، لا نزعج المستخدم إذا فشل */ }
+}
+
+function escapeHtml(s) {
+  const d = document.createElement('div');
+  d.textContent = s || '';
+  return d.innerHTML;
+}
+
+document.getElementById('ideaText').addEventListener('input', function () {
+  document.getElementById('charCount').textContent = this.value.length;
+});
+
+// عند فتح الصفحة
+if (me && me.teacher_id) enterComposeMode();
+loadWall();
+</script>
+</body>
+</html>
