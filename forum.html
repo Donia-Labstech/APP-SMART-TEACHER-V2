@@ -54,15 +54,22 @@
   footer{text-align:center;color:var(--muted);font-size:11.5px;margin-top:24px}
   .empty{text-align:center;color:var(--muted);font-size:13px;padding:20px}
   .char-count{font-size:11px;color:var(--muted);text-align:left;margin-top:-8px;margin-bottom:12px}
+  .logo-img{width:64px;height:64px;border-radius:50%;object-fit:cover;margin:0 auto 12px;display:block;box-shadow:0 0 0 3px rgba(45,212,191,0.25),0 4px 18px rgba(0,0,0,.35)}
+  .hero-banner{width:100%;border-radius:var(--radius);overflow:hidden;margin-bottom:18px;border:1px solid var(--line);box-shadow:0 8px 26px rgba(0,0,0,.35)}
+  .hero-banner img{width:100%;display:block}
 </style>
 </head>
 <body>
 <div class="wrap">
   <header>
-    <div class="mark">DS</div>
+    <img class="logo-img" src="donia-logo.jpg" alt="DONIA LABS TECH">
     <h1>منتدى الأستاذ الذكي</h1>
     <div class="sub">شاركي فكرتك أو تحدّيك اليومي — بوابة مجانية 100% للأساتذة</div>
   </header>
+
+  <div class="hero-banner">
+    <img src="forum-banner.jpg" alt="أستاذ(ة)، صوتك يستاهل يوصل لحد — منتدى الأستاذ الذكي">
+  </div>
 
   <!-- تسجيل / دخول خفيف: اسم + واتساب فقط، بدون كلمة سر -->
   <div class="panel" id="registerPanel">
